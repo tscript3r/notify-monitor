@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
@@ -13,34 +14,44 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
-public class TaskMapService extends AbstractMapService<Task, Long> implements TaskService {
+public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService {
 
     private final MonitorSettings monitorSettings;
     private final TaskMapper taskMapper;
     private final TaskSettingsMapper taskSettingsMapper;
     private final TaskSettings defaultTaskSettings;
+    private final TaskManagerService taskManagerService;
 
-    public TaskMapService(MonitorSettings monitorSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper) {
+    public TaskServiceImpl(MonitorSettings monitorSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
+                           TaskManagerService taskManagerService) {
         this.monitorSettings = monitorSettings;
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
+        this.taskManagerService = taskManagerService;
         defaultTaskSettings = new TaskSettings(monitorSettings.getDefaultInterval());
     }
 
     @Override
     public TaskDTO getTaskById(Long id) {
+        log.debug("Retrieving task id=" + id);
         return taskMapper.taskToTaskDTO(Optional.ofNullable(super.findById(id))
                 .orElseThrow(() -> new TaskNotFoundException(id)));
     }
 
     @Override
     public void saveAll(List<Task> tasks) {
-        tasks.forEach(task -> super.save(task));
+        log.debug("Saving " + tasks.size() + " tasks");
+        tasks.forEach(task -> {
+            super.save(task);
+            taskManagerService.addTask(task);
+        });
     }
 
     @Override
     public List<TaskDTO> getAllTasks() {
+        log.debug("Retrieving all tasks");
         return super.findAll()
                 .stream()
                 .map(taskMapper::taskToTaskDTO)
@@ -49,11 +60,29 @@ public class TaskMapService extends AbstractMapService<Task, Long> implements Ta
 
     @Override
     public TaskDTO addTask(TaskDTO taskDTO) {
-        if(taskDTO.getTaskSettings() == null)
+        log.debug("Adding new task from taskDTO");
+        if (taskDTO.getTaskSettings() == null)
             taskDTO.setTaskSettings(
                     taskSettingsMapper.taskSettingsToTaskSettingsDTO(defaultTaskSettings));
+        Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
+        taskManagerService.addTask(task);
+        return taskMapper.taskToTaskDTO(task);
+    }
 
-        return taskMapper.taskToTaskDTO(
-                super.save(taskMapper.taskDTOToTask(taskDTO)));
+    @Override
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+        log.debug("Updating task id=" + id);
+        Task task = taskMapper.taskDTOToTask(taskDTO);
+        task.setId(id);
+        Task returnedTask = super.save(task);
+        taskManagerService.updateTask(task);
+        return taskMapper.taskToTaskDTO(returnedTask);
+    }
+
+    @Override
+    public Boolean deleteTaskById(Long id) {
+        log.debug("Deleting task id=" + id);
+        taskManagerService.deleteTaskById(id);
+        return deleteById(id);
     }
 }

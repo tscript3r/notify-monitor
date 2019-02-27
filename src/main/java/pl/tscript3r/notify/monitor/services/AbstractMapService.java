@@ -1,25 +1,32 @@
 package pl.tscript3r.notify.monitor.services;
 
+import lombok.extern.slf4j.Slf4j;
 import pl.tscript3r.notify.monitor.domain.BaseEntity;
 
 import java.util.*;
 
-public abstract class AbstractMapService<T extends BaseEntity, ID extends Long>{
+@Slf4j
+public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> {
 
     protected Map<Long, T> map = new HashMap<>();
 
-    Set<T> findAll(){
+    Set<T> findAll() {
+        log.debug("Returning all objects");
         return new HashSet<>(map.values());
     }
 
-    T findById(ID id){
+    T findById(ID id) {
+        log.debug("Searching for object id=" + id);
         return map.get(id);
     }
 
-    T save(T object){
-        if(object != null) {
-            if(object.getId() == null)
+    T save(T object) {
+        log.debug("Saving new object");
+        if (object != null) {
+            if (object.getId() == null) {
                 object.setId(getNextId());
+                log.debug("Given object had no id, was set for id=" + object.getId());
+            }
             map.put(object.getId(), object);
         } else
             throw new RuntimeException("Object cannot be null");
@@ -27,15 +34,16 @@ public abstract class AbstractMapService<T extends BaseEntity, ID extends Long>{
         return object;
     }
 
-    void deleteById(ID id){
-        map.remove(id);
+    Boolean deleteById(ID id) {
+        log.debug("Deleting object id=" + id);
+        return map.remove(id) != null;
     }
 
-    void delete(T object){
-        map.entrySet().removeIf(entry -> entry.getValue().equals(object));
+    Boolean delete(T object) {
+        return map.entrySet().removeIf(entry -> entry.getValue().equals(object));
     }
 
-    private Long getNextId(){
+    private Long getNextId() {
         Long nextId;
 
         try {

@@ -11,20 +11,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
 import pl.tscript3r.notify.monitor.consts.v1.Paths;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class TaskControllerTest extends AbstractRestControllerTest {
@@ -90,8 +88,25 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     }
 
     @Test
-    public void updateTask() {
+    public void updateTask() throws Exception {
+        TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
+        TaskDTO taskDTO = new TaskDTO(1L, 2L, URL, taskSettingsDTO);
+        when(taskService.updateTask(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
 
+        mockMvc.perform(put(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(taskDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", equalTo(1)))
+                .andExpect(jsonPath("$.url", equalTo(URL)));
+    }
+
+    @Test
+    public void deleteTask() throws Exception {
+        mockMvc.perform(delete(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test

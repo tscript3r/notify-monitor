@@ -8,6 +8,8 @@ import pl.tscript3r.notify.monitor.api.v1.model.TaskListDTO;
 import pl.tscript3r.notify.monitor.consts.v1.Paths;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 @RequestMapping(Paths.BASE_PATH + Paths.TASK_PATH)
@@ -34,24 +36,30 @@ public class TaskController {
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TaskDTO getTaskById(@PathVariable Long id){
-        log.debug("Getting task ID: " + id);
+    public TaskDTO getTaskById(@PathVariable Long id) {
+        log.debug("Getting task id=" + id);
         return taskService.getTaskById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskDTO addTask(@RequestBody TaskDTO taskDTO) {
-        log.debug("Adding new task for user id: " + taskDTO.getUserId());
+    public TaskDTO addTask(@Valid @RequestBody TaskDTO taskDTO) {
+        log.debug("Adding new task for user id=" + taskDTO.getUserId());
         return taskService.addTask(taskDTO);
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     public TaskDTO updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
-        log.debug("Updating task id: " + id);
-        // TODO: implement update task
-        return null;
+        log.debug("Updating task id=" + id);
+        return taskService.updateTask(id, taskDTO);
+    }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteTask(@PathVariable Long id) {
+        log.debug("Deleting task id=" + id);
+        taskService.deleteTaskById(id);
     }
 
     @GetMapping(Paths.TASK_STATUS_PATH)

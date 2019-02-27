@@ -1,13 +1,12 @@
 package pl.tscript3r.notify.monitor.api.v1.mapper;
 
-import org.junit.Before;
 import org.junit.Test;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TaskMapperTest {
 

@@ -10,5 +10,6 @@ public interface TaskMapper {
     TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);
 
     TaskDTO taskToTaskDTO(Task task);
+
     Task taskDTOToTask(TaskDTO taskDTO);
 }

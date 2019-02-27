@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("notify.monitor")
 public class MonitorSettings {
 
+    private Integer parserThreadCapacity;
     private Integer defaultInterval;
     private Boolean loadBootstrap;
 

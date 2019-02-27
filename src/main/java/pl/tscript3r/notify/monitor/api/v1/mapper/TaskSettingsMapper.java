@@ -10,5 +10,6 @@ public interface TaskSettingsMapper {
     TaskSettingsMapper INSTANCE = Mappers.getMapper(TaskSettingsMapper.class);
 
     TaskSettingsDTO taskSettingsToTaskSettingsDTO(TaskSettings task);
+
     TaskSettings taskSettingsDTOToTaskSettings(TaskSettingsDTO task);
 }
