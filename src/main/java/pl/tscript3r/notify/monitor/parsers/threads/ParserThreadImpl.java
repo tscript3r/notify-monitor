@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.parsers;
+package pl.tscript3r.notify.monitor.parsers.threads;
 
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
 

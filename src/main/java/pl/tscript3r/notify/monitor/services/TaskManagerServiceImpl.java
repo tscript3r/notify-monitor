@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.parsers.ParserThreadImpl;
-import pl.tscript3r.notify.monitor.parsers.ParserThread;
+import pl.tscript3r.notify.monitor.parsers.threads.ParserThreadImpl;
+import pl.tscript3r.notify.monitor.parsers.threads.ParserThread;
 
 import java.util.ArrayList;
 import java.util.List;
