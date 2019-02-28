@@ -5,9 +5,11 @@ import pl.tscript3r.notify.monitor.domain.Task;
 public interface TaskManagerService {
     Boolean addTask(Task task);
 
-    Boolean deleteTaskById(Long id);
+    Boolean deleteTask(Task task);
 
-    Boolean isTaskIdAdded(Long id);
+    Boolean isTask(Task task);
 
     Boolean updateTask(Task task);
+
+    Integer getThreadsCount();
 }

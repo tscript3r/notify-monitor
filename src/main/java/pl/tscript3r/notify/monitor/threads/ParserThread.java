@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.parsers.threads;
+package pl.tscript3r.notify.monitor.threads;
 
 import pl.tscript3r.notify.monitor.domain.Task;
 
@@ -6,9 +6,9 @@ public interface ParserThread extends Runnable {
 
     Boolean hasFreeSlot();
 
-    Boolean hasTaskId(Long id);
+    Boolean isTask(Task task);
 
-    Boolean removeTaskById(Long id);
+    Boolean removeTask(Task task);
 
     Boolean addTask(Task task);
 

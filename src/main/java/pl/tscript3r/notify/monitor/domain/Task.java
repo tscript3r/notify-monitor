@@ -37,13 +37,11 @@ public class Task extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
         return Objects.equals(userId, task.userId) &&
-                Objects.equals(url, task.url) &&
-                 Objects.equals(getId(), task.getId());
+                Objects.equals(getId(), task.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, url, getId());
+        return Objects.hash(userId, getId());
     }
-
 }

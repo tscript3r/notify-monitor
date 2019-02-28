@@ -6,9 +6,14 @@ import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 @Component
 public class ParserFactory {
 
+    public Boolean isCompatible(String hostname) {
+        return hostname.equals("olx.pl");
+    }
+
     public Parser getParser(String hostname) {
-        throw new IncompatibleHostnameException(hostname);
-       // return null;
+        if(!hostname.equals("olx.pl"))
+         throw new IncompatibleHostnameException(hostname);
+         return new OLXParser();
     }
 
 }

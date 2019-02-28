@@ -65,10 +65,9 @@ public class TaskController {
         taskService.deleteTaskById(id);
     }
 
-    @GetMapping(Paths.STATUS_TASK_PATH)
-    public String getStatus() {
+    @GetMapping("{id}" + Paths.STATUS_TASK_PATH)
+    public String getStatus(@PathVariable String test) {
         log.debug("Viewing task status for id: ");
-        parserFactory.getParser("dupa");
         return "soon";
     }
 

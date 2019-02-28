@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class TaskControllerTest extends AbstractRestControllerTest {
 
-    private static final String URL = "https://www.test.com/test";
+    private static final String URL = "https://www.olx.pl/test";
 
     @Mock
     TaskService taskService;
@@ -38,7 +38,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     private MockMvc mockMvc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(taskController).build();
     }

@@ -8,7 +8,10 @@ import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
+import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
+import pl.tscript3r.notify.monitor.parsers.ParserFactory;
+import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +26,15 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private final TaskSettingsMapper taskSettingsMapper;
     private final TaskSettings defaultTaskSettings;
     private final TaskManagerService taskManagerService;
+    private final ParserFactory parserFactory;
 
     public TaskServiceImpl(MonitorSettings monitorSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
-                           TaskManagerService taskManagerService) {
+                           TaskManagerService taskManagerService, ParserFactory parserFactory) {
         this.monitorSettings = monitorSettings;
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
         this.taskManagerService = taskManagerService;
+        this.parserFactory = parserFactory;
         defaultTaskSettings = new TaskSettings(monitorSettings.getDefaultInterval());
     }
 
@@ -64,6 +69,9 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         if (taskDTO.getTaskSettings() == null)
             taskDTO.setTaskSettings(
                     taskSettingsMapper.taskSettingsToTaskSettingsDTO(defaultTaskSettings));
+        if( !parserFactory.isCompatible(
+                HostnameExtractor.getDomain(taskDTO.getUrl())))
+            throw new IncompatibleHostnameException(HostnameExtractor.getDomain(taskDTO.getUrl()));
         Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
         taskManagerService.addTask(task);
         return taskMapper.taskToTaskDTO(task);
@@ -82,7 +90,9 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     @Override
     public Boolean deleteTaskById(Long id) {
         log.debug("Deleting task id=" + id);
-        taskManagerService.deleteTaskById(id);
+        taskManagerService.deleteTask(
+                Optional.ofNullable(super.findById(id))
+                        .orElseThrow(() -> new TaskNotFoundException(id)));
         return deleteById(id);
     }
 }
