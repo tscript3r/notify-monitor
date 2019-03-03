@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.services;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,7 +37,7 @@ public class TaskManagerServiceImplTest {
     private Task getDefaultTask() {
         return Task.builder()
                 .id(ID)
-                .userId(USER_ID)
+                .usersId(Sets.newHashSet(USER_ID))
                 .url(URL)
                 .taskSettings(new TaskSettings())
                 .build();
@@ -55,7 +56,7 @@ public class TaskManagerServiceImplTest {
         assertFalse(taskManagerService.addTask(task));
         task = Task.builder()
                 .id(ID + 1L)
-                .userId(USER_ID)
+                .usersId(Sets.newHashSet(USER_ID))
                 .url(URL)
                 .taskSettings(new TaskSettings())
                 .build();
@@ -63,7 +64,7 @@ public class TaskManagerServiceImplTest {
 
         task = Task.builder()
                 .id(ID + 2L)
-                .userId(USER_ID)
+                .usersId(Sets.newHashSet(USER_ID))
                 .url(URL)
                 .taskSettings(new TaskSettings())
                 .build();
@@ -98,7 +99,7 @@ public class TaskManagerServiceImplTest {
         Task task = getDefaultTask();
         Task updatedTask = Task.builder()
                 .id(ID)
-                .userId(USER_ID)
+                .usersId(Sets.newHashSet(USER_ID))
                 .url(URL_UPDATED)
                 .taskSettings(new TaskSettings())
                 .build();
@@ -112,7 +113,7 @@ public class TaskManagerServiceImplTest {
         Task task = getDefaultTask();
         Task updatedTask = Task.builder()
                 .id(ID + 1L)
-                .userId(USER_ID)
+                .usersId(Sets.newHashSet(USER_ID))
                 .url(URL)
                 .taskSettings(new TaskSettings())
                 .build();

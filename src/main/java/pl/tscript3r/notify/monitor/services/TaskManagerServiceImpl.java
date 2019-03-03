@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
-import pl.tscript3r.notify.monitor.threads.ParserThreadImpl;
 import pl.tscript3r.notify.monitor.threads.ParserThread;
+import pl.tscript3r.notify.monitor.threads.ParserThreadImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +28,13 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     private void createAdditionalParser() {
         ParserThread parserThread = new ParserThreadImpl(parserFactory, monitorSettings);
         parserThreads.add(parserThread);
-        log.debug("Created additional parserThread with id=" + parserThread.getParserId());
+        log.debug("Created additional parserThread with id=" + parserThread.getParserThreadId());
     }
 
     private Boolean anyFreeSlot() {
         for (ParserThread parserThread : parserThreads)
             if (parserThread.hasFreeSlot()) {
-                log.debug("Found free slot at parserThread id=" + parserThread.getParserId());
+                log.debug("Found free slot at parserThread id=" + parserThread.getParserThreadId());
                 return true;
             }
 
@@ -44,7 +44,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
 
     @Override
     public Boolean addTask(Task task) {
-        if(task == null)
+        if (task == null)
             return false;
 
         log.debug("Adding new task with id=" + task.getId());
@@ -58,9 +58,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
             for (ParserThread parserThread : parserThreads)
                 if (parserThread.hasFreeSlot()) {
                     log.debug("Task id=" + task.getId() +
-                            " was assigned to parserThread id=" + parserThread.getParserId());
+                            " was assigned to parserThread id=" + parserThread.getParserThreadId());
                     return parserThread.addTask(task);
-                } else;
+                } else ;
         else {
             log.error("Task with id=" + task.getId() + " is already assigned to a parserThread");
         }
@@ -70,14 +70,14 @@ public class TaskManagerServiceImpl implements TaskManagerService {
 
     @Override
     public Boolean deleteTask(Task task) {
-        if(task == null)
+        if (task == null)
             return false;
         log.debug("Deleting task id=" + task.getId());
         if (isTask(task)) {
             for (ParserThread parserThread : parserThreads)
                 if (parserThread.isTask(task)) {
                     log.debug("Task id=" + task.getId() + " has been found at parserThread id="
-                            + parserThread.getParserId() + " and will be deleted.");
+                            + parserThread.getParserThreadId() + " and will be deleted.");
                     return parserThread.removeTask(task);
                 }
         }
@@ -90,7 +90,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public Boolean isTask(Task task) {
         for (ParserThread parserThread : parserThreads)
             if (parserThread.isTask(task)) {
-                log.debug("Task id=" + task.getId() + " has been found in the parserThread id=" + parserThread.getParserId());
+                log.debug("Task id=" + task.getId() + " has been found in parserThread id=" + parserThread.getParserThreadId());
                 return true;
             }
 
@@ -100,7 +100,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
 
     @Override
     public Boolean updateTask(Task task) {
-        if(task == null)
+        if (task == null)
             return false;
         log.debug("Updating task id=" + task.getId());
         if (!isTask(task)) {
@@ -110,7 +110,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
             for (ParserThread parserThread : parserThreads)
                 if (parserThread.isTask(task)) {
                     log.debug("Task with id=" + task.getId() +
-                            " has been found at parserThread id=" + parserThread.getParserId() + " and will be replaced");
+                            " has been found at parserThread id=" + parserThread.getParserThreadId() + " and will be replaced");
                     parserThread.removeTask(task);
                     return parserThread.addTask(task);
                 }

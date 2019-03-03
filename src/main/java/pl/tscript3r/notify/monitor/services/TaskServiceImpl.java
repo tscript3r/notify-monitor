@@ -69,7 +69,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         if (taskDTO.getTaskSettings() == null)
             taskDTO.setTaskSettings(
                     taskSettingsMapper.taskSettingsToTaskSettingsDTO(defaultTaskSettings));
-        if( !parserFactory.isCompatible(
+        if (!parserFactory.isCompatible(
                 HostnameExtractor.getDomain(taskDTO.getUrl())))
             throw new IncompatibleHostnameException(HostnameExtractor.getDomain(taskDTO.getUrl()));
         Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
@@ -81,6 +81,8 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         log.debug("Updating task id=" + id);
         Task task = taskMapper.taskDTOToTask(taskDTO);
+        if (findById(id) == null)
+            throw new TaskNotFoundException(id);
         task.setId(id);
         Task returnedTask = super.save(task);
         taskManagerService.updateTask(task);

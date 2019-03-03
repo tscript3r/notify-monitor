@@ -17,6 +17,7 @@
     <properties>
         <java.version>1.8</java.version>
         <org.mapstruct.version>1.2.0.CR2</org.mapstruct.version>
+        <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,21 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${io.springfox.swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${io.springfox.swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

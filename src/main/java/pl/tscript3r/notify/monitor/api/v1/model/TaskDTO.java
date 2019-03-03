@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,8 +19,8 @@ public class TaskDTO {
     private Long id;
 
     @NotNull
-    @JsonProperty("user_id")
-    private Long userId;
+    @JsonProperty("users_id")
+    private Set<Long> usersId;
 
     @URL
     @NotNull

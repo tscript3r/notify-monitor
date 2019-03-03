@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.services;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -21,7 +22,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class TaskServiceTest {
@@ -55,12 +55,12 @@ public class TaskServiceTest {
         MockitoAnnotations.initMocks(this);
         taskMapService = new TaskServiceImpl(monitorSettings, taskMapper,
                 taskSettingsMapper, taskManagerService, parserFactory);
-        task = new Task(ID, USER_ID, URL, taskSettings);
+        task = new Task(ID, Sets.newHashSet(1L), URL, taskSettings);
         taskMapService.addTask(taskMapper.taskToTaskDTO(task));
     }
 
     @Test(expected = RuntimeException.class)
-    public void saveNullObject(){
+    public void saveNullObject() {
         taskMapService.save(null);
     }
 
@@ -90,18 +90,18 @@ public class TaskServiceTest {
     public void updateTask() {
         TaskDTO taskDTO = taskMapper.taskToTaskDTO(task);
         taskDTO.setUrl(URL_2);
-        taskDTO.setUserId(USER_ID2);
+        taskDTO.setUsersId(Sets.newHashSet(USER_ID2));
         taskMapService.updateTask(ID, taskDTO);
         TaskDTO returnedTaskDTO = taskMapService.getTaskById(ID);
         assertEquals(URL_2, returnedTaskDTO.getUrl());
-        assertEquals(USER_ID2, returnedTaskDTO.getUserId());
+        assertTrue(returnedTaskDTO.getUsersId().contains(USER_ID2));
     }
 
     @Test
     public void saveAll() {
         List<Task> tasks = Arrays.asList(
-                Task.builder().url(URL).userId(ID).build(),
-                Task.builder().url(URL_2).userId(ID2).build());
+                Task.builder().url(URL).usersId(Sets.newHashSet(ID)).build(),
+                Task.builder().url(URL_2).usersId(Sets.newHashSet(ID2)).build());
         taskMapService.saveAll(tasks);
         assertEquals(3, taskMapService.getAllTasks().size());
     }
@@ -114,7 +114,7 @@ public class TaskServiceTest {
 
     @Test
     public void addTaskWithoutTaskSettings() {
-        TaskDTO taskDTO = new TaskDTO(ID, USER_ID, URL, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null);
         assertNull(taskDTO.getTaskSettings());
         TaskDTO returnedTaskDTO = taskMapService.addTask(taskDTO);
         assertNotNull(returnedTaskDTO.getTaskSettings());
@@ -122,7 +122,7 @@ public class TaskServiceTest {
 
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
-        TaskDTO taskDTO = new TaskDTO(ID, USER_ID, "www.google.pl", new TaskSettingsDTO());
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", new TaskSettingsDTO());
         taskMapService.addTask(taskDTO);
     }
 }

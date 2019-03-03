@@ -12,7 +12,7 @@ import lombok.Setter;
 public class Ad extends BaseEntity {
 
     private Long userId;
-    private Long taskId;
+    private Task task;
     private String url;
     private String thumbnailUrl;
 

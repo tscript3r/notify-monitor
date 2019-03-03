@@ -1,9 +1,15 @@
 package pl.tscript3r.notify.monitor.parsers;
 
+import pl.tscript3r.notify.monitor.domain.Ad;
+import pl.tscript3r.notify.monitor.domain.Task;
+
+import java.util.List;
+
 public class OLXParser implements Parser {
 
-    public static Boolean compatibleHostname(String hostname) {
-        // TODO: implement OLXParser
-        return false;
+    @Override
+    public List<Ad> getAds(Task task) {
+        return null;
     }
+
 }

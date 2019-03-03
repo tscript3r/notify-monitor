@@ -11,9 +11,9 @@ public class ParserFactory {
     }
 
     public Parser getParser(String hostname) {
-        if(!hostname.equals("olx.pl"))
-         throw new IncompatibleHostnameException(hostname);
-         return new OLXParser();
+        if (!hostname.equals("olx.pl"))
+            throw new IncompatibleHostnameException(hostname);
+        return new OLXParser();
     }
 
 }

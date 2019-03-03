@@ -12,6 +12,6 @@ public interface ParserThread extends Runnable {
 
     Boolean addTask(Task task);
 
-    Integer getParserId();
+    Integer getParserThreadId();
 
 }

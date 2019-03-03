@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.api.v1.mapper;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
@@ -21,25 +22,25 @@ public class TaskMapperTest {
         TaskSettings taskSettings = new TaskSettings(REFRESH_INTERVAL);
         Task task = Task.builder()
                 .url(URL)
-                .userId(USER_ID)
+                .usersId(Sets.newHashSet(USER_ID))
                 .taskSettings(taskSettings)
                 .build();
         TaskDTO taskDTOResult = taskMapper.taskToTaskDTO(task);
 
         assertEquals(task.getTaskSettings().getRefreshInterval(), taskDTOResult.getTaskSettings().getRefreshInterval());
         assertEquals(task.getUrl(), taskDTOResult.getUrl());
-        assertEquals(task.getUserId(), taskDTOResult.getUserId());
+        assertEquals(task.getUsersId(), taskDTOResult.getUsersId());
     }
 
     @Test
     public void taskDTOToTask() {
         TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO(REFRESH_INTERVAL);
-        TaskDTO taskDTO = new TaskDTO(ID, USER_ID, URL, taskSettingsDTO);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, taskSettingsDTO);
         Task taskResult = taskMapper.taskDTOToTask(taskDTO);
 
         assertEquals(taskDTO.getTaskSettings().getRefreshInterval(), taskResult.getTaskSettings().getRefreshInterval());
         assertEquals(taskDTO.getUrl(), taskResult.getUrl());
-        assertEquals(taskDTO.getUserId(), taskResult.getUserId());
+        assertEquals(taskDTO.getUsersId(), taskResult.getUsersId());
     }
 
 

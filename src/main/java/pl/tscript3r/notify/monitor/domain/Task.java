@@ -1,22 +1,26 @@
 package pl.tscript3r.notify.monitor.domain;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class Task extends BaseEntity {
 
-    private Long userId;
+    private Set<Long> usersId;
     private String url;
     private TaskSettings taskSettings;
 
     @Builder
-    public Task(Long id, Long userId, String url, TaskSettings taskSettings) {
+    public Task(Long id, Set<Long> usersId, String url, TaskSettings taskSettings) {
         super(id);
-        this.userId = userId;
+        this.usersId = usersId;
         this.url = url;
         this.taskSettings = taskSettings;
     }
@@ -25,7 +29,7 @@ public class Task extends BaseEntity {
     public String toString() {
         return "Task{" +
                 "id=" + getId() +
-                ", userId=" + userId +
+                ", userId=" + usersId +
                 ", url='" + url + '\'' +
                 ", taskSettings=" + taskSettings +
                 '}';
@@ -36,12 +40,12 @@ public class Task extends BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return Objects.equals(userId, task.userId) &&
+        return Objects.equals(usersId, task.usersId) &&
                 Objects.equals(getId(), task.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, getId());
+        return Objects.hash(usersId, getId());
     }
 }

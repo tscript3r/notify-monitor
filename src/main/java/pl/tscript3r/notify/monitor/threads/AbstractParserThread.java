@@ -3,59 +3,83 @@ package pl.tscript3r.notify.monitor.threads;
 import lombok.extern.slf4j.Slf4j;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.parsers.Parser;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
-import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 abstract class AbstractParserThread implements ParserThread {
 
+    private static final int INITIAL_ADS_CAPACITY = 120;
     private static Integer parserCounter = 0;
 
+    private final Integer parserThreadId;
     private final ParserFactory parserFactory;
     private final Integer parserThreadCapacity;
-    private final Map<Task, Parser> taskList;
-    private Integer parserId;
+    private final LinkedHashMap<Task, List> taskAndDiscoveredAds;
 
-    public AbstractParserThread(ParserFactory parserFactory, MonitorSettings monitorSettings) {
-        parserId = parserCounter++;
+
+    AbstractParserThread(ParserFactory parserFactory, MonitorSettings monitorSettings) {
+        parserThreadId = parserCounter++;
         this.parserFactory = parserFactory;
         parserThreadCapacity = monitorSettings.getParserThreadCapacity();
-        taskList = new HashMap<>(parserThreadCapacity + 1);
+        taskAndDiscoveredAds = new LinkedHashMap<>(parserThreadCapacity + 1);
     }
 
     @Override
     public Boolean hasFreeSlot() {
-        return taskList.size() < parserThreadCapacity;
+        Boolean result = taskAndDiscoveredAds.size() < parserThreadCapacity;
+        if (result)
+            log.debug("ParserThread id=" + this.parserThreadId + " has available slot");
+        else
+            log.debug("ParserThread id=" + this.parserThreadId + " has no free slots");
+
+        return result;
     }
 
     @Override
-    public Integer getParserId() {
-        return parserId;
+    public Integer getParserThreadId() {
+        return parserThreadId;
     }
 
     @Override
     public Boolean isTask(Task task) {
-        return taskList.containsKey(task);
+        Boolean result = taskAndDiscoveredAds.containsKey(task);
+        if (result)
+            log.debug("ParserThread id=" + this.parserThreadId
+                    + " contains task id=" + task.getId());
+        else
+            log.debug("ParserThread id=" + this.parserThreadId
+                    + " does not contain task id=" + task.getId());
+
+        return result;
     }
 
     @Override
     public Boolean removeTask(Task task) {
-        return taskList.remove(task) != null;
+        Boolean result = taskAndDiscoveredAds.remove(task) != null;
+        if (result)
+            log.debug("Task id=" + task.getId()
+                    + " has been removed from ParserThread id=" + this.parserThreadId);
+        else
+            log.debug("Task id=" + task.getId()
+                    + " could not be removed from ParserThread id=" + this.parserThreadId);
+        return result;
     }
 
     @Override
     public Boolean addTask(Task task) {
-        if(task != null && hasFreeSlot() && !isTask(task)) {
-            Parser parser = parserFactory.getParser(
-                    HostnameExtractor.getDomain(task.getUrl()));
-            if(parser != null) {
-                taskList.put(task, parser);
-                return true;
-            }
+        if (task != null && hasFreeSlot() && !isTask(task)) {
+            taskAndDiscoveredAds.put(task, new ArrayList(INITIAL_ADS_CAPACITY));
+            log.debug("Task id=" + task.getId() +
+                    " has been added to ParserThread id=" + this.parserThreadId);
+            return true;
         }
+        log.debug("Task id=" + task.getId()
+                + "could not be added to ParserThread id=" + this.parserThreadId);
         return false;
     }
 
@@ -64,13 +88,11 @@ abstract class AbstractParserThread implements ParserThread {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractParserThread that = (AbstractParserThread) o;
-        return Objects.equals(taskList, that.taskList) &&
-                Objects.equals(parserId, that.parserId);
+        return Objects.equals(parserThreadId, that.parserThreadId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(taskList, parserId);
+        return Objects.hash(parserThreadId);
     }
-
 }

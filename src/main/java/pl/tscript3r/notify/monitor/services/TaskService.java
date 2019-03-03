@@ -8,10 +8,15 @@ import java.util.List;
 public interface TaskService {
 
     TaskDTO getTaskById(Long id);
+
     void saveAll(List<Task> tasks);
+
     List<TaskDTO> getAllTasks();
+
     TaskDTO addTask(TaskDTO taskDTO);
+
     TaskDTO updateTask(Long id, TaskDTO taskDTO);
+
     Boolean deleteTaskById(Long id);
 
 }

@@ -8,7 +8,7 @@ import java.util.*;
 @Slf4j
 public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> {
 
-    protected Map<Long, T> map = new HashMap<>();
+    private final Map<Long, T> map = new HashMap<>();
 
     Set<T> findAll() {
         log.debug("Returning all objects");

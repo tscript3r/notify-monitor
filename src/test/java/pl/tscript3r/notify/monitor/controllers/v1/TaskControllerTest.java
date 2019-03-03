@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.controllers.v1;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -61,7 +62,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void getTaskById() throws Exception {
-        TaskDTO taskDTO = new TaskDTO(1L, 2L, URL, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null);
         when(taskService.getTaskById(anyLong())).thenReturn(taskDTO);
 
         mockMvc.perform(get(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
@@ -69,14 +70,14 @@ public class TaskControllerTest extends AbstractRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
-                .andExpect(jsonPath("$.user_id", equalTo(2)))
+                .andExpect(jsonPath("$.users_id", hasSize(1)))
                 .andExpect(jsonPath("$.url", equalTo(URL)));
     }
 
     @Test
     public void addTask() throws Exception {
         TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
-        TaskDTO taskDTO = new TaskDTO(1L, 2L, URL, taskSettingsDTO);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
         when(taskService.addTask(any())).thenReturn(taskDTO);
         mockMvc.perform(post(Paths.BASE_PATH + Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -90,7 +91,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     @Test
     public void updateTask() throws Exception {
         TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
-        TaskDTO taskDTO = new TaskDTO(1L, 2L, URL, taskSettingsDTO);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
         when(taskService.updateTask(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
 
         mockMvc.perform(put(Paths.BASE_PATH + Paths.TASK_PATH + "/1")

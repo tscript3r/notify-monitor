@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.bootstrap;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -32,12 +33,12 @@ public class DataInitializer implements CommandLineRunner {
             taskService.saveAll(Arrays.asList(
                     Task.builder()
                             .taskSettings(taskSettings)
-                            .userId(1L)
+                            .usersId(Sets.newHashSet(1L, 2L))
                             .url("https://www.olx.pl/oddam-za-darmo/")
                             .build(),
                     Task.builder()
                             .taskSettings(taskSettings)
-                            .userId(1L)
+                            .usersId(Sets.newHashSet(1L))
                             .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
                             .build()
             ));
