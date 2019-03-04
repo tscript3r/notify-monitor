@@ -23,13 +23,14 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public TaskManagerServiceImpl(ParserFactory parserFactory, ParserSettings parserSettings) {
         this.parserFactory = parserFactory;
         this.parserSettings = parserSettings;
-        parserThreads.add(new ParserThreadImpl(this.parserFactory, this.parserSettings));
+        createAdditionalParser();
     }
 
     private void createAdditionalParser() {
         ParserThread parserThread = new ParserThreadImpl(parserFactory, parserSettings);
+        parserThread.start();
         parserThreads.add(parserThread);
-        log.debug("Created additional parserThread with id=" + parserThread.getParserThreadId());
+        log.debug("Created parserThread with id=" + parserThread.getParserThreadId());
     }
 
     private Boolean anyFreeSlot() {
@@ -116,6 +117,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
                     return parserThread.addTask(task);
                 }
         }
+
         throw new RuntimeException();
     }
 

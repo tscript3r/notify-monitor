@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService {
 
-    private final ParserSettings parserSettings;
     private final TaskMapper taskMapper;
     private final TaskSettingsMapper taskSettingsMapper;
     private final TaskSettings defaultTaskSettings;
@@ -31,7 +30,6 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
 
     public TaskServiceImpl(ParserSettings parserSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
                            TaskManagerService taskManagerService, ParserFactory parserFactory) {
-        this.parserSettings=parserSettings;
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
         this.taskManagerService = taskManagerService;

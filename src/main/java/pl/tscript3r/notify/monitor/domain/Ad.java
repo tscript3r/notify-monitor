@@ -1,15 +1,13 @@
 package pl.tscript3r.notify.monitor.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@ToString(exclude = "task")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ad extends BaseEntity {

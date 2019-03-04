@@ -17,6 +17,7 @@ abstract class AbstractParserThread implements ParserThread {
     private static final int INITIAL_ADS_CAPACITY = 120;
     private static Integer parserCounter = 0;
 
+    protected final Thread thread;
     private final Integer parserThreadId;
     private final ParserFactory parserFactory;
     private final Integer parserThreadCapacity;
@@ -27,6 +28,8 @@ abstract class AbstractParserThread implements ParserThread {
         parserThreadId = parserCounter++;
         this.parserFactory = parserFactory;
         parserThreadCapacity = parserSettings.getParserThreadCapacity();
+        thread = new Thread(this);
+        thread.setName("pThread id=" + parserThreadId);
         taskAndDiscoveredAds = new LinkedHashMap<>(parserThreadCapacity + 1);
     }
 
@@ -95,5 +98,15 @@ abstract class AbstractParserThread implements ParserThread {
     @Override
     public int hashCode() {
         return Objects.hash(parserThreadId);
+    }
+
+    @Override
+    public void start() {
+        thread.start();
+    }
+
+    @Override
+    public void stop() {
+        thread.interrupt();
     }
 }

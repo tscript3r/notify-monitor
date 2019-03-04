@@ -48,16 +48,21 @@ public class OLXParser implements Parser {
             ad.setTitle(adElement.select("strong").text());
             ad.setThumbnailUrl(adElement.select("img[src]")
                     .attr("src"));
+            ad.setLocation(adElement.select("small[class]")
+                    .attr("class", "breadcrumb x-normal")
+                    .select("span")
+                    .first()
+                    .text());
             ad.setCategory(adElement.select("small[class]")
+                    .first()
                     .text());
             ad.setPrice(adElement.select("p")
                     .select("strong")
                     .text());
-            ad.setLocation(adElement.select("small[class]")
-                    .attr("class", "breadcrumb x-normal")
-                    .select("span").text());
+
             adsList.add(ad);
         });
+
         return adsList;
     }
 
@@ -77,6 +82,7 @@ public class OLXParser implements Parser {
                         .text());
             }
         });
+
         return adList;
     }
 
@@ -85,11 +91,11 @@ public class OLXParser implements Parser {
         Document document = downloadPage(task.getUrl());
 
         Elements adsElements = getAdsElements(document, Pattern.compile("fixed breakword\\s\\sad_*"));
-        if( !adsElements.isEmpty())
+        if (!adsElements.isEmpty())
             return parseMainLayoutElements(adsElements, task);
 
         adsElements = getAdsElements(document, Pattern.compile("offer\\s{0,8}"));
-        if( !adsElements.isEmpty())
+        if (!adsElements.isEmpty())
             return parseWorkLayoutElements(adsElements, task);
 
         throw new ParserException();

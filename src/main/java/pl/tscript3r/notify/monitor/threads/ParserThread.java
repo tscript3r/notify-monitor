@@ -14,4 +14,8 @@ public interface ParserThread extends Runnable {
 
     Integer getParserThreadId();
 
+    void start();
+
+    void stop();
+
 }
