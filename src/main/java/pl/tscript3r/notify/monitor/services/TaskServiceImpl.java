@@ -6,6 +6,7 @@ import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
+import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
@@ -21,21 +22,21 @@ import java.util.stream.Collectors;
 @Service
 public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService {
 
-    private final MonitorSettings monitorSettings;
+    private final ParserSettings parserSettings;
     private final TaskMapper taskMapper;
     private final TaskSettingsMapper taskSettingsMapper;
     private final TaskSettings defaultTaskSettings;
     private final TaskManagerService taskManagerService;
     private final ParserFactory parserFactory;
 
-    public TaskServiceImpl(MonitorSettings monitorSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
+    public TaskServiceImpl(ParserSettings parserSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
                            TaskManagerService taskManagerService, ParserFactory parserFactory) {
-        this.monitorSettings = monitorSettings;
+        this.parserSettings=parserSettings;
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
         this.taskManagerService = taskManagerService;
         this.parserFactory = parserFactory;
-        defaultTaskSettings = new TaskSettings(monitorSettings.getDefaultInterval());
+        defaultTaskSettings = new TaskSettings(parserSettings.getDefaultInterval());
     }
 
     @Override

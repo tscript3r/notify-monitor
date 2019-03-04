@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
+import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
@@ -19,8 +20,9 @@ public class TaskManagerServiceImplTest {
     public static final long USER_ID = 2L;
     public static final String URL = "www.olx.pl/test";
     public static final String URL_UPDATED = "http://www.olx.pl/updated";
+
     @Mock
-    MonitorSettings monitorSettings;
+    ParserSettings parserSettings;
 
     private ParserFactory parserFactory;
     private TaskManagerService taskManagerService;
@@ -28,10 +30,10 @@ public class TaskManagerServiceImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(monitorSettings.getDefaultInterval()).thenReturn(3000);
-        when(monitorSettings.getParserThreadCapacity()).thenReturn(2);
-        parserFactory = new ParserFactory();
-        taskManagerService = new TaskManagerServiceImpl(parserFactory, monitorSettings);
+        when(parserSettings.getDefaultInterval()).thenReturn(3000);
+        when(parserSettings.getParserThreadCapacity()).thenReturn(2);
+        parserFactory = new ParserFactory(parserSettings);
+        taskManagerService = new TaskManagerServiceImpl(parserFactory, parserSettings);
     }
 
     private Task getDefaultTask() {

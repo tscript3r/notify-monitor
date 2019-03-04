@@ -11,6 +11,7 @@ import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
+import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
@@ -35,12 +36,12 @@ public class TaskServiceTest {
     public static final long ID2 = 2L;
 
     @Mock
-    MonitorSettings monitorSettings;
+    ParserSettings parserSettings;
 
     @Mock
     TaskManagerService taskManagerService;
 
-    ParserFactory parserFactory = new ParserFactory();
+    ParserFactory parserFactory = new ParserFactory(parserSettings);
 
     @InjectMocks
     TaskServiceImpl taskMapService;
@@ -53,7 +54,7 @@ public class TaskServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        taskMapService = new TaskServiceImpl(monitorSettings, taskMapper,
+        taskMapService = new TaskServiceImpl(parserSettings, taskMapper,
                 taskSettingsMapper, taskManagerService, parserFactory);
         task = new Task(ID, Sets.newHashSet(1L), URL, taskSettings);
         taskMapService.addTask(taskMapper.taskToTaskDTO(task));

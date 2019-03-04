@@ -3,6 +3,7 @@ package pl.tscript3r.notify.monitor.services;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
+import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 import pl.tscript3r.notify.monitor.threads.ParserThread;
@@ -17,16 +18,16 @@ public class TaskManagerServiceImpl implements TaskManagerService {
 
     private final List<ParserThread> parserThreads = new ArrayList<>(10);
     private final ParserFactory parserFactory;
-    private final MonitorSettings monitorSettings;
+    private final ParserSettings parserSettings;
 
-    public TaskManagerServiceImpl(ParserFactory parserFactory, MonitorSettings monitorSettings) {
+    public TaskManagerServiceImpl(ParserFactory parserFactory, ParserSettings parserSettings) {
         this.parserFactory = parserFactory;
-        this.monitorSettings = monitorSettings;
-        parserThreads.add(new ParserThreadImpl(this.parserFactory, this.monitorSettings));
+        this.parserSettings = parserSettings;
+        parserThreads.add(new ParserThreadImpl(this.parserFactory, this.parserSettings));
     }
 
     private void createAdditionalParser() {
-        ParserThread parserThread = new ParserThreadImpl(parserFactory, monitorSettings);
+        ParserThread parserThread = new ParserThreadImpl(parserFactory, parserSettings);
         parserThreads.add(parserThread);
         log.debug("Created additional parserThread with id=" + parserThread.getParserThreadId());
     }

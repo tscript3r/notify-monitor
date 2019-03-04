@@ -2,6 +2,7 @@ package pl.tscript3r.notify.monitor.threads;
 
 import lombok.extern.slf4j.Slf4j;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
+import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 
@@ -22,10 +23,10 @@ abstract class AbstractParserThread implements ParserThread {
     private final LinkedHashMap<Task, List> taskAndDiscoveredAds;
 
 
-    AbstractParserThread(ParserFactory parserFactory, MonitorSettings monitorSettings) {
+    AbstractParserThread(ParserFactory parserFactory, ParserSettings parserSettings) {
         parserThreadId = parserCounter++;
         this.parserFactory = parserFactory;
-        parserThreadCapacity = monitorSettings.getParserThreadCapacity();
+        parserThreadCapacity = parserSettings.getParserThreadCapacity();
         taskAndDiscoveredAds = new LinkedHashMap<>(parserThreadCapacity + 1);
     }
 
