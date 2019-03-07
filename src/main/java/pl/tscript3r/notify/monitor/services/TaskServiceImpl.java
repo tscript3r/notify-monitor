@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
-import pl.tscript3r.notify.monitor.config.MonitorSettings;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
+import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
@@ -28,13 +27,13 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private final TaskManagerService taskManagerService;
     private final ParserFactory parserFactory;
 
-    public TaskServiceImpl(ParserSettings parserSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
+    public TaskServiceImpl(ParsersSettings parsersSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
                            TaskManagerService taskManagerService, ParserFactory parserFactory) {
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
         this.taskManagerService = taskManagerService;
         this.parserFactory = parserFactory;
-        defaultTaskSettings = new TaskSettings(parserSettings.getDefaultInterval());
+        defaultTaskSettings = new TaskSettings(parsersSettings.getDefaultInterval());
     }
 
     @Override

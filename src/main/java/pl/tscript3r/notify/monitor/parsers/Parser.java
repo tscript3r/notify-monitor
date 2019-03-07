@@ -14,4 +14,9 @@ public interface Parser {
      */
     List<Ad> getAds(Task task) throws IOException, ParserException;
 
+    /**
+     * @return Handled by itself hostname by the example format: "olx.pl"
+     */
+    String getHandledHostname();
+
 }

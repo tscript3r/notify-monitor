@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class TaskControllerTest extends AbstractRestControllerTest {
 
-    private static final String URL = "https://www.olx.pl/test";
+    private static final String URL = "https://www.olx.pl/testPackage";
 
     @Mock
     TaskService taskService;

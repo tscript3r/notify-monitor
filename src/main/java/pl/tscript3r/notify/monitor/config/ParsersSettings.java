@@ -9,13 +9,12 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Component
-@ConfigurationProperties("notify.monitor.parser")
-public class ParserSettings {
+@ConfigurationProperties("notify.monitor.parsers")
+public class ParsersSettings {
 
-    private Integer parserThreadCapacity;
     private Integer defaultInterval;
     private Integer connectionTimeout;
     private Integer maxBodySize;

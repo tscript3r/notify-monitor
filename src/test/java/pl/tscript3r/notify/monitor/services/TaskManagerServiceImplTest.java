@@ -5,35 +5,44 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import pl.tscript3r.notify.monitor.config.MonitorSettings;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
+import org.springframework.context.ApplicationContext;
+import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
+import pl.tscript3r.notify.monitor.threads.ParserThreadImpl;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class TaskManagerServiceImplTest {
 
     public static final long ID = 1L;
     public static final long USER_ID = 2L;
-    public static final String URL = "www.olx.pl/test";
+    public static final String URL = "www.olx.pl/testPackage";
     public static final String URL_UPDATED = "http://www.olx.pl/updated";
 
     @Mock
-    ParserSettings parserSettings;
+    ParsersSettings parsersSettings;
 
-    private ParserFactory parserFactory;
-    private TaskManagerService taskManagerService;
+    @Mock
+    ApplicationContext context;
+
+    @Mock
+    ParserFactory parserFactory;
+
+
+    private ParserThreadImpl parserThread = new ParserThreadImpl(parserFactory);
+    private TaskManagerServiceImpl taskManagerService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(parserSettings.getDefaultInterval()).thenReturn(3000);
-        when(parserSettings.getParserThreadCapacity()).thenReturn(2);
-        parserFactory = new ParserFactory(parserSettings);
-        taskManagerService = new TaskManagerServiceImpl(parserFactory, parserSettings);
+        when(parsersSettings.getDefaultInterval()).thenReturn(3000);
+        parserThread.setParserThreadCapacity(2);
+        when(context.getBean(anyString())).thenReturn(parserThread);
+        taskManagerService = new TaskManagerServiceImpl(context);
     }
 
     private Task getDefaultTask() {
@@ -52,6 +61,8 @@ public class TaskManagerServiceImplTest {
 
     @Test
     public void addTaskFails() {
+        when(context.getBean(anyString())).thenReturn(new ParserThreadImpl(parserFactory));
+
         Task task = getDefaultTask();
         assertFalse(taskManagerService.addTask(null));
         assertTrue(taskManagerService.addTask(task));

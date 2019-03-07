@@ -10,8 +10,8 @@ public class HostnameExtractorTest {
     @Test
     public void getHostname() {
         assertEquals("olx.pl", HostnameExtractor.getDomain("https://www.olx.pl/"));
-        assertEquals("olx.pl", HostnameExtractor.getDomain("https://www.olx.pl/test"));
-        assertEquals("olx.pl", HostnameExtractor.getDomain("https://www.olx.pl/test/test"));
+        assertEquals("olx.pl", HostnameExtractor.getDomain("https://www.olx.pl/testPackage"));
+        assertEquals("olx.pl", HostnameExtractor.getDomain("https://www.olx.pl/testPackage/testPackage"));
         assertEquals("olx.pl", HostnameExtractor.getDomain("http://www.olx.pl/"));
         assertEquals("olx.pl", HostnameExtractor.getDomain("https://olx.pl/"));
         assertEquals("olx.pl", HostnameExtractor.getDomain("www.olx.pl/"));

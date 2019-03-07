@@ -10,8 +10,7 @@ import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
-import pl.tscript3r.notify.monitor.config.MonitorSettings;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
+import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
@@ -23,6 +22,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class TaskServiceTest {
@@ -31,17 +31,18 @@ public class TaskServiceTest {
     private static final long ID = 1L;
     private static final long USER_ID = 2L;
     private static final String URL = "https://www.olx.pl/";
-    public static final String URL_2 = "https://www.olx.pl/test";
+    public static final String URL_2 = "https://www.olx.pl/testPackage";
     public static final Long USER_ID2 = 2L;
     public static final long ID2 = 2L;
 
     @Mock
-    ParserSettings parserSettings;
+    ParsersSettings parsersSettings;
 
     @Mock
     TaskManagerService taskManagerService;
 
-    ParserFactory parserFactory = new ParserFactory(parserSettings);
+    @Mock
+    ParserFactory parserFactory;
 
     @InjectMocks
     TaskServiceImpl taskMapService;
@@ -54,7 +55,8 @@ public class TaskServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        taskMapService = new TaskServiceImpl(parserSettings, taskMapper,
+        when(parserFactory.isCompatible(anyString())).thenReturn(true);
+        taskMapService = new TaskServiceImpl(parsersSettings, taskMapper,
                 taskSettingsMapper, taskManagerService, parserFactory);
         task = new Task(ID, Sets.newHashSet(1L), URL, taskSettings);
         taskMapService.addTask(taskMapper.taskToTaskDTO(task));
@@ -98,6 +100,11 @@ public class TaskServiceTest {
         assertTrue(returnedTaskDTO.getUsersId().contains(USER_ID2));
     }
 
+    @Test(expected = TaskNotFoundException.class)
+    public void updateTaskException() {
+        taskMapService.updateTask(ID + 1L, new TaskDTO());
+    }
+
     @Test
     public void saveAll() {
         List<Task> tasks = Arrays.asList(
@@ -123,6 +130,7 @@ public class TaskServiceTest {
 
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
+        when(parserFactory.isCompatible(anyString())).thenReturn(false);
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", new TaskSettingsDTO());
         taskMapService.addTask(taskDTO);
     }

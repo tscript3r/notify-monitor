@@ -1,26 +1,59 @@
 package pl.tscript3r.notify.monitor.parsers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.FatalBeanException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
+import pl.tscript3r.notify.monitor.utils.PackageClassScanner;
 
+import java.util.HashMap;
+import java.util.regex.Pattern;
+
+@Slf4j
 @Component
 public class ParserFactory {
 
-    private final ParserSettings parserSettings;
+    private final ApplicationContext context;
+    private final HashMap<String, String> hostnameParsers = new HashMap<>(5);
 
-    public ParserFactory(ParserSettings parserSettings) {
-        this.parserSettings = parserSettings;
+    public ParserFactory(ApplicationContext context) {
+        this.context = context;
+        PackageClassScanner.scan(context, this.getClass().getPackage().getName(),
+                Pattern.compile(".*Parser"))
+                .throwExceptions()
+                .filterWithInterface(Parser.class)
+                .filterByModifier(0) // 0 stands for package-private access
+                .filterWithSpringComponents()
+                .filterWithPrototypeComponents()
+                .forEach(beanDefinition -> {
+                    try {
+                        String beanName = PackageClassScanner.getBeanName(beanDefinition.getBeanClassName());
+                        Parser parser = (Parser) context.getBean(beanName);
+                        if (parser.getHandledHostname() != null) {
+                            if (isCompatible(parser.getHandledHostname()))
+                                throw new FatalBeanException("Found two or more parsers for " +
+                                        parser.getHandledHostname());
+                        } else
+                            throw new FatalBeanException(parser.getClass() +
+                                    " returns null on getHandledHostname");
+                        hostnameParsers.put(parser.getHandledHostname(), beanName);
+                    } catch (ClassNotFoundException e) {
+                        throw new FatalBeanException(e.getMessage());
+                    }
+                });
     }
 
     public Boolean isCompatible(String hostname) {
-        return hostname.equals("olx.pl");
+        return hostnameParsers.keySet()
+                .stream()
+                .anyMatch(listedHostname -> listedHostname.equals(hostname));
     }
 
     public Parser getParser(String hostname) {
-        if (!hostname.equals("olx.pl"))
+        if (!isCompatible(hostname))
             throw new IncompatibleHostnameException(hostname);
-        return new OLXParser(parserSettings);
+        return (Parser) context.getBean(hostnameParsers.get(hostname));
     }
 
 }

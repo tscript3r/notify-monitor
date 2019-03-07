@@ -1,13 +1,10 @@
 package pl.tscript3r.notify.monitor.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import pl.tscript3r.notify.monitor.config.MonitorSettings;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 import pl.tscript3r.notify.monitor.threads.ParserThread;
-import pl.tscript3r.notify.monitor.threads.ParserThreadImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +14,15 @@ import java.util.List;
 public class TaskManagerServiceImpl implements TaskManagerService {
 
     private final List<ParserThread> parserThreads = new ArrayList<>(10);
-    private final ParserFactory parserFactory;
-    private final ParserSettings parserSettings;
+    private final ApplicationContext context;
 
-    public TaskManagerServiceImpl(ParserFactory parserFactory, ParserSettings parserSettings) {
-        this.parserFactory = parserFactory;
-        this.parserSettings = parserSettings;
-        createAdditionalParser();
+    public TaskManagerServiceImpl(ApplicationContext context) {
+        this.context = context;
+        createParserThread();
     }
 
-    private void createAdditionalParser() {
-        ParserThread parserThread = new ParserThreadImpl(parserFactory, parserSettings);
+    private void createParserThread() {
+        ParserThread parserThread = (ParserThread) context.getBean("parserThreadImpl");
         parserThread.start();
         parserThreads.add(parserThread);
         log.debug("Created parserThread with id=" + parserThread.getParserThreadId());
@@ -53,7 +48,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
 
         if (!anyFreeSlot()) {
             log.debug("No free parser slots - creating new one");
-            createAdditionalParser();
+            createParserThread();
         }
 
         if (!isTask(task))

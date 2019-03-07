@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.config.MonitorSettings;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
+import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.services.TaskService;
@@ -18,20 +18,18 @@ public class DataInitializer implements CommandLineRunner {
 
     private final TaskService taskService;
     private final MonitorSettings monitorSettings;
-    private final ParserSettings parserSettings;
+    private final ParsersSettings parsersSettings;
 
-    public DataInitializer(TaskService taskService, MonitorSettings monitorSettings, ParserSettings parserSettings) {
+    public DataInitializer(TaskService taskService, MonitorSettings monitorSettings, ParsersSettings parsersSettings) {
         this.taskService = taskService;
         this.monitorSettings = monitorSettings;
-        this.parserSettings = parserSettings;
+        this.parsersSettings = parsersSettings;
     }
 
     @Override
     public void run(String... args) {
         if (monitorSettings.getLoadBootstrap()) {
-            TaskSettings taskSettings = TaskSettings.builder()
-                    .refreshInterval(parserSettings.getDefaultInterval())
-                    .build();
+            TaskSettings taskSettings = new TaskSettings(parsersSettings.getDefaultInterval());
 
             taskService.saveAll(Arrays.asList(
                     Task.builder()

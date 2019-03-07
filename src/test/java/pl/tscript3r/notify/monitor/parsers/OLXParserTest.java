@@ -3,27 +3,24 @@ package pl.tscript3r.notify.monitor.parsers;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
+import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
-
 public class OLXParserTest {
+
+    // TODO: refactor to true unit test
 
     OLXParser olxParser;
 
-    ParserSettings parserSettings;
+    ParsersSettings parsersSettings;
 
     @Before
     public void setUp() throws Exception {
-        parserSettings = new ParserSettings(3, 5000, 5, 5120, "Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31", true);
+        parsersSettings = new ParsersSettings(5000, 5, 5120, "Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31", true);
 
-        olxParser = new OLXParser(parserSettings);
+        olxParser = new OLXParser(parsersSettings);
     }
 
     @Test

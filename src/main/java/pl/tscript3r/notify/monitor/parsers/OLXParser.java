@@ -1,11 +1,13 @@
 package pl.tscript3r.notify.monitor.parsers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.apache.commons.lang3.StringUtils;
-import pl.tscript3r.notify.monitor.config.ParserSettings;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.ParserException;
@@ -16,21 +18,24 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @Slf4j
-public class OLXParser implements Parser {
+@Component
+@Scope("prototype")
+class OLXParser implements Parser {
 
-    private final ParserSettings parserSettings;
+    private static final String HANDLED_HOSTNAME = "olx.pl";
+    private final ParsersSettings parsersSettings;
 
-    public OLXParser(ParserSettings parserSettings) {
-        this.parserSettings = parserSettings;
+    public OLXParser(ParsersSettings parsersSettings) {
+        this.parsersSettings = parsersSettings;
     }
 
     private Document downloadPage(String url) throws IOException {
         log.debug("Downloading: " + url);
         return Jsoup.connect(url)
-                .userAgent(parserSettings.getUserAgent())
-                .timeout(parserSettings.getConnectionTimeout() * 1000)
-                .followRedirects(parserSettings.getFollowRedirects())
-                .maxBodySize(parserSettings.getMaxBodySize() * 1024)
+                .userAgent(parsersSettings.getUserAgent())
+                .timeout(parsersSettings.getConnectionTimeout() * 1000)
+                .followRedirects(parsersSettings.getFollowRedirects())
+                .maxBodySize(parsersSettings.getMaxBodySize() * 1024)
                 .get();
     }
 
@@ -45,7 +50,9 @@ public class OLXParser implements Parser {
             Ad ad = new Ad();
             ad.setTask(task);
             ad.setUrl(adElement.select("a[href]").attr("href"));
-            ad.setTitle(adElement.select("strong").text());
+            ad.setTitle(adElement.select("strong")
+                    .first()
+                    .text());
             ad.setThumbnailUrl(adElement.select("img[src]")
                     .attr("src"));
             ad.setLocation(adElement.select("small[class]")
@@ -101,4 +108,8 @@ public class OLXParser implements Parser {
         throw new ParserException();
     }
 
+    @Override
+    public String getHandledHostname() {
+        return HANDLED_HOSTNAME;
+    }
 }

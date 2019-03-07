@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskListDTO;
 import pl.tscript3r.notify.monitor.consts.v1.Paths;
-import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
 import javax.validation.Valid;
@@ -20,11 +19,9 @@ import javax.validation.Valid;
 public class TaskController {
 
     private final TaskService taskService;
-    private final ParserFactory parserFactory;
 
-    public TaskController(TaskService taskService, ParserFactory parserFactory) {
+    public TaskController(TaskService taskService) {
         this.taskService = taskService;
-        this.parserFactory = parserFactory;
     }
 
     @ApiOperation(value = "Returns all currently added tasks")
