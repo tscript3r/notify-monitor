@@ -51,7 +51,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
         TaskDTO taskDTO2 = new TaskDTO();
         taskDTO2.setId(2L);
         List<TaskDTO> taskDTOs = Arrays.asList(taskDTO1, taskDTO2);
-        when(taskService.getAllTasks()).thenReturn(taskDTOs);
+        when(taskService.getAll()).thenReturn(taskDTOs);
 
         mockMvc.perform(get(Paths.BASE_PATH + Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     @Test
     public void getTaskById() throws Exception {
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null);
-        when(taskService.getTaskById(anyLong())).thenReturn(taskDTO);
+        when(taskService.getById(anyLong())).thenReturn(taskDTO);
 
         mockMvc.perform(get(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
                 .accept(MediaType.APPLICATION_JSON)
@@ -78,7 +78,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     public void addTask() throws Exception {
         TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
-        when(taskService.addTask(any())).thenReturn(taskDTO);
+        when(taskService.add(any())).thenReturn(taskDTO);
         mockMvc.perform(post(Paths.BASE_PATH + Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +92,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     public void updateTask() throws Exception {
         TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
-        when(taskService.updateTask(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
+        when(taskService.update(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
 
         mockMvc.perform(put(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
                 .accept(MediaType.APPLICATION_JSON)

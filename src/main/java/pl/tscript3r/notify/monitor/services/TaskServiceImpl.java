@@ -1,11 +1,11 @@
 package pl.tscript3r.notify.monitor.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
-import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
@@ -27,17 +27,18 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private final TaskManagerService taskManagerService;
     private final ParserFactory parserFactory;
 
-    public TaskServiceImpl(ParsersSettings parsersSettings, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
+    public TaskServiceImpl(@Value("#{new Integer('${notify.monitor.downloader.defaultInterval}')}")
+                                   Integer defaultInterval, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
                            TaskManagerService taskManagerService, ParserFactory parserFactory) {
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
         this.taskManagerService = taskManagerService;
         this.parserFactory = parserFactory;
-        defaultTaskSettings = new TaskSettings(parsersSettings.getDefaultInterval());
+        defaultTaskSettings = new TaskSettings(defaultInterval);
     }
 
     @Override
-    public TaskDTO getTaskById(Long id) {
+    public TaskDTO getById(Long id) {
         log.debug("Retrieving task id=" + id);
         return taskMapper.taskToTaskDTO(Optional.ofNullable(super.findById(id))
                 .orElseThrow(() -> new TaskNotFoundException(id)));
@@ -53,7 +54,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     }
 
     @Override
-    public List<TaskDTO> getAllTasks() {
+    public List<TaskDTO> getAll() {
         log.debug("Retrieving all tasks");
         return super.findAll()
                 .stream()
@@ -62,7 +63,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     }
 
     @Override
-    public TaskDTO addTask(TaskDTO taskDTO) {
+    public TaskDTO add(TaskDTO taskDTO) {
         log.debug("Adding new task from taskDTO");
         if (taskDTO.getTaskSettings() == null)
             taskDTO.setTaskSettings(
@@ -76,7 +77,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     }
 
     @Override
-    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+    public TaskDTO update(Long id, TaskDTO taskDTO) {
         log.debug("Updating task id=" + id);
         Task task = taskMapper.taskDTOToTask(taskDTO);
         if (findById(id) == null)
@@ -88,7 +89,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     }
 
     @Override
-    public Boolean deleteTaskById(Long id) {
+    public Boolean deleteById(Long id) {
         log.debug("Deleting task id=" + id);
         taskManagerService.deleteTask(
                 Optional.ofNullable(super.findById(id))

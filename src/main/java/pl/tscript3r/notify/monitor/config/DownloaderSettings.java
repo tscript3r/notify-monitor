@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
-@ConfigurationProperties("notify.monitor.parsers")
-public class ParsersSettings {
+@ConfigurationProperties("notify.monitor.downloader")
+public class DownloaderSettings {
 
     private Integer defaultInterval;
     private Integer connectionTimeout;

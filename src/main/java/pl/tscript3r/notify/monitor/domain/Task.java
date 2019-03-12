@@ -8,14 +8,24 @@ import lombok.Setter;
 import java.util.Objects;
 import java.util.Set;
 
-@Getter
-@Setter
 @NoArgsConstructor
 public class Task extends BaseEntity {
 
+    @Getter
+    @Setter
     private Set<Long> usersId;
+
+    @Getter
+    @Setter
     private String url;
+
+    @Getter
+    @Setter
     private TaskSettings taskSettings;
+
+    private Long lastRefreshTime = 0L;
+
+    // TODO: add enabled property? Can be on "hold" with -> v1/tasks/1/stop | start
 
     @Builder
     public Task(Long id, Set<Long> usersId, String url, TaskSettings taskSettings) {
@@ -23,6 +33,14 @@ public class Task extends BaseEntity {
         this.usersId = usersId;
         this.url = url;
         this.taskSettings = taskSettings;
+    }
+
+    public Boolean refreshable() {
+        return (lastRefreshTime + (taskSettings.getRefreshInterval() * 1000)) < System.currentTimeMillis();
+    }
+
+    public void setRefreshTime() {
+        lastRefreshTime = System.currentTimeMillis();
     }
 
     @Override

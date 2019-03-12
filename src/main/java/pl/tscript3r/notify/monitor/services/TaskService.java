@@ -7,16 +7,16 @@ import java.util.List;
 
 public interface TaskService {
 
-    TaskDTO getTaskById(Long id);
+    TaskDTO getById(Long id);
 
     void saveAll(List<Task> tasks);
 
-    List<TaskDTO> getAllTasks();
+    List<TaskDTO> getAll();
 
-    TaskDTO addTask(TaskDTO taskDTO);
+    TaskDTO add(TaskDTO taskDTO);
 
-    TaskDTO updateTask(Long id, TaskDTO taskDTO);
+    TaskDTO update(Long id, TaskDTO taskDTO);
 
-    Boolean deleteTaskById(Long id);
+    Boolean deleteById(Long id);
 
 }

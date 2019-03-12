@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
-import pl.tscript3r.notify.monitor.config.ParsersSettings;
+import pl.tscript3r.notify.monitor.config.DownloaderSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
@@ -24,7 +24,7 @@ public class TaskManagerServiceImplTest {
     public static final String URL_UPDATED = "http://www.olx.pl/updated";
 
     @Mock
-    ParsersSettings parsersSettings;
+    DownloaderSettings downloaderSettings;
 
     @Mock
     ApplicationContext context;
@@ -32,15 +32,20 @@ public class TaskManagerServiceImplTest {
     @Mock
     ParserFactory parserFactory;
 
+    @Mock
+    DocumentDownloadService documentDownloadService;
 
-    private ParserThreadImpl parserThread = new ParserThreadImpl(parserFactory);
+    ParserThreadImpl parserThread;
+    ParserThreadImpl secondParserThread;
+
     private TaskManagerServiceImpl taskManagerService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(parsersSettings.getDefaultInterval()).thenReturn(3000);
-        parserThread.setParserThreadCapacity(2);
+        parserThread = new ParserThreadImpl(documentDownloadService, parserFactory, 2);
+        secondParserThread = new ParserThreadImpl(documentDownloadService, parserFactory, 2);
+        when(downloaderSettings.getDefaultInterval()).thenReturn(3000);
         when(context.getBean(anyString())).thenReturn(parserThread);
         taskManagerService = new TaskManagerServiceImpl(context);
     }
@@ -61,7 +66,7 @@ public class TaskManagerServiceImplTest {
 
     @Test
     public void addTaskFails() {
-        when(context.getBean(anyString())).thenReturn(new ParserThreadImpl(parserFactory));
+        when(context.getBean(anyString())).thenReturn(secondParserThread);
 
         Task task = getDefaultTask();
         assertFalse(taskManagerService.addTask(null));

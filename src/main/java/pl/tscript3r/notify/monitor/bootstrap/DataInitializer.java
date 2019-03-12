@@ -2,10 +2,9 @@ package pl.tscript3r.notify.monitor.bootstrap;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import pl.tscript3r.notify.monitor.config.MonitorSettings;
-import pl.tscript3r.notify.monitor.config.ParsersSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.services.TaskService;
@@ -17,19 +16,22 @@ import java.util.Arrays;
 public class DataInitializer implements CommandLineRunner {
 
     private final TaskService taskService;
-    private final MonitorSettings monitorSettings;
-    private final ParsersSettings parsersSettings;
+    private final Integer defaultInterval;
+    private final Boolean loadBootstrap;
 
-    public DataInitializer(TaskService taskService, MonitorSettings monitorSettings, ParsersSettings parsersSettings) {
+    public DataInitializer(TaskService taskService,
+                           @Value("#{new Boolean('${notify.monitor.loadBootstrap}')}") Boolean loadBootstrap,
+                           @Value("#{new Integer('${notify.monitor.downloader.defaultInterval}')}")
+                                   Integer defaultInterval) {
         this.taskService = taskService;
-        this.monitorSettings = monitorSettings;
-        this.parsersSettings = parsersSettings;
+        this.defaultInterval = defaultInterval;
+        this.loadBootstrap = loadBootstrap;
     }
 
     @Override
     public void run(String... args) {
-        if (monitorSettings.getLoadBootstrap()) {
-            TaskSettings taskSettings = new TaskSettings(parsersSettings.getDefaultInterval());
+        if (loadBootstrap) {
+            TaskSettings taskSettings = new TaskSettings(defaultInterval);
 
             taskService.saveAll(Arrays.asList(
                     Task.builder()

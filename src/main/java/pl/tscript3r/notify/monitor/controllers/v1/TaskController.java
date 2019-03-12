@@ -27,51 +27,54 @@ public class TaskController {
     @ApiOperation(value = "Returns all currently added tasks")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public TaskListDTO getAllTasks() {
+    public TaskListDTO getAll() {
         log.debug("Viewing all tasks");
-        return new TaskListDTO(taskService.getAllTasks());
+        return new TaskListDTO(taskService.getAll());
     }
 
     @ApiOperation(value = "Returns task by given ID",
             notes = "When ID is not added returns 404 error")
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TaskDTO getTaskById(@PathVariable Long id) {
+    public TaskDTO getById(@PathVariable Long id) {
         log.debug("Getting task id=" + id);
-        return taskService.getTaskById(id);
+        return taskService.getById(id);
     }
 
     @ApiOperation(value = "Adds new task", notes = "user_id is required, " +
             "url has to be a valid URL string, or it will be rejected")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskDTO addTask(@Valid @RequestBody TaskDTO taskDTO) {
+    public TaskDTO add(@Valid @RequestBody TaskDTO taskDTO) {
         log.debug("Adding new task for users id=" + taskDTO.getUsersId());
-        return taskService.addTask(taskDTO);
+        return taskService.add(taskDTO);
     }
 
     @ApiOperation(value = "Updates task by given ID", notes = "task_id can not be changed & " +
             "if task does not exists returns 404 error")
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TaskDTO updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
+    public TaskDTO update(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
         log.debug("Updating task id=" + id);
-        return taskService.updateTask(id, taskDTO);
+        return taskService.update(id, taskDTO);
     }
 
     @ApiOperation(value = "Deletes task by given ID",
             notes = "when task does not exists returns 404 error")
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteTask(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         log.debug("Deleting task id=" + id);
-        taskService.deleteTaskById(id);
+        taskService.deleteById(id);
     }
 
     @ApiOperation(value = "Returns current status of the given task ID",
             notes = "When ID is not added returns 404 error")
     @GetMapping("{id}" + Paths.STATUS_TASK_PATH)
     public String getStatus(@PathVariable String test) {
+
+        // TODO: implement
+
         log.debug("Viewing task status for id: ");
         return "soon";
     }

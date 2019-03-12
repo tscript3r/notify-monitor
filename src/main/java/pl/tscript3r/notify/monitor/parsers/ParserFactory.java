@@ -22,10 +22,10 @@ public class ParserFactory {
         PackageClassScanner.scan(context, this.getClass().getPackage().getName(),
                 Pattern.compile(".*Parser"))
                 .throwExceptions()
-                .filterWithInterface(Parser.class)
+                .filterByInterface(Parser.class)
                 .filterByModifier(0) // 0 stands for package-private access
-                .filterWithSpringComponents()
-                .filterWithPrototypeComponents()
+                .filterSpringComponents()
+                .filterPrototypeComponents()
                 .forEach(beanDefinition -> {
                     try {
                         String beanName = PackageClassScanner.getBeanName(beanDefinition.getBeanClassName());
@@ -44,16 +44,17 @@ public class ParserFactory {
                 });
     }
 
+    public Parser getParser(String hostname) {
+        if (!isCompatible(hostname))
+            throw new IncompatibleHostnameException(hostname);
+        return (Parser) context.getBean(hostnameParsers.get(hostname));
+    }
+
     public Boolean isCompatible(String hostname) {
         return hostnameParsers.keySet()
                 .stream()
                 .anyMatch(listedHostname -> listedHostname.equals(hostname));
     }
 
-    public Parser getParser(String hostname) {
-        if (!isCompatible(hostname))
-            throw new IncompatibleHostnameException(hostname);
-        return (Parser) context.getBean(hostnameParsers.get(hostname));
-    }
 
 }

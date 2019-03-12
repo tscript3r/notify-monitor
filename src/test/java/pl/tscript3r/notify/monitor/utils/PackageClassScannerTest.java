@@ -58,7 +58,7 @@ public class PackageClassScannerTest {
     @Test
     public void filterWithInterface() {
         assertEquals(2, PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .filterWithInterface(TestInterface.class)
+                .filterByInterface(TestInterface.class)
                 .getBeanNames().size());
     }
 
@@ -66,7 +66,7 @@ public class PackageClassScannerTest {
     public void filterWithInterfaceException() {
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
                 .throwExceptions()
-                .filterWithInterface(TestInterface.class)
+                .filterByInterface(TestInterface.class)
                 .getBeanNames().size();
     }
 
@@ -74,7 +74,7 @@ public class PackageClassScannerTest {
     public void filterWithSpringComponents() {
         when(context.containsBeanDefinition(anyString())).thenReturn(true);
         assertEquals(4, PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .filterWithSpringComponents()
+                .filterSpringComponents()
                 .getBeanNames().size());
     }
 
@@ -83,7 +83,7 @@ public class PackageClassScannerTest {
         when(context.containsBeanDefinition(anyString())).thenReturn(false);
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
                 .throwExceptions()
-                .filterWithSpringComponents()
+                .filterSpringComponents()
                 .getBeanNames().size();
     }
 
@@ -91,7 +91,7 @@ public class PackageClassScannerTest {
     public void filterWithPrototypeComponents() {
         when(context.isPrototype(anyString())).thenReturn(true);
         assertEquals(4, PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .filterWithPrototypeComponents()
+                .filterPrototypeComponents()
                 .getBeanNames().size());
     }
 
@@ -100,7 +100,7 @@ public class PackageClassScannerTest {
         when(context.containsBeanDefinition(anyString())).thenReturn(false);
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
                 .throwExceptions()
-                .filterWithPrototypeComponents()
+                .filterPrototypeComponents()
                 .getBeanNames().size();
     }
 

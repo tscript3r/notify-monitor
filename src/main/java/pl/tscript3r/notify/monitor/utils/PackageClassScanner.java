@@ -32,11 +32,6 @@ public class PackageClassScanner {
         return classes;
     }
 
-    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
-        this.context = context;
-        packageClasses = loadPackageClasses(packagePath, classNamePattern);
-    }
-
     public synchronized static PackageClassScanner scan(ApplicationContext context, String packagePath) {
         return new PackageClassScanner(context, packagePath, Pattern.compile(".*"));
     }
@@ -44,6 +39,12 @@ public class PackageClassScanner {
     public synchronized static PackageClassScanner scan(ApplicationContext context, String packagePath,
                                                         Pattern classNamePattern) {
         return new PackageClassScanner(context, packagePath, classNamePattern);
+    }
+
+    // TODO: refactor
+    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
+        this.context = context;
+        packageClasses = loadPackageClasses(packagePath, classNamePattern);
     }
 
     public PackageClassScanner throwExceptions() {
@@ -56,7 +57,7 @@ public class PackageClassScanner {
         return Introspector.decapitalize(foundClass.getSimpleName());
     }
 
-    public PackageClassScanner filterWithInterface(Class interfaceClass) {
+    public PackageClassScanner filterByInterface(Class interfaceClass) {
         packageClasses = packageClasses.stream()
                 .filter(foundBeanClass -> {
                     Boolean interfaceFound = false;
@@ -84,7 +85,7 @@ public class PackageClassScanner {
         return this;
     }
 
-    public PackageClassScanner filterWithSpringComponents() {
+    public PackageClassScanner filterSpringComponents() {
         packageClasses = packageClasses.stream()
                 .filter(foundBeanClass -> {
                     String beanName = null;
@@ -103,7 +104,7 @@ public class PackageClassScanner {
         return this;
     }
 
-    public PackageClassScanner filterWithPrototypeComponents() {
+    public PackageClassScanner filterPrototypeComponents() {
         packageClasses = packageClasses.stream()
                 .filter(foundBeanClass -> {
                     String beanName = null;
