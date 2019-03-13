@@ -15,7 +15,7 @@ import javax.validation.Valid;
 @Api(description = "CRUD operations for tasks")
 @Slf4j
 @RestController
-@RequestMapping(Paths.BASE_PATH + Paths.TASK_PATH)
+@RequestMapping(Paths.TASK_PATH)
 public class TaskController {
 
     private final TaskService taskService;
@@ -38,7 +38,7 @@ public class TaskController {
     @ResponseStatus(HttpStatus.OK)
     public TaskDTO getById(@PathVariable Long id) {
         log.debug("Getting task id=" + id);
-        return taskService.getById(id);
+        return taskService.getTaskDTOById(id);
     }
 
     @ApiOperation(value = "Adds new task", notes = "user_id is required, " +

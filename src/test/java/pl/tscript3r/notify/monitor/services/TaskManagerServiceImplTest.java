@@ -10,7 +10,7 @@ import pl.tscript3r.notify.monitor.config.DownloaderSettings;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.parsers.ParserFactory;
-import pl.tscript3r.notify.monitor.threads.ParserThreadImpl;
+import pl.tscript3r.notify.monitor.threads.ParserThread;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,16 +35,16 @@ public class TaskManagerServiceImplTest {
     @Mock
     DocumentDownloadService documentDownloadService;
 
-    ParserThreadImpl parserThread;
-    ParserThreadImpl secondParserThread;
+    ParserThread parserThread;
+    ParserThread secondParserThread;
 
     private TaskManagerServiceImpl taskManagerService;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        parserThread = new ParserThreadImpl(documentDownloadService, parserFactory, 2);
-        secondParserThread = new ParserThreadImpl(documentDownloadService, parserFactory, 2);
+        parserThread = new ParserThread(documentDownloadService, parserFactory, 2);
+        secondParserThread = new ParserThread(documentDownloadService, parserFactory, 2);
         when(downloaderSettings.getDefaultInterval()).thenReturn(3000);
         when(context.getBean(anyString())).thenReturn(parserThread);
         taskManagerService = new TaskManagerServiceImpl(context);

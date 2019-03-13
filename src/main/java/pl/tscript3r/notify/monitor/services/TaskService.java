@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface TaskService {
 
-    TaskDTO getById(Long id);
+    Task getTaskById(Long id);
+
+    TaskDTO getTaskDTOById(Long id);
 
     void saveAll(List<Task> tasks);
 

@@ -65,7 +65,7 @@ public class TaskServiceTest {
 
     @Test
     public void getTaskById() {
-        TaskDTO taskResult = taskMapService.getById(ID);
+        TaskDTO taskResult = taskMapService.getTaskDTOById(ID);
         assertEquals(task.getId(), taskResult.getId());
     }
 
@@ -91,7 +91,7 @@ public class TaskServiceTest {
         taskDTO.setUrl(URL_2);
         taskDTO.setUsersId(Sets.newHashSet(USER_ID2));
         taskMapService.update(ID, taskDTO);
-        TaskDTO returnedTaskDTO = taskMapService.getById(ID);
+        TaskDTO returnedTaskDTO = taskMapService.getTaskDTOById(ID);
         assertEquals(URL_2, returnedTaskDTO.getUrl());
         assertTrue(returnedTaskDTO.getUsersId().contains(USER_ID2));
     }

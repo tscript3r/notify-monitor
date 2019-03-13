@@ -21,7 +21,6 @@ public class ParserFactory {
         this.context = context;
         PackageClassScanner.scan(context, this.getClass().getPackage().getName(),
                 Pattern.compile(".*Parser"))
-                .throwExceptions()
                 .filterByInterface(Parser.class)
                 .filterByModifier(0) // 0 stands for package-private access
                 .filterSpringComponents()

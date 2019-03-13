@@ -63,7 +63,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     @Test
     public void getTaskById() throws Exception {
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null);
-        when(taskService.getById(anyLong())).thenReturn(taskDTO);
+        when(taskService.getTaskDTOById(anyLong())).thenReturn(taskDTO);
 
         mockMvc.perform(get(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
                 .accept(MediaType.APPLICATION_JSON)

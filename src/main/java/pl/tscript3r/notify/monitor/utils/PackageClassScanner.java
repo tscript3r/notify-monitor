@@ -17,19 +17,11 @@ public class PackageClassScanner {
 
     private ApplicationContext context;
     private Set<BeanDefinition> packageClasses;
-    private Boolean throwExceptions = false;
+    private Boolean throwExceptions = true;
 
-    /**
-     * Found at:
-     * https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection
-     *
-     * @return all classes in the given package
-     */
-    private Set<BeanDefinition> loadPackageClasses(String packagePath, Pattern classNameFilterPattern) {
-        final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new RegexPatternTypeFilter(classNameFilterPattern));
-        final Set<BeanDefinition> classes = provider.findCandidateComponents(packagePath);
-        return classes;
+    public synchronized static String getBeanName(String className) throws ClassNotFoundException {
+        Class foundClass = Class.forName(className);
+        return Introspector.decapitalize(foundClass.getSimpleName());
     }
 
     public synchronized static PackageClassScanner scan(ApplicationContext context, String packagePath) {
@@ -41,47 +33,30 @@ public class PackageClassScanner {
         return new PackageClassScanner(context, packagePath, classNamePattern);
     }
 
-    // TODO: refactor
-    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
-        this.context = context;
-        packageClasses = loadPackageClasses(packagePath, classNamePattern);
-    }
-
-    public PackageClassScanner throwExceptions() {
-        throwExceptions = true;
+    public PackageClassScanner ignoreExceptions() {
+        throwExceptions = false;
         return this;
     }
 
-    public static String getBeanName(String className) throws ClassNotFoundException {
-        Class foundClass = Class.forName(className);
-        return Introspector.decapitalize(foundClass.getSimpleName());
-    }
-
-    public PackageClassScanner filterByInterface(Class interfaceClass) {
+    public PackageClassScanner filterByInterface(Class requiredInterface) {
         packageClasses = packageClasses.stream()
-                .filter(foundBeanClass -> {
-                    Boolean interfaceFound = false;
+                .filter(foundBeanDefinition -> {
                     try {
-                        Class foundClass = Class.forName(foundBeanClass.getBeanClassName());
-                        Class[] foundInterfaces = foundClass.getInterfaces();
-                        if (foundInterfaces.length >= 1) {
-                            for (Class foundInterface : foundInterfaces) {
-                                interfaceFound = foundInterface.getName().equals(interfaceClass.getName());
-                                if (interfaceFound)
-                                    break;
-                            }
-                        } else
-                            throwException("Class " + foundClass.getClass().getName() +
-                                    " does not implement any interface");
-                        if (!interfaceFound)
-                            throwException("Class " + foundBeanClass.getBeanClassName() +
-                                    " does not implement " + interfaceClass.getName());
-                    } catch (ClassNotFoundException e) {
-                        throwException(e.getMessage());
-                    }
+                        if(implementsInterface(loadClass(foundBeanDefinition).getInterfaces(),
+                            requiredInterface))
+                            return true;
+                        else {
+                            throwException("Class " + foundBeanDefinition.getBeanClassName() +
+                                    " does not implement required interface");
+                            return false;
+                        }
 
-                    return interfaceFound;
-                }).collect(Collectors.toSet());
+                    } catch (ClassNotFoundException e) {
+                        throwException(e);
+                        return false;
+                    }
+                })
+                .collect(Collectors.toSet());
         return this;
     }
 
@@ -92,7 +67,7 @@ public class PackageClassScanner {
                     try {
                         beanName = getBeanName(foundBeanClass.getBeanClassName());
                     } catch (ClassNotFoundException e) {
-                        throwException(e.getMessage());
+                        throwException(e);
                     }
                     Boolean result = context.containsBeanDefinition(beanName);
                     if (!result)
@@ -101,25 +76,28 @@ public class PackageClassScanner {
                     return result;
                 })
                 .collect(Collectors.toSet());
+
         return this;
     }
 
     public PackageClassScanner filterPrototypeComponents() {
         packageClasses = packageClasses.stream()
                 .filter(foundBeanClass -> {
-                    String beanName = null;
                     try {
-                        beanName = getBeanName(foundBeanClass.getBeanClassName());
+                        String beanName = getBeanName(foundBeanClass.getBeanClassName());
+                        if( !context.isPrototype(beanName)) {
+                            throwException("Class " + foundBeanClass.getBeanClassName() +
+                                    " is not a prototype component");
+                            return false;
+                        } else
+                            return true;
                     } catch (ClassNotFoundException e) {
                         throwException(e.getMessage());
+                        return false;
                     }
-                    Boolean result = context.isPrototype(beanName);
-                    if (!result)
-                        throwException("Class " + foundBeanClass.getBeanClassName() +
-                                " is not a prototype component");
-                    return result;
                 })
                 .collect(Collectors.toSet());
+
         return this;
     }
 
@@ -127,17 +105,20 @@ public class PackageClassScanner {
         packageClasses = packageClasses.stream()
                 .filter(foundBeanClass -> {
                     try {
-                        Class foundClass = Class.forName(foundBeanClass.getBeanClassName());
-                        Boolean result = (foundClass.getModifiers() & modifier) == modifier;
-                        if (!result)
-                            throwException("Class " + foundClass.getName() + " has wrong access modifier.");
-                        return result;
+                        Class foundClass = loadClass(foundBeanClass);
+                        if(hasModifier(foundClass, modifier))
+                            return true;
+                        else {
+                            throwException("Class " + foundClass.getName() + " does not have the required modifier.");
+                            return false;
+                        }
                     } catch (ClassNotFoundException e) {
                         throwException(e.getMessage());
+                        return false;
                     }
-                    return false;
                 })
                 .collect(Collectors.toSet());
+
         return this;
     }
 
@@ -166,10 +147,54 @@ public class PackageClassScanner {
                 .collect(Collectors.toSet());
     }
 
+
+    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
+        this.context = context;
+        packageClasses = loadBeanDefinitionsClassesInPackage(packagePath, classNamePattern);
+    }
+
+    /**
+     * Found at:
+     * https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection
+     * @return all classes in the given package
+     */
+    private Set<BeanDefinition> loadBeanDefinitionsClassesInPackage(String packagePath, Pattern classNameFilterPattern) {
+        final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new RegexPatternTypeFilter(classNameFilterPattern));
+        final Set<BeanDefinition> classes = provider.findCandidateComponents(packagePath);
+        return classes;
+    }
+
+    private Class loadClass(BeanDefinition beanDefinition) throws ClassNotFoundException {
+        return Class.forName(beanDefinition.getBeanClassName());
+    }
+
+    private Boolean implementsInterface(Class[] interfaces, Class searchedInterface) {
+        if (interfaces.length > 0) {
+            for (Class iteratedInterface : interfaces) {
+                if(compareInterfaces(iteratedInterface, searchedInterface))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private Boolean compareInterfaces(Class source, Class compared) {
+        return source.getName().equals(compared.getName());
+    }
+
+    private void throwException(Exception e) {
+        if (throwExceptions)
+            throw new FatalBeanException(e.getMessage());
+    }
+
     private void throwException(String message) {
         if (throwExceptions)
             throw new FatalBeanException(message);
     }
 
+    private Boolean hasModifier(Class source, int modifier) {
+        return (source.getModifiers() & modifier) == modifier;
+    }
 
 }
