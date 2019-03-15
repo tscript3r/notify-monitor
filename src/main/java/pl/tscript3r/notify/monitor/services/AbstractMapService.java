@@ -36,9 +36,9 @@ public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> 
         return object;
     }
 
-    Boolean deleteById(ID id) {
+    T deleteId(ID id) {
         log.debug("Deleting object id=" + id);
-        return map.remove(id) != null;
+        return map.remove(id);
     }
 
     Boolean delete(T object) {

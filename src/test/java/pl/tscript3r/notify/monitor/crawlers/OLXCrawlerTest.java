@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.parsers;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -7,15 +7,15 @@ import pl.tscript3r.notify.monitor.domain.Task;
 
 import java.io.IOException;
 
-public class OLXParserTest {
+public class OLXCrawlerTest {
 
     // TODO: refactor to true unit test
 
-    OLXParser olxParser;
+    OLXCrawler olxParser;
 
     @Before
     public void setUp() throws Exception {
-        olxParser = new OLXParser();
+        olxParser = new OLXCrawler();
     }
 
     @Test

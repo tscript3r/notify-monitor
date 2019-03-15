@@ -33,6 +33,11 @@ public class PackageClassScanner {
         return new PackageClassScanner(context, packagePath, classNamePattern);
     }
 
+    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
+        this.context = context;
+        packageClasses = loadBeanDefinitionsClassesInPackage(packagePath, classNamePattern);
+    }
+
     public PackageClassScanner ignoreExceptions() {
         throwExceptions = false;
         return this;
@@ -42,8 +47,8 @@ public class PackageClassScanner {
         packageClasses = packageClasses.stream()
                 .filter(foundBeanDefinition -> {
                     try {
-                        if(implementsInterface(loadClass(foundBeanDefinition).getInterfaces(),
-                            requiredInterface))
+                        if (implementsInterface(loadClass(foundBeanDefinition).getInterfaces(),
+                                requiredInterface))
                             return true;
                         else {
                             throwException("Class " + foundBeanDefinition.getBeanClassName() +
@@ -85,7 +90,7 @@ public class PackageClassScanner {
                 .filter(foundBeanClass -> {
                     try {
                         String beanName = getBeanName(foundBeanClass.getBeanClassName());
-                        if( !context.isPrototype(beanName)) {
+                        if (!context.isPrototype(beanName)) {
                             throwException("Class " + foundBeanClass.getBeanClassName() +
                                     " is not a prototype component");
                             return false;
@@ -106,7 +111,7 @@ public class PackageClassScanner {
                 .filter(foundBeanClass -> {
                     try {
                         Class foundClass = loadClass(foundBeanClass);
-                        if(hasModifier(foundClass, modifier))
+                        if (hasModifier(foundClass, modifier))
                             return true;
                         else {
                             throwException("Class " + foundClass.getName() + " does not have the required modifier.");
@@ -147,15 +152,10 @@ public class PackageClassScanner {
                 .collect(Collectors.toSet());
     }
 
-
-    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
-        this.context = context;
-        packageClasses = loadBeanDefinitionsClassesInPackage(packagePath, classNamePattern);
-    }
-
     /**
      * Found at:
      * https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection
+     *
      * @return all classes in the given package
      */
     private Set<BeanDefinition> loadBeanDefinitionsClassesInPackage(String packagePath, Pattern classNameFilterPattern) {
@@ -172,7 +172,7 @@ public class PackageClassScanner {
     private Boolean implementsInterface(Class[] interfaces, Class searchedInterface) {
         if (interfaces.length > 0) {
             for (Class iteratedInterface : interfaces) {
-                if(compareInterfaces(iteratedInterface, searchedInterface))
+                if (compareInterfaces(iteratedInterface, searchedInterface))
                     return true;
             }
         }

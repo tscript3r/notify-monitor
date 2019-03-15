@@ -10,7 +10,7 @@ import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.services.AdService;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
-import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -26,7 +26,7 @@ public class AdController {
     }
 
     @GetMapping(Paths.CURRENT_AD_TASK_PATH)
-    public List<Ad> getCurrentAds(@PathVariable Long id) {
+    public Set<Ad> getCurrentAds(@PathVariable Long id) {
         return adService.getCurrentAds(taskService.getTaskById(id));
     }
 

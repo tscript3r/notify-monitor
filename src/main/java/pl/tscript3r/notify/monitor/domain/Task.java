@@ -35,12 +35,16 @@ public class Task extends BaseEntity {
         this.taskSettings = taskSettings;
     }
 
-    public Boolean refreshable() {
-        return (lastRefreshTime + (taskSettings.getRefreshInterval() * 1000)) < System.currentTimeMillis();
+    public Boolean isRefreshable() {
+        synchronized (lastRefreshTime) {
+            return (lastRefreshTime + (taskSettings.getRefreshInterval() * 1000)) < System.currentTimeMillis();
+        }
     }
 
     public void setRefreshTime() {
-        lastRefreshTime = System.currentTimeMillis();
+        synchronized (lastRefreshTime) {
+            lastRefreshTime = System.currentTimeMillis();
+        }
     }
 
     @Override

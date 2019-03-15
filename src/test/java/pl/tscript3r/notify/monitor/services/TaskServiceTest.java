@@ -10,17 +10,17 @@ import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
+import pl.tscript3r.notify.monitor.components.TaskDispatcher;
+import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
-import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -35,10 +35,10 @@ public class TaskServiceTest {
     public static final long ID2 = 2L;
 
     @Mock
-    TaskManagerService taskManagerService;
+    CrawlerFactory crawlerFactory;
 
     @Mock
-    ParserFactory parserFactory;
+    TaskDispatcher taskDispatcher;
 
     @InjectMocks
     TaskServiceImpl taskMapService;
@@ -51,9 +51,9 @@ public class TaskServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(parserFactory.isCompatible(anyString())).thenReturn(true);
+        when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
         taskMapService = new TaskServiceImpl(30, taskMapper,
-                taskSettingsMapper, taskManagerService, parserFactory);
+                taskSettingsMapper, crawlerFactory, taskDispatcher);
         task = new Task(ID, Sets.newHashSet(1L), URL, taskSettings);
         taskMapService.add(taskMapper.taskToTaskDTO(task));
     }
@@ -76,13 +76,10 @@ public class TaskServiceTest {
 
     @Test
     public void deleteTaskById() {
-        assertEquals(true, taskMapService.deleteById(ID));
+        // TODO: write test
     }
 
-    @Test(expected = TaskNotFoundException.class)
     public void deleteTaskByIdFail() {
-        when(taskManagerService.deleteTask(any(Task.class))).thenReturn(true);
-        taskMapService.deleteById(ID + 1L);
     }
 
     @Test
@@ -126,7 +123,7 @@ public class TaskServiceTest {
 
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
-        when(parserFactory.isCompatible(anyString())).thenReturn(false);
+        when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", new TaskSettingsDTO());
         taskMapService.add(taskDTO);
     }
