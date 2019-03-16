@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.parsers;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.FatalBeanException;
@@ -12,27 +12,26 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class ParserFactory {
+public class CrawlerFactory {
 
     private final ApplicationContext context;
     private final HashMap<String, String> hostnameParsers = new HashMap<>(5);
 
-    public ParserFactory(ApplicationContext context) {
+    public CrawlerFactory(ApplicationContext context) {
         this.context = context;
         PackageClassScanner.scan(context, this.getClass().getPackage().getName(),
-                Pattern.compile(".*Parser"))
-                .throwExceptions()
-                .filterByInterface(Parser.class)
+                Pattern.compile(".*Crawler"))
+                .filterByInterface(Crawler.class)
                 .filterByModifier(0) // 0 stands for package-private access
                 .filterSpringComponents()
                 .filterPrototypeComponents()
                 .forEach(beanDefinition -> {
                     try {
                         String beanName = PackageClassScanner.getBeanName(beanDefinition.getBeanClassName());
-                        Parser parser = (Parser) context.getBean(beanName);
+                        Crawler parser = (Crawler) context.getBean(beanName);
                         if (parser.getHandledHostname() != null) {
                             if (isCompatible(parser.getHandledHostname()))
-                                throw new FatalBeanException("Found two or more parsers for " +
+                                throw new FatalBeanException("Found two or more crawlers for " +
                                         parser.getHandledHostname());
                         } else
                             throw new FatalBeanException(parser.getClass() +
@@ -44,10 +43,10 @@ public class ParserFactory {
                 });
     }
 
-    public Parser getParser(String hostname) {
+    public Crawler getParser(String hostname) {
         if (!isCompatible(hostname))
             throw new IncompatibleHostnameException(hostname);
-        return (Parser) context.getBean(hostnameParsers.get(hostname));
+        return (Crawler) context.getBean(hostnameParsers.get(hostname));
     }
 
     public Boolean isCompatible(String hostname) {

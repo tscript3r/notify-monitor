@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.parsers;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-public class ParserFactoryTest {
+public class CrawlerFactoryTest {
 
     public static final String DOMAIN = "domain.com";
     public static final String NOT_ADDED_DOMAIN = "notAddedDomain.com";
@@ -20,10 +20,10 @@ public class ParserFactoryTest {
     @Mock
     ApplicationContext context;
 
-    ParserFactory parserFactory;
+    CrawlerFactory parserFactory;
 
     @Mock
-    Parser parser;
+    Crawler parser;
 
     @Before
     public void setUp() {
@@ -35,13 +35,13 @@ public class ParserFactoryTest {
 
     public void defaultSetUp() {
         when(parser.getHandledHostname()).thenReturn(DOMAIN);
-        parserFactory = new ParserFactory(context);
+        parserFactory = new CrawlerFactory(context);
     }
 
     @Test(expected = FatalBeanException.class)
     public void constructorFailTest() {
         when(parser.getHandledHostname()).thenReturn(null);
-        parserFactory = new ParserFactory(context);
+        parserFactory = new CrawlerFactory(context);
     }
 
     @Test

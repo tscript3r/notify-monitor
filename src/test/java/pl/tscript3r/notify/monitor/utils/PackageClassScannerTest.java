@@ -58,6 +58,7 @@ public class PackageClassScannerTest {
     @Test
     public void filterWithInterface() {
         assertEquals(2, PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
+                .ignoreExceptions()
                 .filterByInterface(TestInterface.class)
                 .getBeanNames().size());
     }
@@ -65,7 +66,6 @@ public class PackageClassScannerTest {
     @Test(expected = FatalBeanException.class)
     public void filterWithInterfaceException() {
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .throwExceptions()
                 .filterByInterface(TestInterface.class)
                 .getBeanNames().size();
     }
@@ -82,7 +82,6 @@ public class PackageClassScannerTest {
     public void filterWithSpringComponentsException() {
         when(context.containsBeanDefinition(anyString())).thenReturn(false);
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .throwExceptions()
                 .filterSpringComponents()
                 .getBeanNames().size();
     }
@@ -99,7 +98,6 @@ public class PackageClassScannerTest {
     public void filterWithPrototypeComponentsException() {
         when(context.containsBeanDefinition(anyString())).thenReturn(false);
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .throwExceptions()
                 .filterPrototypeComponents()
                 .getBeanNames().size();
     }
@@ -107,6 +105,7 @@ public class PackageClassScannerTest {
     @Test
     public void filterByModifier() {
         assertEquals(2, PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
+                .ignoreExceptions()
                 .filterByModifier(Modifier.FINAL)
                 .getBeanNames().size());
     }
@@ -114,7 +113,6 @@ public class PackageClassScannerTest {
     @Test(expected = FatalBeanException.class)
     public void filterByModifierException() {
         PackageClassScanner.scan(context, TEST_PACKAGE_PATH)
-                .throwExceptions()
                 .filterByModifier(Modifier.FINAL)
                 .getBeanNames().size();
     }

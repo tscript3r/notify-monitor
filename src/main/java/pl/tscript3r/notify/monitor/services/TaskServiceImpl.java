@@ -6,11 +6,12 @@ import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
+import pl.tscript3r.notify.monitor.components.TaskDispatcher;
+import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
-import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
 import java.util.List;
@@ -24,21 +25,27 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private final TaskMapper taskMapper;
     private final TaskSettingsMapper taskSettingsMapper;
     private final TaskSettings defaultTaskSettings;
-    private final TaskManagerService taskManagerService;
-    private final ParserFactory parserFactory;
+    private final CrawlerFactory crawlerFactory;
+    private final TaskDispatcher taskDispatcher;
 
-    public TaskServiceImpl(@Value("#{new Integer('${notify.monitor.downloader.defaultInterval}')}")
-                                   Integer defaultInterval, TaskMapper taskMapper, TaskSettingsMapper taskSettingsMapper,
-                           TaskManagerService taskManagerService, ParserFactory parserFactory) {
+    public TaskServiceImpl(@Value("#{new Integer('${notify.monitor.downloader.defaultInterval}')}") Integer defaultInterval, TaskMapper taskMapper,
+                           TaskSettingsMapper taskSettingsMapper, CrawlerFactory parserFactory,
+                           TaskDispatcher taskDispatcher) {
         this.taskMapper = taskMapper;
         this.taskSettingsMapper = taskSettingsMapper;
-        this.taskManagerService = taskManagerService;
-        this.parserFactory = parserFactory;
+        this.crawlerFactory = parserFactory;
+        this.taskDispatcher = taskDispatcher;
         defaultTaskSettings = new TaskSettings(defaultInterval);
     }
 
     @Override
-    public TaskDTO getById(Long id) {
+    public Task getTaskById(Long id) {
+        return Optional.ofNullable(super.findById(id))
+                .orElseThrow(() -> new TaskNotFoundException(id));
+    }
+
+    @Override
+    public TaskDTO getTaskDTOById(Long id) {
         log.debug("Retrieving task id=" + id);
         return taskMapper.taskToTaskDTO(Optional.ofNullable(super.findById(id))
                 .orElseThrow(() -> new TaskNotFoundException(id)));
@@ -48,8 +55,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     public void saveAll(List<Task> tasks) {
         log.debug("Saving " + tasks.size() + " tasks");
         tasks.forEach(task -> {
-            super.save(task);
-            taskManagerService.addTask(task);
+            taskDispatcher.addTask(super.save(task));
         });
     }
 
@@ -68,11 +74,11 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         if (taskDTO.getTaskSettings() == null)
             taskDTO.setTaskSettings(
                     taskSettingsMapper.taskSettingsToTaskSettingsDTO(defaultTaskSettings));
-        if (!parserFactory.isCompatible(
+        if (!crawlerFactory.isCompatible(
                 HostnameExtractor.getDomain(taskDTO.getUrl())))
             throw new IncompatibleHostnameException(HostnameExtractor.getDomain(taskDTO.getUrl()));
         Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
-        taskManagerService.addTask(task);
+        taskDispatcher.addTask(task);
         return taskMapper.taskToTaskDTO(task);
     }
 
@@ -84,16 +90,13 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
             throw new TaskNotFoundException(id);
         task.setId(id);
         Task returnedTask = super.save(task);
-        taskManagerService.updateTask(task);
+
         return taskMapper.taskToTaskDTO(returnedTask);
     }
 
     @Override
     public Boolean deleteById(Long id) {
         log.debug("Deleting task id=" + id);
-        taskManagerService.deleteTask(
-                Optional.ofNullable(super.findById(id))
-                        .orElseThrow(() -> new TaskNotFoundException(id)));
-        return deleteById(id);
+        return taskDispatcher.removeTask(super.deleteId(id));
     }
 }

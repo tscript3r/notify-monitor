@@ -10,11 +10,12 @@ import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
+import pl.tscript3r.notify.monitor.components.TaskDispatcher;
+import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
-import pl.tscript3r.notify.monitor.parsers.ParserFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,13 +36,13 @@ public class TaskServiceTest {
     public static final long ID2 = 2L;
 
     @Mock
-    TaskManagerService taskManagerService;
+    CrawlerFactory crawlerFactory;
 
     @Mock
-    ParserFactory parserFactory;
+    TaskDispatcher taskDispatcher;
 
     @InjectMocks
-    TaskServiceImpl taskMapService;
+    TaskServiceImpl taskService;
 
     private TaskMapper taskMapper = TaskMapper.INSTANCE;
     private TaskSettingsMapper taskSettingsMapper = TaskSettingsMapper.INSTANCE;
@@ -51,38 +52,50 @@ public class TaskServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(parserFactory.isCompatible(anyString())).thenReturn(true);
-        taskMapService = new TaskServiceImpl(30, taskMapper,
-                taskSettingsMapper, taskManagerService, parserFactory);
+        when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
+        taskService = new TaskServiceImpl(30, taskMapper,
+                taskSettingsMapper, crawlerFactory, taskDispatcher);
         task = new Task(ID, Sets.newHashSet(1L), URL, taskSettings);
-        taskMapService.add(taskMapper.taskToTaskDTO(task));
+        taskService.add(taskMapper.taskToTaskDTO(task));
     }
 
     @Test(expected = RuntimeException.class)
     public void saveNullObject() {
-        taskMapService.save(null);
+        taskService.save(null);
     }
 
     @Test
-    public void getTaskById() {
-        TaskDTO taskResult = taskMapService.getById(ID);
+    public void getTaskDTOById() {
+        TaskDTO taskResult = taskService.getTaskDTOById(ID);
         assertEquals(task.getId(), taskResult.getId());
     }
 
     @Test
+    public void getTaskById() {
+        Task taskResult = taskService.getTaskById(ID);
+        assertEquals(task, taskResult);
+    }
+
+    @Test(expected = TaskNotFoundException.class)
+    public void getTaskByIdException() {
+        taskService.getTaskById(2L);
+    }
+
+    @Test
     public void getAllTasksTest() {
-        assertEquals(1, taskMapService.getAll().size());
+        assertEquals(1, taskService.getAll().size());
     }
 
     @Test
     public void deleteTaskById() {
-        assertEquals(true, taskMapService.deleteById(ID));
+        when(taskDispatcher.removeTask(any())).thenReturn(true);
+        assertTrue(taskService.deleteById(ID));
     }
 
-    @Test(expected = TaskNotFoundException.class)
+    @Test
     public void deleteTaskByIdFail() {
-        when(taskManagerService.deleteTask(any(Task.class))).thenReturn(true);
-        taskMapService.deleteById(ID + 1L);
+        when(taskDispatcher.removeTask(any())).thenReturn(false);
+        assertFalse(taskService.deleteById(ID));
     }
 
     @Test
@@ -90,15 +103,15 @@ public class TaskServiceTest {
         TaskDTO taskDTO = taskMapper.taskToTaskDTO(task);
         taskDTO.setUrl(URL_2);
         taskDTO.setUsersId(Sets.newHashSet(USER_ID2));
-        taskMapService.update(ID, taskDTO);
-        TaskDTO returnedTaskDTO = taskMapService.getById(ID);
+        taskService.update(ID, taskDTO);
+        TaskDTO returnedTaskDTO = taskService.getTaskDTOById(ID);
         assertEquals(URL_2, returnedTaskDTO.getUrl());
         assertTrue(returnedTaskDTO.getUsersId().contains(USER_ID2));
     }
 
     @Test(expected = TaskNotFoundException.class)
     public void updateTaskException() {
-        taskMapService.update(ID + 1L, new TaskDTO());
+        taskService.update(ID + 1L, new TaskDTO());
     }
 
     @Test
@@ -106,28 +119,28 @@ public class TaskServiceTest {
         List<Task> tasks = Arrays.asList(
                 Task.builder().url(URL).usersId(Sets.newHashSet(ID)).build(),
                 Task.builder().url(URL_2).usersId(Sets.newHashSet(ID2)).build());
-        taskMapService.saveAll(tasks);
-        assertEquals(3, taskMapService.getAll().size());
+        taskService.saveAll(tasks);
+        assertEquals(3, taskService.getAll().size());
     }
 
     @Test
     public void delete() {
-        assertTrue(taskMapService.delete(task));
-        assertEquals(0, taskMapService.getAll().size());
+        assertTrue(taskService.delete(task));
+        assertEquals(0, taskService.getAll().size());
     }
 
     @Test
     public void addTaskWithoutTaskSettings() {
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null);
         assertNull(taskDTO.getTaskSettings());
-        TaskDTO returnedTaskDTO = taskMapService.add(taskDTO);
+        TaskDTO returnedTaskDTO = taskService.add(taskDTO);
         assertNotNull(returnedTaskDTO.getTaskSettings());
     }
 
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
-        when(parserFactory.isCompatible(anyString())).thenReturn(false);
+        when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", new TaskSettingsDTO());
-        taskMapService.add(taskDTO);
+        taskService.add(taskDTO);
     }
 }

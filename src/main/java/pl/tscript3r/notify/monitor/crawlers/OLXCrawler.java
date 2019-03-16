@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.parsers;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.exceptions.ParserException;
+import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +18,17 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 @Scope("prototype")
-class OLXParser implements Parser {
+class OLXCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "olx.pl";
 
+    @Override
+    public String getHandledHostname() {
+        return HANDLED_HOSTNAME;
+    }
 
     @Override
-    public List<Ad> getAds(Task task, Document document) throws ParserException {
+    public List<Ad> getAds(Task task, Document document) throws CrawlerException {
         Elements adsElements = getAdsElements(document, Pattern.compile("fixed breakword\\s\\sad_*"));
         if (!adsElements.isEmpty())
             return parseMainLayoutElements(adsElements, task);
@@ -33,12 +37,7 @@ class OLXParser implements Parser {
         if (!adsElements.isEmpty())
             return parseWorkLayoutElements(adsElements, task);
 
-        throw new ParserException("Unexpected error appeared");
-    }
-
-    @Override
-    public String getHandledHostname() {
-        return HANDLED_HOSTNAME;
+        throw new CrawlerException("Unexpected error appeared");
     }
 
     private Elements getAdsElements(Document document, Pattern pattern) {
@@ -98,9 +97,9 @@ class OLXParser implements Parser {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || o instanceof Parser) return false;
-        Parser parser = (Parser) o;
-        return Objects.equals(HANDLED_HOSTNAME, parser.getHandledHostname());
+        if (o == null || o instanceof Crawler) return false;
+        Crawler crawler = (Crawler) o;
+        return Objects.equals(HANDLED_HOSTNAME, crawler.getHandledHostname());
     }
 
     @Override
@@ -108,5 +107,4 @@ class OLXParser implements Parser {
         return Objects.hash(HANDLED_HOSTNAME);
     }
 
-    // TODO: add unit tests & parserFactory test
 }

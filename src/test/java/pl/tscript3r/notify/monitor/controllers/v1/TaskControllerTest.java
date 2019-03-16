@@ -53,7 +53,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
         List<TaskDTO> taskDTOs = Arrays.asList(taskDTO1, taskDTO2);
         when(taskService.getAll()).thenReturn(taskDTOs);
 
-        mockMvc.perform(get(Paths.BASE_PATH + Paths.TASK_PATH)
+        mockMvc.perform(get(Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -63,9 +63,9 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     @Test
     public void getTaskById() throws Exception {
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null);
-        when(taskService.getById(anyLong())).thenReturn(taskDTO);
+        when(taskService.getTaskDTOById(anyLong())).thenReturn(taskDTO);
 
-        mockMvc.perform(get(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
+        mockMvc.perform(get(Paths.TASK_PATH + "/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -79,7 +79,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
         TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
         when(taskService.add(any())).thenReturn(taskDTO);
-        mockMvc.perform(post(Paths.BASE_PATH + Paths.TASK_PATH)
+        mockMvc.perform(post(Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(taskDTO)))
@@ -94,7 +94,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
         when(taskService.update(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
 
-        mockMvc.perform(put(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
+        mockMvc.perform(put(Paths.TASK_PATH + "/1")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(taskDTO)))
@@ -105,7 +105,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void deleteTask() throws Exception {
-        mockMvc.perform(delete(Paths.BASE_PATH + Paths.TASK_PATH + "/1")
+        mockMvc.perform(delete(Paths.TASK_PATH + "/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
