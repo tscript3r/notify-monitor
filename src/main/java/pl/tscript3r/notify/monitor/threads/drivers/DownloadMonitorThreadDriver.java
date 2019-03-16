@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.threads;
+package pl.tscript3r.notify.monitor.threads.drivers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -18,22 +18,41 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @Scope("prototype")
-public class DownloadThread implements Runnable {
+public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
 
     private final JsoupDocumentDownloader jsoupDocumentDownloader;
     private final Map<Task, Document> downloadTasks = Collections.synchronizedMap(new HashMap<>());
 
-    private Thread thread;
-    private Boolean isStopped = false;
-
-    public DownloadThread(JsoupDocumentDownloader jsoupDocumentDownloader) {
+    public DownloadMonitorThreadDriver(JsoupDocumentDownloader jsoupDocumentDownloader) {
         this.jsoupDocumentDownloader = jsoupDocumentDownloader;
-        start();
     }
 
-    public void add(Task task) {
+    @Override
+    public Boolean isFull() {
+        // TODO: implement, needs max value
+        return false;
+    }
+
+    @Override
+    public Boolean hasTask(Task task) {
+        return downloadTasks.containsKey(task);
+    }
+
+    @Override
+    public Boolean removeTask(Task task) {
+        Boolean result = hasTask(task);
+        downloadTasks.remove(task);
+        return result;
+    }
+
+    @Override
+    public Boolean addTask(Task task) {
         synchronized (downloadTasks) {
-            downloadTasks.put(task, null);
+            if (!downloadTasks.containsKey(task)) {
+                downloadTasks.put(task, null);
+                return true;
+            } else
+                return false;
         }
     }
 
@@ -49,49 +68,10 @@ public class DownloadThread implements Runnable {
         }
     }
 
-    public void start() {
-        if (!isStopped && thread == null || !thread.isAlive()) {
-            isStopped = false;
-            thread = new Thread(this);
-            thread.setName("DownloadThread=" + thread.getId());
-            thread.start();
-        }
-    }
-
-    public void stop() {
-        if (thread != null) {
-            log.warn("Stopped");
-            isStopped = true;
-            thread.interrupt();
-        }
-    }
-
-    public boolean isRunning() {
-        return thread.isAlive();
-    }
-
-    @Override
-    public void run() {
-        while (!thread.isInterrupted()) {
-            try {
-                for (Task task : getNotDownloadedTasks()) {
-                    checkDownloadAndPut(task);
-                    Thread.sleep(5000);
-                }
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                if (!isStopped)
-                    throwException(e);
-            }
-        }
-    }
-
-    private Set<Task> getNotDownloadedTasks() {
-        synchronized (downloadTasks) {
-            return downloadTasks.keySet()
-                    .stream()
-                    .filter(task -> !downloadTasks.containsValue(task))
-                    .collect(Collectors.toSet());
+    public void downloadTasks(Integer betweenDelay) throws InterruptedException {
+        for (Task task : getNotDownloadedTasks()) {
+            checkDownloadAndPut(task);
+            Thread.sleep(betweenDelay);
         }
     }
 
@@ -107,6 +87,15 @@ public class DownloadThread implements Runnable {
             }
     }
 
+    private Set<Task> getNotDownloadedTasks() {
+        synchronized (downloadTasks) {
+            return downloadTasks.keySet()
+                    .stream()
+                    .filter(task -> !downloadTasks.containsValue(task))
+                    .collect(Collectors.toSet());
+        }
+    }
+
     private Document downloadDocument(Task task) throws IOException {
         return jsoupDocumentDownloader.download(task.getUrl());
     }
@@ -114,5 +103,4 @@ public class DownloadThread implements Runnable {
     private void throwException(Exception e) {
         throw new CrawlerException(e.getMessage());
     }
-
 }

@@ -68,15 +68,4 @@ public class TaskController {
         taskService.deleteById(id);
     }
 
-    @ApiOperation(value = "Returns current status of the given task ID",
-            notes = "When ID is not added returns 404 error")
-    @GetMapping("{id}" + Paths.STATUS_TASK_PATH)
-    public String getStatus(@PathVariable String test) {
-
-        // TODO: implement
-
-        log.debug("Viewing task status for id: ");
-        return "soon";
-    }
-
 }

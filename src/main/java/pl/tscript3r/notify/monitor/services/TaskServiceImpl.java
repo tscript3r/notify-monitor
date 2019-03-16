@@ -40,7 +40,6 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
 
     @Override
     public Task getTaskById(Long id) {
-        // TODO: add test
         return Optional.ofNullable(super.findById(id))
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }

@@ -9,11 +9,11 @@ public class TaskTest {
 
     @Test
     public void isRefreshable() throws InterruptedException {
-        Task task = Task.builder().taskSettings(new TaskSettings(1)).build();
+        Task task = Task.builder().taskSettings(new TaskSettings(0)).build();
         assertTrue(task.isRefreshable());
         task.setRefreshTime();
         assertFalse(task.isRefreshable());
-        Thread.sleep(1100);
+        Thread.sleep(10);
         assertTrue(task.isRefreshable());
     }
 

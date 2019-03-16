@@ -98,8 +98,8 @@ class OLXCrawler implements Crawler {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || o instanceof Crawler) return false;
-        Crawler parser = (Crawler) o;
-        return Objects.equals(HANDLED_HOSTNAME, parser.getHandledHostname());
+        Crawler crawler = (Crawler) o;
+        return Objects.equals(HANDLED_HOSTNAME, crawler.getHandledHostname());
     }
 
     @Override
@@ -107,5 +107,4 @@ class OLXCrawler implements Crawler {
         return Objects.hash(HANDLED_HOSTNAME);
     }
 
-    // TODO: add unit tests & parserFactory test
 }

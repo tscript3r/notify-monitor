@@ -58,13 +58,19 @@ public class AdContainer {
             if (tasksAds.containsKey(task))
                 mergeAds(task, adsToDecoratedAdsSet(ads));
             else
-                tasksAds.put(task, adsToDecoratedAdsSet(ads));
-            log.debug("New ads for task id=" + task.getId() + " current count: " + tasksAds.get(task).size());
+                initialAdAddition(task, ads);
         }
+        log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
     }
 
     private void mergeAds(Task task, Collection<AdDecorated> ads) {
         tasksAds.get(task).addAll(ads);
+    }
+
+    private void initialAdAddition(Task task, Collection<Ad> ads) {
+        Collection<AdDecorated> adsDecorated = adsToDecoratedAdsSet(ads);
+        adsDecorated.forEach(adDecorated -> adDecorated.returned = true);
+        tasksAds.put(task, adsToDecoratedAdsSet(ads));
     }
 
     /**
@@ -108,4 +114,10 @@ public class AdContainer {
         }
     }
 
+    private Long countNewAds(Task task) {
+        return tasksAds.get(task)
+                .stream()
+                .filter(adDecorated -> !adDecorated.returned)
+                .count();
+    }
 }
