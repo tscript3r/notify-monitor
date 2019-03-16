@@ -45,19 +45,7 @@ public class OLXCrawlerTest {
     public void getAdsMainLayout() throws IOException {
         Task task = getDefaultTask();
         List<Ad> ads = olxParser.getAds(task, loadResource("mainLayout.html"));
-        assertEquals(39, ads.size());
-        Ad ad = ads.get(0);
-        assertNotNull(ad.getUrl());
-        assertNotNull(ad.getTitle());
-        assertNotNull(ad.getCategory());
-        assertNotNull(ad.getTask());
-    }
-
-    @Test
-    public void getAdsWorkLayout() throws IOException {
-        Task task = getDefaultTask();
-        List<Ad> ads = olxParser.getAds(task, loadResource("workLayout.html"));
-        assertEquals(39, ads.size());
+        assertEquals(3, ads.size());
         Ad ad = ads.get(0);
         assertNotNull(ad.getUrl());
         assertNotNull(ad.getTitle());

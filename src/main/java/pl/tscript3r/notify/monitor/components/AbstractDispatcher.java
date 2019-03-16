@@ -8,13 +8,12 @@ import pl.tscript3r.notify.monitor.threads.MonitorThread;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDispatcher {
+public abstract class AbstractDispatcher<T extends MonitorThread> {
 
-    // TODO: Refactor to generic
     private final Logger log;
     private final String beanName;
     private final ApplicationContext context;
-    protected final List<MonitorThread> monitorThreads = new ArrayList<>();
+    protected final List<T> monitorThreads = new ArrayList<>();
 
     public AbstractDispatcher(Logger log, String threadBeanName, ApplicationContext context) {
         this.log = log;
@@ -38,7 +37,7 @@ public abstract class AbstractDispatcher {
     }
 
     private MonitorThread getNewMonitorThread() {
-        MonitorThread monitorThread = (MonitorThread) context.getBean(beanName);
+        T monitorThread = (T) context.getBean(beanName);
         monitorThread.start();
         monitorThreads.add(monitorThread);
         return monitorThread;
