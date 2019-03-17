@@ -2,6 +2,7 @@ package pl.tscript3r.notify.monitor.threads.drivers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.components.JsoupDocumentDownloader;
@@ -21,16 +22,18 @@ import java.util.stream.Collectors;
 public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
 
     private final JsoupDocumentDownloader jsoupDocumentDownloader;
+    private final Integer downloaderQueueLimit;
     private final Map<Task, Document> downloadTasks = Collections.synchronizedMap(new HashMap<>());
 
-    public DownloadMonitorThreadDriver(JsoupDocumentDownloader jsoupDocumentDownloader) {
+    public DownloadMonitorThreadDriver(JsoupDocumentDownloader jsoupDocumentDownloader,
+                                       @Value("#{new Integer('${notify.monitor.threads.downloader.maxQueue}')}") Integer downloaderQueueLimit) {
+        this.downloaderQueueLimit = downloaderQueueLimit;
         this.jsoupDocumentDownloader = jsoupDocumentDownloader;
     }
 
     @Override
     public Boolean isFull() {
-        // TODO: implement, needs max value
-        return false;
+        return downloadTasks.size() >= downloaderQueueLimit;
     }
 
     @Override
@@ -68,7 +71,8 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
         }
     }
 
-    public void downloadTasks(Integer betweenDelay) throws InterruptedException {
+    @Override
+    public void execute(Integer betweenDelay) throws InterruptedException {
         for (Task task : getNotDownloadedTasks()) {
             checkDownloadAndPut(task);
             Thread.sleep(betweenDelay);

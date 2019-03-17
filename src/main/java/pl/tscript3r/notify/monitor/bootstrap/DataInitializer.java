@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
 import java.util.Arrays;
@@ -17,30 +16,34 @@ public class DataInitializer implements CommandLineRunner {
 
     private final TaskService taskService;
     private final Integer defaultInterval;
+    private final Integer defaultAdContainerLimit;
     private final Boolean loadBootstrap;
 
     public DataInitializer(TaskService taskService,
                            @Value("#{new Boolean('${notify.monitor.loadBootstrap}')}") Boolean loadBootstrap,
-                           @Value("#{new Integer('${notify.monitor.downloader.defaultInterval}')}")
-                                   Integer defaultInterval) {
+                           @Value("#{new Integer('${notify.monitor.task.defaultInterval}')}") Integer defaultInterval,
+                           @Value("#{new Integer('${notify.monitor.ad.queue.defaultLimit}')}")
+                                   Integer defaultAdContainerLimit) {
         this.taskService = taskService;
         this.defaultInterval = defaultInterval;
+        this.defaultAdContainerLimit = defaultAdContainerLimit;
         this.loadBootstrap = loadBootstrap;
     }
 
     @Override
     public void run(String... args) {
         if (loadBootstrap) {
-            TaskSettings taskSettings = new TaskSettings(defaultInterval);
 
             taskService.saveAll(Arrays.asList(
                     Task.builder()
-                            .taskSettings(taskSettings)
+                            .refreshInterval(defaultInterval)
+                            .adContainerLimit(defaultAdContainerLimit)
                             .usersId(Sets.newHashSet(1L, 2L))
                             .url("https://www.olx.pl/oddam-za-darmo/")
                             .build(),
                     Task.builder()
-                            .taskSettings(taskSettings)
+                            .refreshInterval(defaultInterval)
+                            .adContainerLimit(defaultAdContainerLimit)
                             .usersId(Sets.newHashSet(1L))
                             .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
                             .build()

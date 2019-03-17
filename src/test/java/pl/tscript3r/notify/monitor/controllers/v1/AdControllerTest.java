@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.tscript3r.notify.monitor.consts.v1.Paths;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.services.AdService;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
@@ -47,7 +46,7 @@ public class AdControllerTest extends AbstractRestControllerTest {
     @Test
     public void getCurrentAds() throws Exception {
         Task task = Task.builder()
-                .taskSettings(new TaskSettings(123))
+                .refreshInterval(120)
                 .url("http://www.olx.pl/oddam-za-darmo/")
                 .id(1L)
                 .usersId(Sets.newHashSet(1L)).build();

@@ -21,4 +21,6 @@ public interface TaskService {
 
     Boolean deleteById(Long id);
 
+    Boolean isAdded(Task task);
+
 }

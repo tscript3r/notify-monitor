@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.components;
+package pl.tscript3r.notify.monitor.dispatchers;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;

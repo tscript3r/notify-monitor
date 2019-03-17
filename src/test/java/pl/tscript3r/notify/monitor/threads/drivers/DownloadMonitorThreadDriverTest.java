@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.components.JsoupDocumentDownloader;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class DownloadMonitorThreadDriverTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(jsoupDocumentDownloader.download(any())).thenReturn(new Document(""));
-        downloadMonitorThreadDriver = new DownloadMonitorThreadDriver(jsoupDocumentDownloader);
+        downloadMonitorThreadDriver = new DownloadMonitorThreadDriver(jsoupDocumentDownloader, 2);
     }
 
     private Task getDefaultTask() {
@@ -37,7 +36,7 @@ public class DownloadMonitorThreadDriverTest {
                 .usersId(Sets.newHashSet(1L))
                 .url("https://www.olx.pl/oddam-za-darmo/")
                 .usersId(Sets.newHashSet(1L))
-                .taskSettings(new TaskSettings(5000))
+                .refreshInterval(120)
                 .build();
     }
 
@@ -48,7 +47,15 @@ public class DownloadMonitorThreadDriverTest {
 
     @Test
     public void isFull() {
-
+        assertFalse(downloadMonitorThreadDriver.isFull());
+        assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
+        assertFalse(downloadMonitorThreadDriver.isFull());
+        assertTrue(downloadMonitorThreadDriver.addTask(Task.builder()
+                .id(2L)
+                .usersId(Sets.newHashSet(1L))
+                .refreshInterval(120)
+                .build()));
+        assertTrue(downloadMonitorThreadDriver.isFull());
     }
 
     @Test
@@ -68,7 +75,7 @@ public class DownloadMonitorThreadDriverTest {
         Task task = getDefaultTask();
         assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
         assertFalse(downloadMonitorThreadDriver.isDownloaded(task));
-        downloadMonitorThreadDriver.downloadTasks(0);
+        downloadMonitorThreadDriver.execute(0);
         assertTrue(downloadMonitorThreadDriver.isDownloaded(task));
     }
 
@@ -77,7 +84,7 @@ public class DownloadMonitorThreadDriverTest {
         Task task = getDefaultTask();
         assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
         assertFalse(downloadMonitorThreadDriver.isDownloaded(task));
-        downloadMonitorThreadDriver.downloadTasks(0);
+        downloadMonitorThreadDriver.execute(0);
         assertTrue(downloadMonitorThreadDriver.isDownloaded(task));
         assertNotNull(downloadMonitorThreadDriver.returnDocument(task));
     }
@@ -86,6 +93,6 @@ public class DownloadMonitorThreadDriverTest {
     public void downloadTasks() throws IOException, InterruptedException {
         assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
         when(jsoupDocumentDownloader.download(any())).thenThrow(new IOException());
-        downloadMonitorThreadDriver.downloadTasks(0);
+        downloadMonitorThreadDriver.execute(0);
     }
 }

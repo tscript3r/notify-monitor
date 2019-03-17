@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.components;
+package pl.tscript3r.notify.monitor.dispatchers;
 
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
@@ -26,9 +26,9 @@ public abstract class AbstractDispatcher<T extends MonitorThread> {
         findFreeMonitorThread().getDriver().addTask(task);
     }
 
-    private MonitorThread findFreeMonitorThread() {
+    private T findFreeMonitorThread() {
         if (!monitorThreads.isEmpty())
-            for (MonitorThread monitorThread : monitorThreads) {
+            for (T monitorThread : monitorThreads) {
                 if (!monitorThread.getDriver().isFull())
                     return monitorThread;
             }
@@ -36,7 +36,7 @@ public abstract class AbstractDispatcher<T extends MonitorThread> {
         return getNewMonitorThread();
     }
 
-    private MonitorThread getNewMonitorThread() {
+    private T getNewMonitorThread() {
         T monitorThread = (T) context.getBean(beanName);
         monitorThread.start();
         monitorThreads.add(monitorThread);

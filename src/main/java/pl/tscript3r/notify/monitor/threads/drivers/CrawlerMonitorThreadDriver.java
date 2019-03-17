@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.components.AdContainer;
-import pl.tscript3r.notify.monitor.components.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
+import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
@@ -29,7 +29,7 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
     private final Integer crawlerThreadCapacity;
 
     public CrawlerMonitorThreadDriver(DownloadDispatcher downloadDispatcher, AdContainer adContainer, CrawlerFactory crawlerFactory,
-                                      @Value("#{new Integer('${notify.monitor.threads.parserCapacity}')}") Integer crawlerThreadCapacity) {
+                                      @Value("#{new Integer('${notify.monitor.threads.crawler.taskLimit}')}") Integer crawlerThreadCapacity) {
         this.downloadDispatcher = downloadDispatcher;
         this.adContainer = adContainer;
         this.crawlerFactory = crawlerFactory;
@@ -67,7 +67,8 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
         }
     }
 
-    public void crawlTasks(Integer betweenDelay) throws InterruptedException {
+    @Override
+    public void execute(Integer betweenDelay) throws InterruptedException {
         for (Task task : getShallowCopiedTasks()) {
             if (downloadDispatcher.isDownloaded(task)) {
                 crawlTask(task);
@@ -99,7 +100,6 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
         downloadDispatcher.addTask(task);
     }
 
-    // TODO: refactor
     private Crawler getParser(Task task) {
         if (!crawlers.isEmpty())
             for (Crawler crawler : crawlers)

@@ -12,4 +12,6 @@ public interface MonitorThreadDriver {
 
     Boolean addTask(Task task);
 
+    void execute(Integer betweenDelay) throws InterruptedException;
+
 }

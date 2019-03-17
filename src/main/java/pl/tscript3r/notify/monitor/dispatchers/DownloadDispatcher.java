@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.components;
+package pl.tscript3r.notify.monitor.dispatchers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -6,7 +6,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.threads.DownloadMonitorThread;
-import pl.tscript3r.notify.monitor.threads.MonitorThread;
 import pl.tscript3r.notify.monitor.threads.drivers.DownloadMonitorThreadDriver;
 
 @Slf4j

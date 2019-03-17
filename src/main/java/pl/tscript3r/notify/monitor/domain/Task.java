@@ -21,23 +21,28 @@ public class Task extends BaseEntity {
 
     @Getter
     @Setter
-    private TaskSettings taskSettings;
+    private Integer refreshInterval;
+
+    @Getter
+    @Setter
+    private Integer adContainerLimit;
 
     private Long lastRefreshTime = 0L;
 
     // TODO: add enabled property? Can be on "hold" with -> v1/tasks/1/stop | start
 
     @Builder
-    public Task(Long id, Set<Long> usersId, String url, TaskSettings taskSettings) {
+    public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Integer adContainerLimit) {
         super(id);
         this.usersId = usersId;
         this.url = url;
-        this.taskSettings = taskSettings;
+        this.refreshInterval = refreshInterval;
+        this.adContainerLimit = adContainerLimit;
     }
 
     public Boolean isRefreshable() {
         synchronized (lastRefreshTime) {
-            return (lastRefreshTime + (taskSettings.getRefreshInterval() * 1000)) < System.currentTimeMillis();
+            return (lastRefreshTime + (refreshInterval * 1000)) < System.currentTimeMillis();
         }
     }
 
@@ -53,7 +58,7 @@ public class Task extends BaseEntity {
                 "id=" + getId() +
                 ", userId=" + usersId +
                 ", url='" + url + '\'' +
-                ", taskSettings=" + taskSettings +
+                ", refreshInterval=" + refreshInterval +
                 '}';
     }
 

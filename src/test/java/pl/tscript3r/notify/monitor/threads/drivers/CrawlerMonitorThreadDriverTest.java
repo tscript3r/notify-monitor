@@ -7,12 +7,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.components.AdContainer;
-import pl.tscript3r.notify.monitor.components.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
+import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 
 import java.util.Arrays;
@@ -52,7 +51,7 @@ public class CrawlerMonitorThreadDriverTest {
                 .usersId(Sets.newHashSet(1L))
                 .url("https://www.olx.pl/oddam-za-darmo/")
                 .usersId(Sets.newHashSet(1L))
-                .taskSettings(new TaskSettings(5000))
+                .refreshInterval(5000)
                 .build();
     }
 
@@ -103,7 +102,7 @@ public class CrawlerMonitorThreadDriverTest {
         when(downloadDispatcher.returnDocument(any())).thenReturn(new Document(""));
         when(crawlerFactory.getParser(any())).thenReturn(crawler);
         when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(), new Ad()));
-        crawlerMonitorThreadDriver.crawlTasks(0);
+        crawlerMonitorThreadDriver.execute(0);
 
         verify(downloadDispatcher, times(1)).isDownloaded(any());
         verify(adContainer, times(1)).addAds(any(), anyCollection());
@@ -118,7 +117,7 @@ public class CrawlerMonitorThreadDriverTest {
         assertTrue(crawlerMonitorThreadDriver.addTask(getDefaultTask()));
         when(downloadDispatcher.isDownloaded(any())).thenReturn(false);
         when(downloadDispatcher.containsTask(any())).thenReturn(false);
-        crawlerMonitorThreadDriver.crawlTasks(0);
+        crawlerMonitorThreadDriver.execute(0);
         verify(downloadDispatcher, times(1)).addTask(any());
     }
 
@@ -127,7 +126,7 @@ public class CrawlerMonitorThreadDriverTest {
         assertTrue(crawlerMonitorThreadDriver.addTask(getDefaultTask()));
         when(downloadDispatcher.isDownloaded(any())).thenReturn(false);
         when(downloadDispatcher.containsTask(any())).thenReturn(true);
-        crawlerMonitorThreadDriver.crawlTasks(0);
+        crawlerMonitorThreadDriver.execute(0);
         verify(downloadDispatcher, never()).addTask(any());
     }
 
@@ -138,7 +137,7 @@ public class CrawlerMonitorThreadDriverTest {
                 .usersId(Sets.newHashSet(1L))
                 .url("https://www.olx.pl/oddam-za-darmo/2")
                 .usersId(Sets.newHashSet(1L))
-                .taskSettings(new TaskSettings(5000))
+                .refreshInterval(5000)
                 .build();
         Task task2 = getDefaultTask();
         assertTrue(task.isRefreshable());
@@ -149,7 +148,7 @@ public class CrawlerMonitorThreadDriverTest {
         when(crawlerFactory.getParser(any())).thenReturn(crawler);
         when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(), new Ad()));
         when(crawler.getHandledHostname()).thenReturn("olx.pl");
-        crawlerMonitorThreadDriver.crawlTasks(0);
+        crawlerMonitorThreadDriver.execute(0);
 
         verify(downloadDispatcher, times(2)).isDownloaded(any());
         verify(adContainer, times(2)).addAds(any(), anyCollection());

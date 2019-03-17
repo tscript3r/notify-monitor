@@ -1,15 +1,13 @@
 package pl.tscript3r.notify.monitor.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
-import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
-import pl.tscript3r.notify.monitor.components.TaskDispatcher;
+import pl.tscript3r.notify.monitor.components.TaskDefaultValueSetter;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
+import pl.tscript3r.notify.monitor.dispatchers.TaskDispatcher;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
@@ -22,20 +20,18 @@ import java.util.stream.Collectors;
 @Service
 public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService {
 
+    // TODO: add similar URLs auto detection & add user id to existing one
+    private final TaskDefaultValueSetter taskDefaultValueSetter;
     private final TaskMapper taskMapper;
-    private final TaskSettingsMapper taskSettingsMapper;
-    private final TaskSettings defaultTaskSettings;
     private final CrawlerFactory crawlerFactory;
     private final TaskDispatcher taskDispatcher;
 
-    public TaskServiceImpl(@Value("#{new Integer('${notify.monitor.downloader.defaultInterval}')}") Integer defaultInterval, TaskMapper taskMapper,
-                           TaskSettingsMapper taskSettingsMapper, CrawlerFactory parserFactory,
-                           TaskDispatcher taskDispatcher) {
+    public TaskServiceImpl(TaskDefaultValueSetter taskDefaultValueSetter, TaskMapper taskMapper,
+                           CrawlerFactory parserFactory, TaskDispatcher taskDispatcher) {
+        this.taskDefaultValueSetter = taskDefaultValueSetter;
         this.taskMapper = taskMapper;
-        this.taskSettingsMapper = taskSettingsMapper;
         this.crawlerFactory = parserFactory;
         this.taskDispatcher = taskDispatcher;
-        defaultTaskSettings = new TaskSettings(defaultInterval);
     }
 
     @Override
@@ -71,12 +67,10 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     @Override
     public TaskDTO add(TaskDTO taskDTO) {
         log.debug("Adding new task from taskDTO");
-        if (taskDTO.getTaskSettings() == null)
-            taskDTO.setTaskSettings(
-                    taskSettingsMapper.taskSettingsToTaskSettingsDTO(defaultTaskSettings));
         if (!crawlerFactory.isCompatible(
                 HostnameExtractor.getDomain(taskDTO.getUrl())))
             throw new IncompatibleHostnameException(HostnameExtractor.getDomain(taskDTO.getUrl()));
+        taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
         taskDispatcher.addTask(task);
         return taskMapper.taskToTaskDTO(task);
@@ -85,6 +79,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     @Override
     public TaskDTO update(Long id, TaskDTO taskDTO) {
         log.debug("Updating task id=" + id);
+        taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task task = taskMapper.taskDTOToTask(taskDTO);
         if (findById(id) == null)
             throw new TaskNotFoundException(id);
@@ -98,5 +93,10 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     public Boolean deleteById(Long id) {
         log.debug("Deleting task id=" + id);
         return taskDispatcher.removeTask(super.deleteId(id));
+    }
+
+    @Override
+    public Boolean isAdded(Task task) {
+        return getTaskById(task.getId()) != null;
     }
 }

@@ -7,13 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
-import pl.tscript3r.notify.monitor.api.v1.mapper.TaskSettingsMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
-import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
-import pl.tscript3r.notify.monitor.components.TaskDispatcher;
+import pl.tscript3r.notify.monitor.components.TaskDefaultValueSetter;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
+import pl.tscript3r.notify.monitor.dispatchers.TaskDispatcher;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.domain.TaskSettings;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 
@@ -27,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 public class TaskServiceTest {
 
-    private static final int REFRESH_INTERVAL = 555;
     private static final long ID = 1L;
     private static final long USER_ID = 2L;
     private static final String URL = "https://www.olx.pl/";
@@ -41,27 +38,34 @@ public class TaskServiceTest {
     @Mock
     TaskDispatcher taskDispatcher;
 
+    TaskDefaultValueSetter taskDefaultValueSetter;
+
     @InjectMocks
     TaskServiceImpl taskService;
 
     private TaskMapper taskMapper = TaskMapper.INSTANCE;
-    private TaskSettingsMapper taskSettingsMapper = TaskSettingsMapper.INSTANCE;
-    private TaskSettings taskSettings = new TaskSettings(REFRESH_INTERVAL);
     private Task task;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
-        taskService = new TaskServiceImpl(30, taskMapper,
-                taskSettingsMapper, crawlerFactory, taskDispatcher);
-        task = new Task(ID, Sets.newHashSet(1L), URL, taskSettings);
+        taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 60, 30);
+        taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper,
+                crawlerFactory, taskDispatcher);
+        task = new Task(ID, Sets.newHashSet(1L), URL, 120, 60);
         taskService.add(taskMapper.taskToTaskDTO(task));
     }
 
     @Test(expected = RuntimeException.class)
     public void saveNullObject() {
         taskService.save(null);
+    }
+
+    @Test(expected = TaskNotFoundException.class)
+    public void isAdded() {
+        assertTrue(taskService.isAdded(task));
+        assertFalse(taskService.isAdded(Task.builder().id(2L).build()));
     }
 
     @Test
@@ -131,16 +135,17 @@ public class TaskServiceTest {
 
     @Test
     public void addTaskWithoutTaskSettings() {
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null);
-        assertNull(taskDTO.getTaskSettings());
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null);
+        assertNull(taskDTO.getRefreshInterval());
         TaskDTO returnedTaskDTO = taskService.add(taskDTO);
-        assertNotNull(returnedTaskDTO.getTaskSettings());
+        assertNotNull(returnedTaskDTO.getRefreshInterval());
+        assertTrue(returnedTaskDTO.getRefreshInterval() == 120);
     }
 
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
         when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", new TaskSettingsDTO());
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 80);
         taskService.add(taskDTO);
     }
 }

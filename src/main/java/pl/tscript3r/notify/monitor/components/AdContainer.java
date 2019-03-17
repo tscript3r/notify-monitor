@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.components;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Ad;
@@ -32,20 +33,19 @@ public class AdContainer {
         }
     }
 
-    private HashSet<AdDecorated> adsToDecoratedAdsSet(Collection<Ad> ads) {
+    private LinkedHashSet<AdDecorated> adsToDecoratedAdsSet(Collection<Ad> ads) {
         return ads.stream()
                 .map(AdDecorated::new)
-                .collect(Collectors.toCollection(HashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private HashSet<Ad> adsDecoratedToAdsSet(Collection<AdDecorated> ads) {
+    private LinkedHashSet<Ad> adsDecoratedToAdsSet(Collection<AdDecorated> ads) {
         return ads.stream()
                 .map(adDecorated -> adDecorated.ad)
-                .collect(Collectors.toCollection(HashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    // TODO: limit HashSet
-    private final Map<Task, HashSet<AdDecorated>> tasksAds = new HashMap<>();
+    private final Map<Task, LinkedHashSet<AdDecorated>> tasksAds = new HashMap<>();
 
     /**
      * Adds ads to the given <b>task</b>, if any of the given ad is
@@ -59,6 +59,8 @@ public class AdContainer {
                 mergeAds(task, adsToDecoratedAdsSet(ads));
             else
                 initialAdAddition(task, ads);
+
+            limitAds(task);
         }
         log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
     }
@@ -68,9 +70,28 @@ public class AdContainer {
     }
 
     private void initialAdAddition(Task task, Collection<Ad> ads) {
-        Collection<AdDecorated> adsDecorated = adsToDecoratedAdsSet(ads);
+        LinkedHashSet<AdDecorated> adsDecorated = adsToDecoratedAdsSet(ads);
         adsDecorated.forEach(adDecorated -> adDecorated.returned = true);
-        tasksAds.put(task, adsToDecoratedAdsSet(ads));
+        tasksAds.put(task, adsDecorated);
+    }
+
+    // TODO: probably to refactor, add test
+    private void limitAds(Task task) {
+        if (tasksAds.get(task).size() > task.getAdContainerLimit()) {
+            LinkedHashSet<AdDecorated> currentSet = tasksAds.get(task);
+            LinkedHashSet<AdDecorated> cutOffSet = new LinkedHashSet<>(task.getAdContainerLimit());
+            Iterator it = currentSet.iterator();
+            int removeCount = tasksAds.get(task).size() - task.getAdContainerLimit();
+            int skippedCount = 0;
+            while (it.hasNext()) {
+                AdDecorated adDecorated = (AdDecorated) it.next();
+                if (skippedCount >= removeCount)
+                    cutOffSet.add(adDecorated);
+                skippedCount++;
+            }
+            tasksAds.put(task, cutOffSet);
+            log.debug("Task id=" + task.getId() + " stored ads list has been limited (size=" + cutOffSet.size() + ")");
+        }
     }
 
     /**
@@ -79,7 +100,10 @@ public class AdContainer {
      */
     public Set<Ad> returnAllAds(Task task) {
         synchronized (tasksAds) {
-            return adsDecoratedToAdsSet(tasksAds.get(task));
+            if (tasksAds.containsKey(task) && tasksAds.get(task).size() > 0)
+                return adsDecoratedToAdsSet(tasksAds.get(task));
+            else
+                return Sets.newHashSet();
         }
     }
 
@@ -89,16 +113,20 @@ public class AdContainer {
      */
     public Set<Ad> returnNewAdsAndMarkAsReturned(Task task) {
         synchronized (tasksAds) {
-            return adsDecoratedToAdsSet(tasksAds.get(task)
-                    .stream()
-                    .filter(adDecorated -> {
-                        if (!adDecorated.returned) {
-                            adDecorated.returned = true;
-                            return true;
-                        } else
-                            return false;
-                    })
-                    .collect(Collectors.toCollection(HashSet::new)));
+            if (tasksAds.containsKey(task) && tasksAds.get(task).size() > 0)
+                return adsDecoratedToAdsSet(tasksAds.get(task)
+                        .stream()
+                        .filter(adDecorated -> {
+                            if (!adDecorated.returned) {
+                                adDecorated.returned = true;
+                                return true;
+                            } else
+                                return false;
+                        })
+                        .collect(Collectors.toCollection(ArrayList::new)));
+            else
+                return Sets.newHashSet();
+
         }
     }
 

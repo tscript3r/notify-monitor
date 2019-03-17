@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
-import pl.tscript3r.notify.monitor.api.v1.model.TaskSettingsDTO;
 import pl.tscript3r.notify.monitor.consts.v1.Paths;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
@@ -62,7 +61,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void getTaskById() throws Exception {
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null, null);
         when(taskService.getTaskDTOById(anyLong())).thenReturn(taskDTO);
 
         mockMvc.perform(get(Paths.TASK_PATH + "/1")
@@ -76,8 +75,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void addTask() throws Exception {
-        TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, 80);
         when(taskService.add(any())).thenReturn(taskDTO);
         mockMvc.perform(post(Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -90,8 +88,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void updateTask() throws Exception {
-        TaskSettingsDTO taskSettingsDTO = new TaskSettingsDTO();
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, taskSettingsDTO);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, 80);
         when(taskService.update(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
 
         mockMvc.perform(put(Paths.TASK_PATH + "/1")

@@ -24,7 +24,8 @@ public class AdContainerTest {
     public void setUp() {
         adContainer = new AdContainer();
         task = Task.builder()
-                .taskSettings(null)
+                .refreshInterval(0)
+                .adContainerLimit(10)
                 .url("http://www.olx.pl/oddam-za-darmo/")
                 .id(1L)
                 .usersId(Sets.newHashSet(1L)).build();
@@ -71,7 +72,7 @@ public class AdContainerTest {
     @Test
     public void receiveNewAds() {
         adContainer.addAds(task, getInitialAds());
-        assertEquals(3, adContainer.returnNewAdsAndMarkAsReturned(task).size());
+        assertEquals(0, adContainer.returnNewAdsAndMarkAsReturned(task).size());
         List<Ad> additionalAds = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four", null,
                 null, null, null, null), one, two));
         adContainer.addAds(task, additionalAds);
@@ -84,4 +85,19 @@ public class AdContainerTest {
         adContainer.addAds(task, getInitialAds());
         assertTrue(adContainer.anyAds(task));
     }
+
+    @Test
+    public void returnAllAdsEmpty() {
+        assertEquals(Sets.newHashSet(), adContainer.returnAllAds(task));
+        adContainer.addAds(task, Sets.newHashSet());
+        assertEquals(Sets.newHashSet(), adContainer.returnAllAds(task));
+    }
+
+    @Test
+    public void returnNewAdsAndMarkAsReturned() {
+        assertEquals(Sets.newHashSet(), adContainer.returnNewAdsAndMarkAsReturned(task));
+        adContainer.addAds(task, Sets.newHashSet());
+        assertEquals(Sets.newHashSet(), adContainer.returnNewAdsAndMarkAsReturned(task));
+    }
+
 }

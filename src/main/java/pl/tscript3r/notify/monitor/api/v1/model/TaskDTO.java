@@ -26,7 +26,10 @@ public class TaskDTO {
     @NotNull
     private String url;
 
-    @JsonProperty("task_settings")
-    private TaskSettingsDTO taskSettings;
+    @JsonProperty("refresh_interval")
+    private Integer refreshInterval;
+
+    @JsonProperty("stored_ads_limit")
+    private Integer adContainerLimit;
 
 }
