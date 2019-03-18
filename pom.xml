@@ -4,7 +4,7 @@
 
     <groupId>pl.tscript3r</groupId>
     <artifactId>demo</artifactId>
-    <version>y</version>
+    <version>1.1-SNAPSHOT</version>
     <name>notify-monitor</name>
     <description>Demo project for Spring Boot</description>
 
@@ -128,7 +128,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/tscript3r/notify-monitor.git</developerConnection>
-        <tag>y</tag>
+        <tag>HEAD</tag>
     </scm>
 
 </project>
