@@ -4,6 +4,6 @@
  * - implement Crawler interface
  * - be a Spring @Component with @Scope "prototype" (every CrawlerThread gets his own instance)
  * - be package-private
- * - equals & hashCode only with his handled hostname
+ * - equals and hashCode only with his handled hostname
  */
 package pl.tscript3r.notify.monitor.crawlers;
