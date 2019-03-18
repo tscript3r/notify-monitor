@@ -76,7 +76,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
     @Test
     public void addTask() throws Exception {
         TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, 80);
-        when(taskService.add(any())).thenReturn(taskDTO);
+        when(taskService.saveDTO(any())).thenReturn(taskDTO);
         mockMvc.perform(post(Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

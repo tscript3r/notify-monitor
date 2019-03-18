@@ -29,7 +29,7 @@ public class TaskTest {
         task.setId(1L);
         assertEquals(task, task2);
         task.setUsersId(Sets.newHashSet(2L));
-        assertNotEquals(task, task2);
+        assertEquals(task, task2);
     }
 
 }

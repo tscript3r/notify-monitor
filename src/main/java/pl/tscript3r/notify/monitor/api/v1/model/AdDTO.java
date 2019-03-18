@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,5 +29,7 @@ public class AdDTO {
 
     @JsonProperty("additional_properties")
     private Map<String, String> additionalProperties;
+
+    private Timestamp timestamp;
 
 }

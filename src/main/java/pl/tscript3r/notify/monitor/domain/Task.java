@@ -29,7 +29,7 @@ public class Task extends BaseEntity {
 
     private Long lastRefreshTime = 0L;
 
-    // TODO: add enabled property? Can be on "hold" with -> v1/tasks/1/stop | start
+    // TODO: saveDTO enabled property? Can be on "hold" with -> v1/tasks/1/stop | start
 
     @Builder
     public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Integer adContainerLimit) {
@@ -67,12 +67,11 @@ public class Task extends BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return Objects.equals(usersId, task.usersId) &&
-                Objects.equals(getId(), task.getId());
+        return Objects.equals(getId(), task.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(usersId, getId());
+        return Objects.hash(getId());
     }
 }

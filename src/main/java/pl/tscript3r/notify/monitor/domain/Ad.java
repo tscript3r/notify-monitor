@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +24,9 @@ public class Ad extends BaseEntity {
 
     @Getter
     private Map<String, String> additionalProperties = new HashMap<>();
+
+    @Getter
+    private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     public Ad(Task task, String url) {
         setId(idCounter++);

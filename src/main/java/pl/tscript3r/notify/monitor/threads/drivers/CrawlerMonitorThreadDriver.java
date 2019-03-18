@@ -62,7 +62,7 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
         synchronized (tasks) {
             log.debug("Received task id=" + task.getId());
             if (isFull())
-                throw new MonitorThreadException("Tried to add a task to a full CrawlerMonitorThread");
+                throw new MonitorThreadException("Tried to save a task to a full CrawlerMonitorThread");
             return tasks.add(task);
         }
     }

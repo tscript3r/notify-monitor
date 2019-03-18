@@ -54,7 +54,7 @@ public class TaskServiceTest {
         taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper,
                 crawlerFactory, taskDispatcher);
         task = new Task(ID, Sets.newHashSet(1L), URL, 120, 60);
-        taskService.add(taskMapper.taskToTaskDTO(task));
+        taskService.saveDTO(taskMapper.taskToTaskDTO(task));
     }
 
     @Test(expected = RuntimeException.class)
@@ -137,7 +137,7 @@ public class TaskServiceTest {
     public void addTaskWithoutTaskSettings() {
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null);
         assertNull(taskDTO.getRefreshInterval());
-        TaskDTO returnedTaskDTO = taskService.add(taskDTO);
+        TaskDTO returnedTaskDTO = taskService.saveDTO(taskDTO);
         assertNotNull(returnedTaskDTO.getRefreshInterval());
         assertTrue(returnedTaskDTO.getRefreshInterval() == 120);
     }
@@ -146,6 +146,6 @@ public class TaskServiceTest {
     public void addTaskWithWrongURL() {
         when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 80);
-        taskService.add(taskDTO);
+        taskService.saveDTO(taskDTO);
     }
 }

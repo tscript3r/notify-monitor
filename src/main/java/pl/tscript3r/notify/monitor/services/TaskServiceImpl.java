@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService {
 
-    // TODO: add similar URLs auto detection & add user id to existing one
+    // TODO: saveDTO similar URLs auto detection & saveDTO user id to existing one
     private final TaskDefaultValueSetter taskDefaultValueSetter;
     private final TaskMapper taskMapper;
     private final CrawlerFactory crawlerFactory;
@@ -50,9 +50,9 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     @Override
     public void saveAll(List<Task> tasks) {
         log.debug("Saving " + tasks.size() + " tasks");
-        tasks.forEach(task -> {
-            taskDispatcher.addTask(super.save(task));
-        });
+            tasks.forEach(task -> {
+                taskDispatcher.addTask(super.save(task));
+            });
     }
 
     @Override
@@ -65,7 +65,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     }
 
     @Override
-    public TaskDTO add(TaskDTO taskDTO) {
+    public TaskDTO saveDTO(TaskDTO taskDTO) {
         log.debug("Adding new task from taskDTO");
         if (!crawlerFactory.isCompatible(
                 HostnameExtractor.getDomain(taskDTO.getUrl())))
@@ -79,14 +79,24 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     @Override
     public TaskDTO update(Long id, TaskDTO taskDTO) {
         log.debug("Updating task id=" + id);
-        taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
-        Task task = taskMapper.taskDTOToTask(taskDTO);
+        Task task = findById(id);
         if (findById(id) == null)
             throw new TaskNotFoundException(id);
-        task.setId(id);
+        updateTask(task, taskDTO);
+        taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task returnedTask = super.save(task);
-
         return taskMapper.taskToTaskDTO(returnedTask);
+    }
+
+    private void updateTask(Task task, TaskDTO taskDTO) {
+        if(taskDTO.getUsersId() != null)
+            task.setUsersId(taskDTO.getUsersId());
+        if(taskDTO.getUrl() != null)
+            task.setUrl(taskDTO.getUrl());
+        if(taskDTO.getRefreshInterval() != null)
+            task.setRefreshInterval(taskDTO.getRefreshInterval());
+        if(taskDTO.getAdContainerLimit() != null)
+            task.setAdContainerLimit(taskDTO.getAdContainerLimit());
     }
 
     @Override

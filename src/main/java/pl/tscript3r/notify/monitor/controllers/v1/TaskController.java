@@ -47,7 +47,7 @@ public class TaskController {
     @ResponseStatus(HttpStatus.CREATED)
     public TaskDTO add(@Valid @RequestBody TaskDTO taskDTO) {
         log.debug("Adding new task for users id=" + taskDTO.getUsersId());
-        return taskService.add(taskDTO);
+        return taskService.saveDTO(taskDTO);
     }
 
     @ApiOperation(value = "Updates task by given ID", notes = "task_id can not be changed & " +

@@ -75,7 +75,7 @@ public class AdContainer {
         tasksAds.put(task, adsDecorated);
     }
 
-    // TODO: probably to refactor, add test
+    // TODO: probably to refactor, saveDTO test
     private void limitAds(Task task) {
         if (tasksAds.get(task).size() > task.getAdContainerLimit()) {
             LinkedHashSet<AdDecorated> currentSet = tasksAds.get(task);

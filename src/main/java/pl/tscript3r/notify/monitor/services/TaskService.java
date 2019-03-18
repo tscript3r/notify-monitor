@@ -15,7 +15,7 @@ public interface TaskService {
 
     List<TaskDTO> getAll();
 
-    TaskDTO add(TaskDTO taskDTO);
+    TaskDTO saveDTO(TaskDTO taskDTO);
 
     TaskDTO update(Long id, TaskDTO taskDTO);
 
