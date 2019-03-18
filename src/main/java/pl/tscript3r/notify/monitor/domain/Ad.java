@@ -1,32 +1,59 @@
 package pl.tscript3r.notify.monitor.domain;
 
-import lombok.*;
+import lombok.Getter;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-@Getter
-@Setter
-@ToString(exclude = "task")
-@NoArgsConstructor
-@AllArgsConstructor
 public class Ad extends BaseEntity {
 
-    @NotNull
-    private Task task;
+    private static Long idCounter = 0L;
 
+    @Getter
+    @NotNull
+    private final Task task;
+
+    @Getter
     @URL
-    private String url;
-    private String thumbnailUrl;
-    private String price;
-    private String category;
-
     @NotNull
-    private String title;
+    private final String url;
 
-    @NotNull
-    private String location;
+    @Getter
+    private Map<String, String> additionalProperties = new HashMap<>();
+
+    public Ad(Task task, String url) {
+        setId(idCounter++);
+        this.task = task;
+        this.url = url;
+    }
+
+    public void addProperty(String key, String value) {
+        if (value != null && !value.isEmpty())
+            additionalProperties.put(key, value);
+    }
+
+    public Boolean hasValue(String key) {
+        return additionalProperties.containsKey(key) && !additionalProperties.get(key).isEmpty();
+    }
+
+    public String getValue(String key) {
+        if (hasValue(key))
+            return additionalProperties.get(key);
+        else
+            return "";
+    }
+
+    @Override
+    public String toString() {
+        return "Ad{" +
+                "task.id=" + task.getId() +
+                ", url='" + url + '\'' +
+                ", additionalProperties=" + additionalProperties +
+                '}';
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -40,4 +67,5 @@ public class Ad extends BaseEntity {
     public int hashCode() {
         return Objects.hash(url);
     }
+
 }

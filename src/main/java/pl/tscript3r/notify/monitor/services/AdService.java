@@ -1,12 +1,12 @@
 package pl.tscript3r.notify.monitor.services;
 
-import pl.tscript3r.notify.monitor.domain.Ad;
+import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
 import pl.tscript3r.notify.monitor.domain.Task;
 
-import java.util.Set;
+import java.util.List;
 
 public interface AdService {
 
-    Set<Ad> getCurrentAds(Task task);
+    List<AdDTO> getNewAds(Task task);
 
 }

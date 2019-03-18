@@ -29,9 +29,9 @@ public class AdContainerTest {
                 .url("http://www.olx.pl/oddam-za-darmo/")
                 .id(1L)
                 .usersId(Sets.newHashSet(1L)).build();
-        one = new Ad(task, task.getUrl() + "one", null, null, null, null, null);
-        two = new Ad(task, task.getUrl() + "two", null, null, null, null, null);
-        three = new Ad(task, task.getUrl() + "three", null, null, null, null, null);
+        one = new Ad(task, task.getUrl() + "one");
+        two = new Ad(task, task.getUrl() + "two");
+        three = new Ad(task, task.getUrl() + "three");
     }
 
     private List<Ad> getInitialAds() {
@@ -48,8 +48,7 @@ public class AdContainerTest {
     @Test
     public void addAndMergeAds() {
         adContainer.addAds(task, getInitialAds());
-        List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four", null,
-                null, null, null, null)));
+        List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four")));
         adContainer.addAds(task, additionalAd);
         assertEquals(4, adContainer.returnAllAds(task).size());
     }
@@ -57,8 +56,7 @@ public class AdContainerTest {
     @Test
     public void addAndMergeAdsWithDuplicate() {
         adContainer.addAds(task, getInitialAds());
-        List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four", null,
-                null, null, null, null), one, two));
+        List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four"), one, two));
         adContainer.addAds(task, additionalAd);
         assertEquals(4, adContainer.returnAllAds(task).size());
     }
@@ -73,8 +71,7 @@ public class AdContainerTest {
     public void receiveNewAds() {
         adContainer.addAds(task, getInitialAds());
         assertEquals(0, adContainer.returnNewAdsAndMarkAsReturned(task).size());
-        List<Ad> additionalAds = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four", null,
-                null, null, null, null), one, two));
+        List<Ad> additionalAds = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four"), one, two));
         adContainer.addAds(task, additionalAds);
         assertEquals(1, adContainer.returnNewAdsAndMarkAsReturned(task).size());
     }
