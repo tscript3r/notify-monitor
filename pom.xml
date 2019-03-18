@@ -4,9 +4,8 @@
 
     <groupId>pl.tscript3r</groupId>
     <artifactId>demo</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <name>notify-monitor</name>
-    <description>Demo project for Spring Boot</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
