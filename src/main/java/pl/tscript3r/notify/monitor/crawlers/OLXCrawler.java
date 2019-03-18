@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
@@ -48,23 +49,21 @@ class OLXCrawler implements Crawler {
     private List<Ad> parseMainLayoutElements(Elements elements, Task task) {
         List<Ad> adsList = new ArrayList<>();
         elements.forEach(adElement -> {
-            Ad ad = new Ad();
-            ad.setTask(task);
-            ad.setUrl(adElement.select("a[href]").attr("href"));
-            ad.setTitle(adElement.select("strong")
+            Ad ad = new Ad(task, adElement.select("a[href]").attr("href"));
+            ad.addProperty(AdProperties.TITLE, adElement.select("strong")
                     .first()
                     .text());
-            ad.setThumbnailUrl(adElement.select("img[src]")
+            ad.addProperty(AdProperties.THUMBNAIL_URL, adElement.select("img[src]")
                     .attr("src"));
-            ad.setLocation(adElement.select("small[class]")
+            ad.addProperty(AdProperties.LOCATION, adElement.select("small[class]")
                     .attr("class", "breadcrumb x-normal")
                     .select("span")
                     .first()
                     .text());
-            ad.setCategory(adElement.select("small[class]")
+            ad.addProperty(AdProperties.CATEGORY, adElement.select("small[class]")
                     .first()
                     .text());
-            ad.setPrice(adElement.select("p")
+            ad.addProperty(AdProperties.PRICE, adElement.select("p")
                     .select("strong")
                     .text());
 
@@ -78,16 +77,15 @@ class OLXCrawler implements Crawler {
         List<Ad> adList = new ArrayList<>();
         elements.forEach(adElement -> {
             if (StringUtils.containsIgnoreCase(adElement.attr("class"), "offer ")) {
-                Ad ad = new Ad();
-                ad.setTask(task);
-                ad.setUrl(adElement.select("a[href]")
+                Ad ad = new Ad(task, adElement.select("a[href]")
                         .attr("href"));
-                ad.setTitle(adElement.select("div[class]")
+                ad.addProperty(AdProperties.TITLE, adElement.select("div[class]")
                         .attr("class", "list-item__price")
                         .text());
-                ad.setLocation(adElement.select("strong[class]")
+                ad.addProperty(AdProperties.LOCATION, adElement.select("strong[class]")
                         .attr("strong", "list-item__location")
                         .text());
+                adList.add(ad);
             }
         });
 

@@ -5,12 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tscript3r.notify.monitor.api.v1.model.AdListDTO;
 import pl.tscript3r.notify.monitor.consts.v1.Paths;
-import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.services.AdService;
 import pl.tscript3r.notify.monitor.services.TaskService;
-
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -25,9 +23,9 @@ public class AdController {
         this.adService = adService;
     }
 
-    @GetMapping(Paths.CURRENT_AD_TASK_PATH)
-    public Set<Ad> getCurrentAds(@PathVariable Long id) {
-        return adService.getCurrentAds(taskService.getTaskById(id));
+    @GetMapping
+    public AdListDTO getNewAds(@PathVariable Long id) {
+        return new AdListDTO(adService.getNewAds(taskService.getTaskById(id)));
     }
 
 }

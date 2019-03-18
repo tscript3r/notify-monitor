@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
+import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 
@@ -13,8 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class OLXCrawlerTest {
 
@@ -48,8 +48,9 @@ public class OLXCrawlerTest {
         assertEquals(3, ads.size());
         Ad ad = ads.get(0);
         assertNotNull(ad.getUrl());
-        assertNotNull(ad.getTitle());
-        assertNotNull(ad.getCategory());
+        assertTrue(ad.hasValue(AdProperties.LOCATION));
+        assertTrue(ad.hasValue(AdProperties.TITLE));
+        assertTrue(ad.hasValue(AdProperties.CATEGORY));
         assertNotNull(ad.getTask());
     }
 

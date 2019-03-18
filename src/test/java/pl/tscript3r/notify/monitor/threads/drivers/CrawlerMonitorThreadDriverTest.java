@@ -101,7 +101,7 @@ public class CrawlerMonitorThreadDriverTest {
         when(downloadDispatcher.isDownloaded(any())).thenReturn(true);
         when(downloadDispatcher.returnDocument(any())).thenReturn(new Document(""));
         when(crawlerFactory.getParser(any())).thenReturn(crawler);
-        when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(), new Ad()));
+        when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(null, null), new Ad(null, null)));
         crawlerMonitorThreadDriver.execute(0);
 
         verify(downloadDispatcher, times(1)).isDownloaded(any());
@@ -146,7 +146,7 @@ public class CrawlerMonitorThreadDriverTest {
         when(downloadDispatcher.isDownloaded(any())).thenReturn(true);
         when(downloadDispatcher.returnDocument(any())).thenReturn(new Document(""));
         when(crawlerFactory.getParser(any())).thenReturn(crawler);
-        when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(), new Ad()));
+        when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(null, null), new Ad(null, null)));
         when(crawler.getHandledHostname()).thenReturn("olx.pl");
         crawlerMonitorThreadDriver.execute(0);
 

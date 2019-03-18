@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class TaskListDTO {
+public class AdListDTO {
 
-    private List<TaskDTO> tasks;
+    private List<AdDTO> ads;
 
 }
