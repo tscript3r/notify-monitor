@@ -51,7 +51,7 @@ public class AbstractMonitorThread implements MonitorThread {
 
     @Override
     public void run() {
-        while (!thread.isInterrupted() && !isStopped) {
+        while (!thread.isInterrupted() || !isStopped) {
             try {
                 monitorThreadDriver.execute(5000);
                 Thread.sleep(5000);

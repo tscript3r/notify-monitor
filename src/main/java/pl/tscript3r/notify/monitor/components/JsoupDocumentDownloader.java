@@ -24,6 +24,7 @@ public class JsoupDocumentDownloader {
                 .timeout(downloaderSettings.getConnectionTimeout() * 1000)
                 .followRedirects(downloaderSettings.getFollowRedirects())
                 .maxBodySize(downloaderSettings.getMaxBodySize() * 1024)
+                .ignoreHttpErrors(true)
                 .get();
     }
 

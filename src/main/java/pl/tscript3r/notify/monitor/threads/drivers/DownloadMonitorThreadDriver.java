@@ -10,6 +10,8 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
 
+    private static final int IGNORED_EXCEPTION_COOLDOWN_TIME = 300 * 1000; // 5min;
+    
     private final JsoupDocumentDownloader jsoupDocumentDownloader;
     private final Integer downloaderQueueLimit;
     private final Map<Task, Document> downloadTasks = Collections.synchronizedMap(new HashMap<>());
@@ -79,18 +83,6 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
         }
     }
 
-    private void checkDownloadAndPut(Task task) {
-        if (task.isRefreshable())
-            try {
-                Document document = downloadDocument(task);
-                synchronized (downloadTasks) {
-                    downloadTasks.put(task, document);
-                }
-            } catch (IOException e) {
-                throwException(e);
-            }
-    }
-
     private Set<Task> getNotDownloadedTasks() {
         synchronized (downloadTasks) {
             return downloadTasks.keySet()
@@ -99,12 +91,32 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
                     .collect(Collectors.toSet());
         }
     }
+    
+    private void checkDownloadAndPut(Task task) throws InterruptedException {
+        if (task.isRefreshable())
+            try {
+                Document document = downloadDocument(task);
+                if(document != null)
+                    synchronized (downloadTasks) {
+                        downloadTasks.put(task, document);
+                    }
+            } catch (IOException e) {
+                handleException(e);
+            }
+    }
 
     private Document downloadDocument(Task task) throws IOException {
         return jsoupDocumentDownloader.download(task.getUrl());
     }
 
-    private void throwException(Exception e) {
-        throw new CrawlerException(e.getMessage());
+    private void handleException(Exception e) throws InterruptedException {
+        if(e instanceof ConnectException) {
+            log.error("ConnectionException: " + e.getMessage());
+            Thread.sleep(IGNORED_EXCEPTION_COOLDOWN_TIME);
+        } else if(e instanceof UnknownHostException) {
+            log.error("UnknownHostException: " + e.getMessage());
+            Thread.sleep(IGNORED_EXCEPTION_COOLDOWN_TIME);
+        } else
+            throw new CrawlerException(e.getMessage());
     }
 }
