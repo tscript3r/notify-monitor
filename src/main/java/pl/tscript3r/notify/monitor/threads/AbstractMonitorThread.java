@@ -31,15 +31,15 @@ public class AbstractMonitorThread implements MonitorThread {
     public void stop() {
         if (thread != null) {
             log.warn("Stopped");
-            isStopped = true;
             thread.interrupt();
         }
+        isStopped = true;
     }
 
     @Override
     public Boolean isRunning() {
         if (thread != null)
-            return thread.isAlive();
+            return thread.isAlive() && !isStopped;
         else
             return false;
     }

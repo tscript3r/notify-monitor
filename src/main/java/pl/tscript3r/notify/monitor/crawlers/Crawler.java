@@ -4,10 +4,11 @@ import org.jsoup.nodes.Document;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
+import pl.tscript3r.notify.monitor.status.Statusable;
 
 import java.util.List;
 
-public interface Crawler {
+public interface Crawler extends Statusable {
 
     /**
      * Returns all currently found ads from the url

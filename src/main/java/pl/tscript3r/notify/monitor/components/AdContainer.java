@@ -5,13 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.status.Status;
+import pl.tscript3r.notify.monitor.status.Statusable;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class AdContainer {
+public class AdContainer implements Statusable {
 
     private class AdDecorated {
         Ad ad;
@@ -46,7 +49,7 @@ public class AdContainer {
     }
 
     private final Map<Task, LinkedHashSet<AdDecorated>> tasksAds = new HashMap<>();
-
+    private BigInteger totalReceivedAdsCount = new BigInteger("0");
     /**
      * Adds ads to the given <b>task</b>, if any of the given ad is
      * duplicated will be skipped
@@ -54,6 +57,7 @@ public class AdContainer {
      * @param ads Any collection
      */
     public void addAds(Task task, Collection<Ad> ads) {
+        addTotalReceivedAdsCount(ads.size());
         synchronized (tasksAds) {
             if (tasksAds.containsKey(task))
                 mergeAds(task, adsToDecoratedAdsSet(ads));
@@ -63,6 +67,10 @@ public class AdContainer {
             limitAds(task);
         }
         log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
+    }
+
+    public void addTotalReceivedAdsCount(Integer size) {
+        totalReceivedAdsCount = totalReceivedAdsCount.add(BigInteger.valueOf(size));
     }
 
     private void mergeAds(Task task, Collection<AdDecorated> ads) {
@@ -138,7 +146,6 @@ public class AdContainer {
         synchronized (tasksAds) {
             return tasksAds.containsKey(task) &&
                     !tasksAds.get(task).isEmpty();
-
         }
     }
 
@@ -147,5 +154,29 @@ public class AdContainer {
                 .stream()
                 .filter(adDecorated -> !adDecorated.returned)
                 .count();
+    }
+
+    @Override
+    public Status receive() {
+        Status status = Status.create(this.getClass());
+        status.addValue("current_task_count", Integer.toString(tasksAds.size()));
+        status.addValue("current_ads_count", countTotalStoredAds().toString());
+        status.addValue("current_new_ads_count", countCurrentNewAds().toString());
+        status.addValue("total_received_ads_count", totalReceivedAdsCount.toString());
+        return status;
+    }
+
+    private Long countTotalStoredAds() {
+        long result = 0;
+        for (LinkedHashSet<AdDecorated> value : tasksAds.values())
+            result+=value.size();
+        return result;
+    }
+
+    private Long countCurrentNewAds() {
+        long result = 0;
+        for (Task task : tasksAds.keySet())
+            result+=countNewAds(task);
+        return result;
     }
 }

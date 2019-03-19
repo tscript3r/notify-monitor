@@ -12,7 +12,6 @@ public class TaskMapperTest {
     public static final String URL = "URL";
     public static final long ID = 3L;
     public static final long USER_ID = 1L;
-    public static final int REFRESH_INTERVAL = 666;
     private TaskMapper taskMapper = TaskMapper.INSTANCE;
 
     @Test
