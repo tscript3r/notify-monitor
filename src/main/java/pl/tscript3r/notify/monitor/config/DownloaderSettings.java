@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("notify.monitor.downloader")
 public class DownloaderSettings {
 
-    private Integer defaultInterval;
     private Integer connectionTimeout;
     private Integer maxBodySize;
     private String userAgent;

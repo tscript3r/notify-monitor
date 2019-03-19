@@ -157,7 +157,7 @@ public class AdContainer implements Statusable {
     }
 
     @Override
-    public Status receive() {
+    public Status receiveStatus() {
         Status status = Status.create(this.getClass());
         status.addValue("current_task_count", Integer.toString(tasksAds.size()));
         status.addValue("current_ads_count", countTotalStoredAds().toString());

@@ -96,7 +96,7 @@ class OLXCrawler implements Crawler {
     }
 
     @Override
-    public Status receive() {
+    public Status receiveStatus() {
         Status status = Status.create(this.getClass());
         status.addValue("execute_count", executeCount.toString());
         return status;

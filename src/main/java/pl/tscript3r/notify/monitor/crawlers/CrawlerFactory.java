@@ -65,7 +65,7 @@ public class CrawlerFactory implements Statusable {
     }
 
     @Override
-    public Status receive() {
+    public Status receiveStatus() {
         Status status = Status.create(this.getClass());
         status.addValue("crawler_instances_created", crawlerInstancesCount.toString());
         return status;

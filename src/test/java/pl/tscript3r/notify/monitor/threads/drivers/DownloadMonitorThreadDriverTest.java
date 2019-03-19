@@ -11,6 +11,8 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +29,7 @@ public class DownloadMonitorThreadDriverTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(jsoupDocumentDownloader.download(any())).thenReturn(new Document(""));
-        downloadMonitorThreadDriver = new DownloadMonitorThreadDriver(jsoupDocumentDownloader, 2);
+        downloadMonitorThreadDriver = new DownloadMonitorThreadDriver(jsoupDocumentDownloader, 2, 0);
     }
 
     private Task getDefaultTask() {
@@ -43,6 +45,12 @@ public class DownloadMonitorThreadDriverTest {
     @Test
     public void addTask() {
         assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
+    }
+
+    @Test
+    public void addTaskFail() {
+        assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
+        assertFalse(downloadMonitorThreadDriver.addTask(getDefaultTask()));
     }
 
     @Test
@@ -95,4 +103,19 @@ public class DownloadMonitorThreadDriverTest {
         when(jsoupDocumentDownloader.download(any())).thenThrow(new IOException());
         downloadMonitorThreadDriver.execute(0);
     }
+
+    @Test
+    public void handleSilentUnknownHostException() throws InterruptedException, IOException {
+        assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
+        when(jsoupDocumentDownloader.download(any())).thenThrow(new UnknownHostException());
+        downloadMonitorThreadDriver.execute(0);
+    }
+
+    @Test
+    public void handleSilentConnectException() throws InterruptedException, IOException {
+        assertTrue(downloadMonitorThreadDriver.addTask(getDefaultTask()));
+        when(jsoupDocumentDownloader.download(any())).thenThrow(new ConnectException());
+        downloadMonitorThreadDriver.execute(0);
+    }
+
 }

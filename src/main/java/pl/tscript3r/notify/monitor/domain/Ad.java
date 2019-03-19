@@ -11,7 +11,16 @@ import java.util.Objects;
 
 public class Ad extends BaseEntity {
 
-    private static Long idCounter = 0L;
+    private static long idCounter = 0L;
+
+    private static long getIdValue() {
+        // I know - very optimistic that nothing else
+        // will break until this value is reached }: )
+        if(idCounter <= Long.MAX_VALUE)
+            return idCounter++;
+        else
+            return idCounter=0;
+    }
 
     @Getter
     @NotNull
@@ -29,22 +38,23 @@ public class Ad extends BaseEntity {
     private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     public Ad(Task task, String url) {
-        setId(idCounter++);
+        setId(getIdValue());
         this.task = task;
         this.url = url;
     }
 
     public void addProperty(String key, String value) {
-        if (value != null && !value.isEmpty())
+        if (value != null && key != null &&
+                !key.isEmpty() && !value.isEmpty())
             additionalProperties.put(key, value);
     }
 
-    public Boolean hasValue(String key) {
+    public Boolean hasKey(String key) {
         return additionalProperties.containsKey(key) && !additionalProperties.get(key).isEmpty();
     }
 
     public String getValue(String key) {
-        if (hasValue(key))
+        if (hasKey(key))
             return additionalProperties.get(key);
         else
             return "";

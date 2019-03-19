@@ -97,4 +97,9 @@ public class AdContainerTest {
         assertEquals(Sets.newHashSet(), adContainer.returnNewAdsAndMarkAsReturned(task));
     }
 
+    @Test
+    public void receiveStatusNotNull() {
+        assertNotNull(adContainer.receiveStatus());
+    }
+
 }

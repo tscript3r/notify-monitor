@@ -21,9 +21,6 @@ public class CrawlerFactoryTest {
     @Mock
     ApplicationContext context;
 
-    @Mock
-    StatusCollector statusCollector;
-
     CrawlerFactory parserFactory;
 
     @Mock
@@ -65,5 +62,11 @@ public class CrawlerFactoryTest {
     public void getParserException() {
         defaultSetUp();
         parserFactory.getParser(NOT_ADDED_DOMAIN);
+    }
+
+    @Test
+    public void receiveStatusNotNull() {
+        defaultSetUp();
+        assertNotNull(parserFactory.receiveStatus());
     }
 }

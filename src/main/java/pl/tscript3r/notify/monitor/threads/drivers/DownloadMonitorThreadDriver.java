@@ -22,16 +22,17 @@ import java.util.stream.Collectors;
 @Component
 @Scope("prototype")
 public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
-
-    private static final int IGNORED_EXCEPTION_COOLDOWN_TIME = 300 * 1000; // 5min;
     
     private final JsoupDocumentDownloader jsoupDocumentDownloader;
     private final Integer downloaderQueueLimit;
+    private final Integer cooldownTime;
     private final Map<Task, Document> downloadTasks = Collections.synchronizedMap(new HashMap<>());
 
     public DownloadMonitorThreadDriver(JsoupDocumentDownloader jsoupDocumentDownloader,
-                                       @Value("#{new Integer('${notify.monitor.threads.downloader.maxQueue}')}") Integer downloaderQueueLimit) {
+                                       @Value("#{new Integer('${notify.monitor.threads.downloader.maxQueue}')}") Integer downloaderQueueLimit,
+                                       @Value("#{new Integer('${notify.monitor.threads.downloader.cooldownTime}')}") Integer cooldownTime) {
         this.downloaderQueueLimit = downloaderQueueLimit;
+        this.cooldownTime = cooldownTime * 1000;
         this.jsoupDocumentDownloader = jsoupDocumentDownloader;
     }
 
@@ -110,13 +111,15 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
     }
 
     private void handleException(Exception e) throws InterruptedException {
-        if(e instanceof ConnectException) {
-            log.error("ConnectionException: " + e.getMessage());
-            Thread.sleep(IGNORED_EXCEPTION_COOLDOWN_TIME);
-        } else if(e instanceof UnknownHostException) {
-            log.error("UnknownHostException: " + e.getMessage());
-            Thread.sleep(IGNORED_EXCEPTION_COOLDOWN_TIME);
+        if(e instanceof ConnectException || e instanceof UnknownHostException) {
+            logSuppressedError(e);
+            Thread.sleep(cooldownTime);
         } else
             throw new CrawlerException(e.getMessage());
+    }
+
+    private void logSuppressedError(Exception e) {
+        log.error("Following exception appeared: [" + e.getClass().getSimpleName() + ": " +
+                e.getMessage() + "] - after cooldown time (" + cooldownTime + " sec) thread will resume.");
     }
 }

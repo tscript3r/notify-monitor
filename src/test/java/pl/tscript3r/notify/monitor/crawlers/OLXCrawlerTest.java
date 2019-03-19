@@ -48,9 +48,9 @@ public class OLXCrawlerTest {
         assertEquals(3, ads.size());
         Ad ad = ads.get(0);
         assertNotNull(ad.getUrl());
-        assertTrue(ad.hasValue(AdProperties.LOCATION));
-        assertTrue(ad.hasValue(AdProperties.TITLE));
-        assertTrue(ad.hasValue(AdProperties.CATEGORY));
+        assertTrue(ad.hasKey(AdProperties.LOCATION));
+        assertTrue(ad.hasKey(AdProperties.TITLE));
+        assertTrue(ad.hasKey(AdProperties.CATEGORY));
         assertNotNull(ad.getTask());
     }
 
@@ -62,5 +62,10 @@ public class OLXCrawlerTest {
     @Test
     public void hashCodeTest() {
         assertEquals(Objects.hash(OLX_PL), olxParser.hashCode());
+    }
+
+    @Test
+    public void receiveStatusNotNull() {
+        assertNotNull(olxParser.receiveStatus());
     }
 }

@@ -11,10 +11,15 @@ public class AbstractMonitorThread implements MonitorThread {
 
     private Thread thread;
     private Boolean isStopped = false;
+    private Integer betweenDelay;
+    private Integer iterationDelay;
 
-    public AbstractMonitorThread(Logger log, MonitorThreadDriver monitorThreadDriver) {
+    public AbstractMonitorThread(Logger log, MonitorThreadDriver monitorThreadDriver,
+                                 Integer betweenDelay, Integer iterationDelay) {
         this.log = log;
         this.monitorThreadDriver = monitorThreadDriver;
+        this.betweenDelay = betweenDelay;
+        this.iterationDelay = iterationDelay;
     }
 
     @Override
@@ -53,8 +58,8 @@ public class AbstractMonitorThread implements MonitorThread {
     public void run() {
         while (!thread.isInterrupted() || !isStopped) {
             try {
-                monitorThreadDriver.execute(5000);
-                Thread.sleep(5000);
+                monitorThreadDriver.execute(betweenDelay);
+                Thread.sleep(iterationDelay);
             } catch (InterruptedException e) {
                 if (!isStopped)
                     throwException(e);

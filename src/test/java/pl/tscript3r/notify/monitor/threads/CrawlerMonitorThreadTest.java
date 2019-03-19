@@ -20,7 +20,7 @@ public class CrawlerMonitorThreadTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        crawlerMonitorThread = new CrawlerMonitorThread(monitorThreadDriver);
+        crawlerMonitorThread = new CrawlerMonitorThread(monitorThreadDriver, 0, 0);
     }
 
     @Test
