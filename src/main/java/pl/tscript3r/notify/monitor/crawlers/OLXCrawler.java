@@ -10,6 +10,7 @@ import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
+import pl.tscript3r.notify.monitor.status.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 class OLXCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "olx.pl";
+    private Integer executeCount = 0;
 
     @Override
     public String getHandledHostname() {
@@ -30,6 +32,7 @@ class OLXCrawler implements Crawler {
 
     @Override
     public List<Ad> getAds(Task task, Document document) throws CrawlerException {
+        executeCount++;
         Elements adsElements = getAdsElements(document, Pattern.compile("fixed breakword\\s\\sad_*"));
         if (!adsElements.isEmpty())
             return parseMainLayoutElements(adsElements, task);
@@ -90,6 +93,13 @@ class OLXCrawler implements Crawler {
         });
 
         return adList;
+    }
+
+    @Override
+    public Status receive() {
+        Status status = Status.create(this.getClass());
+        status.addValue("execute_count", executeCount.toString());
+        return status;
     }
 
     @Override
