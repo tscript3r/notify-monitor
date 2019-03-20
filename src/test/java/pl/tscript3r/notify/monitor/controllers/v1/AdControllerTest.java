@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -73,4 +74,11 @@ public class AdControllerTest extends AbstractRestControllerTest {
                 .andExpect(jsonPath("$.ads", hasSize(2)))
                 .andReturn();
     }
+
+
+    @Test
+    public void statusNotNull() {
+        assertNotNull(adController.receiveStatus());
+    }
+
 }

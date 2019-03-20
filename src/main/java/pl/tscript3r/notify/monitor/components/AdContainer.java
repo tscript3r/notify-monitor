@@ -87,12 +87,12 @@ public class AdContainer implements Statusable {
             Iterator it = currentSet.iterator();
             int removeCount = tasksAds.get(task).size() - task.getAdContainerLimit();
             int skippedCount = 0;
-            while (it.hasNext()) {
+            do {
                 AdDecorated adDecorated = (AdDecorated) it.next();
                 if (skippedCount >= removeCount)
                     cutOffSet.add(adDecorated);
                 skippedCount++;
-            }
+            }  while (it.hasNext());
             tasksAds.put(task, cutOffSet);
             log.debug("Task id=" + task.getId() + " stored ads list has been limited (size=" + cutOffSet.size() + ")");
         }

@@ -9,6 +9,7 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -25,7 +26,7 @@ public class AdContainerTest {
         adContainer = new AdContainer();
         task = Task.builder()
                 .refreshInterval(0)
-                .adContainerLimit(10)
+                .adContainerLimit(4)
                 .url("http://www.olx.pl/oddam-za-darmo/")
                 .id(1L)
                 .usersId(Sets.newHashSet(1L)).build();
@@ -100,6 +101,25 @@ public class AdContainerTest {
     @Test
     public void receiveStatusNotNull() {
         assertNotNull(adContainer.receiveStatus());
+    }
+
+    @Test
+    public void limitListTest() {
+        List<Ad> initialAds = getInitialAds();
+        Ad four = new Ad(task, task.getUrl() + "four");
+        Ad five = new Ad(task, task.getUrl() + "five");
+        Ad six = new Ad(task, task.getUrl() + "six");
+        initialAds.add(four);
+        adContainer.addAds(task, initialAds);
+        List<Ad> overLimitAds = Arrays.asList(five, six);
+        adContainer.addAds(task, overLimitAds);
+        assertEquals(2, adContainer.returnNewAdsAndMarkAsReturned(task).size());
+        assertEquals(4, adContainer.returnAllAds(task).size());
+        Set<Ad> allReturnedAds = adContainer.returnAllAds(task);
+        assertTrue(allReturnedAds.contains(three));
+        assertTrue(allReturnedAds.contains(four));
+        assertTrue(allReturnedAds.contains(five));
+        assertTrue(allReturnedAds.contains(six));
     }
 
 }

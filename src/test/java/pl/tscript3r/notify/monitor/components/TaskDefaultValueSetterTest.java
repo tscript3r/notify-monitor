@@ -6,6 +6,7 @@ import org.junit.Test;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TaskDefaultValueSetterTest {
 
@@ -30,6 +31,11 @@ public class TaskDefaultValueSetterTest {
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         assertEquals(120, taskDTO.getRefreshInterval().intValue());
         assertEquals(60, taskDTO.getAdContainerLimit().intValue());
+    }
+
+    @Test
+    public void statusNotNull() {
+        assertNotNull(taskDefaultValueSetter.receiveStatus());
     }
 
 }

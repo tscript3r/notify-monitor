@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -107,8 +108,10 @@ public class TaskControllerTest extends AbstractRestControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    public void getStatus() {
 
+    @Test
+    public void statusNotNull() {
+        assertNotNull(taskController.receiveStatus());
     }
+
 }

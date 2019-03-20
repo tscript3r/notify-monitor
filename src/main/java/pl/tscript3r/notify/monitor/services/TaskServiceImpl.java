@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService, Statusable {
+public class TaskServiceImpl extends AbstractMapService<Task, Long> implements TaskService {
 
     private static final String GET_TASK_ID_CALLS = "get_task_id_calls";
     private static final String GET_TASK_DTO_ID_CALLS = "get_task_dto_id_calls";

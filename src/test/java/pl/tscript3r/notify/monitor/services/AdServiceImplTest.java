@@ -12,6 +12,7 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -52,5 +53,9 @@ public class AdServiceImplTest {
         adService.getNewAds(Task.builder().id(1L).build());
     }
 
+    @Test
+    public void statusNotNull() {
+        assertNotNull(taskService.receiveStatus());
+    }
 
 }
