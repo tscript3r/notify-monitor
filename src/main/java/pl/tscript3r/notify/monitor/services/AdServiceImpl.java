@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AdServiceImpl implements AdService, Statusable {
+public class AdServiceImpl implements AdService {
 
     private static final String RETURNED_NEW_ADS = "returned_new_ads";
 

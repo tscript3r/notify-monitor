@@ -55,7 +55,7 @@ public class AdServiceImplTest {
 
     @Test
     public void statusNotNull() {
-        assertNotNull(taskService.receiveStatus());
+        assertNotNull(adService.receiveStatus());
     }
 
 }
