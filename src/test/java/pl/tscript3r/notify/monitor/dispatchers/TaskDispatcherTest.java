@@ -36,7 +36,8 @@ public class TaskDispatcherTest {
         MockitoAnnotations.initMocks(this);
         when(context.getBean(anyString())).thenReturn(crawlerMonitorThread);
         when(crawlerMonitorThread.getDriver()).thenReturn(crawlerMonitorThreadDriver);
-        taskDispatcher = new TaskDispatcher(context);
+        taskDispatcher = new TaskDispatcher();
+        taskDispatcher.setApplicationContext(context);
     }
 
     private Task getDefaultTask() {

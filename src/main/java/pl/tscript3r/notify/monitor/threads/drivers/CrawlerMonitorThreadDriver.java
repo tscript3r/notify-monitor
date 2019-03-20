@@ -21,6 +21,7 @@ import java.util.List;
 @Component
 @Scope("prototype")
 public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
+
     private final DownloadDispatcher downloadDispatcher;
     private final AdContainer adContainer;
     private final CrawlerFactory crawlerFactory;
@@ -114,4 +115,5 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
     private Boolean parserCompatible(Crawler crawler, Task task) {
         return crawler.getHandledHostname().equals(HostnameExtractor.getDomain(task.getUrl()));
     }
+
 }

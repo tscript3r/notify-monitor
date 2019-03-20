@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 @Component
 public class AdContainer implements Statusable {
 
+    private final Status status = Status.create(this.getClass());
+    private final Map<Task, LinkedHashSet<AdDecorated>> tasksAds = new HashMap<>();
+    private BigInteger totalReceivedAdsCount = new BigInteger("0");
+
     private class AdDecorated {
         Ad ad;
         Boolean returned = false;
@@ -48,14 +52,6 @@ public class AdContainer implements Statusable {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private final Map<Task, LinkedHashSet<AdDecorated>> tasksAds = new HashMap<>();
-    private BigInteger totalReceivedAdsCount = new BigInteger("0");
-    /**
-     * Adds ads to the given <b>task</b>, if any of the given ad is
-     * duplicated will be skipped
-     *
-     * @param ads Any collection
-     */
     public void addAds(Task task, Collection<Ad> ads) {
         addTotalReceivedAdsCount(ads.size());
         synchronized (tasksAds) {
@@ -63,14 +59,14 @@ public class AdContainer implements Statusable {
                 mergeAds(task, adsToDecoratedAdsSet(ads));
             else
                 initialAdAddition(task, ads);
-
             limitAds(task);
         }
         log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
     }
 
-    public void addTotalReceivedAdsCount(Integer size) {
+    private void addTotalReceivedAdsCount(Integer size) {
         totalReceivedAdsCount = totalReceivedAdsCount.add(BigInteger.valueOf(size));
+        status.setValue("total_received_ads_count", totalReceivedAdsCount);
     }
 
     private void mergeAds(Task task, Collection<AdDecorated> ads) {
@@ -102,10 +98,6 @@ public class AdContainer implements Statusable {
         }
     }
 
-    /**
-     * @param task
-     * @return Returns all currently stored ads for the given task
-     */
     public Set<Ad> returnAllAds(Task task) {
         synchronized (tasksAds) {
             if (tasksAds.containsKey(task) && tasksAds.get(task).size() > 0)
@@ -115,10 +107,6 @@ public class AdContainer implements Statusable {
         }
     }
 
-    /**
-     * @param task
-     * @return Returns only the ads which has been not yet returned, and marks them as returned
-     */
     public Set<Ad> returnNewAdsAndMarkAsReturned(Task task) {
         synchronized (tasksAds) {
             if (tasksAds.containsKey(task) && tasksAds.get(task).size() > 0)
@@ -138,10 +126,6 @@ public class AdContainer implements Statusable {
         }
     }
 
-    /**
-     * @param task
-     * @return <b>true</b> when the given task has been already added and contains any ads
-     */
     public Boolean anyAds(Task task) {
         synchronized (tasksAds) {
             return tasksAds.containsKey(task) &&
@@ -159,24 +143,24 @@ public class AdContainer implements Statusable {
     @Override
     public Status receiveStatus() {
         Status status = Status.create(this.getClass());
-        status.addValue("current_task_count", Integer.toString(tasksAds.size()));
-        status.addValue("current_ads_count", countTotalStoredAds().toString());
-        status.addValue("current_new_ads_count", countCurrentNewAds().toString());
-        status.addValue("total_received_ads_count", totalReceivedAdsCount.toString());
+        status.setValue("current_tasks", tasksAds.size());
+        status.setValue("current_ads", countTotalStoredAds());
+        status.setValue("current_new_ads", countCurrentNewAds());
+        status.setValue("total_received_ads", totalReceivedAdsCount);
         return status;
     }
 
     private Long countTotalStoredAds() {
         long result = 0;
         for (LinkedHashSet<AdDecorated> value : tasksAds.values())
-            result+=value.size();
+            result += value.size();
         return result;
     }
 
     private Long countCurrentNewAds() {
         long result = 0;
         for (Task task : tasksAds.keySet())
-            result+=countNewAds(task);
+            result += countNewAds(task);
         return result;
     }
 }

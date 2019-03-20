@@ -7,7 +7,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
-import pl.tscript3r.notify.monitor.status.StatusCollector;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,13 +35,15 @@ public class CrawlerFactoryTest {
 
     public void defaultSetUp() {
         when(parser.getHandledHostname()).thenReturn(DOMAIN);
-        parserFactory = new CrawlerFactory(context);
+        parserFactory = new CrawlerFactory();
+        parserFactory.setApplicationContext(context);
     }
 
     @Test(expected = FatalBeanException.class)
     public void constructorFailTest() {
         when(parser.getHandledHostname()).thenReturn(null);
-        parserFactory = new CrawlerFactory(context);
+        parserFactory = new CrawlerFactory();
+        parserFactory.setApplicationContext(context);
     }
 
     @Test

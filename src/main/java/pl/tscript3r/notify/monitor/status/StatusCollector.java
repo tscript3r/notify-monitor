@@ -1,18 +1,16 @@
 package pl.tscript3r.notify.monitor.status;
 
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
-public class StatusCollector {
+public class StatusCollector implements ApplicationContextAware {
 
     private ApplicationContext context;
-
-    public StatusCollector(ApplicationContext context) {
-        this.context = context;
-    }
 
     public List<Status> getAll() {
         List<Status> result = new ArrayList<>();
@@ -23,10 +21,15 @@ public class StatusCollector {
 
     private Collection<Statusable> getStatusableComponents() {
         Map<String, Statusable> result = context.getBeansOfType(Statusable.class);
-        if(result != null)
+        if (result != null)
             return result.values();
         else
             return Arrays.asList();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
     }
 
 }

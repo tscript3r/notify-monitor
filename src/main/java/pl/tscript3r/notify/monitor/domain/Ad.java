@@ -16,10 +16,10 @@ public class Ad extends BaseEntity {
     private static long getIdValue() {
         // I know - very optimistic that nothing else
         // will break until this value is reached }: )
-        if(idCounter <= Long.MAX_VALUE)
+        if (idCounter <= Long.MAX_VALUE)
             return idCounter++;
         else
-            return idCounter=0;
+            return idCounter = 0;
     }
 
     @Getter

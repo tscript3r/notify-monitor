@@ -12,8 +12,8 @@ import pl.tscript3r.notify.monitor.threads.drivers.CrawlerMonitorThreadDriver;
 public class CrawlerMonitorThread extends AbstractMonitorThread {
 
     public CrawlerMonitorThread(CrawlerMonitorThreadDriver monitorThreadDriver,
-        @Value("#{new Integer('${notify.monitor.threads.crawler.betweenDelay}')}") Integer betweenDelay,
-        @Value("#{new Integer('${notify.monitor.threads.crawler.iterationDelay}')}") Integer iterationDelay) {
+                                @Value("#{new Integer('${notify.monitor.threads.crawler.betweenDelay}')}") Integer betweenDelay,
+                                @Value("#{new Integer('${notify.monitor.threads.crawler.iterationDelay}')}") Integer iterationDelay) {
         super(log, monitorThreadDriver, betweenDelay, iterationDelay);
     }
 

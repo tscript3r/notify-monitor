@@ -2,7 +2,6 @@ package pl.tscript3r.notify.monitor.dispatchers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.threads.DownloadMonitorThread;
@@ -12,8 +11,11 @@ import pl.tscript3r.notify.monitor.threads.drivers.DownloadMonitorThreadDriver;
 @Component
 public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread> {
 
-    public DownloadDispatcher(ApplicationContext context) {
-        super(log, "downloadMonitorThread", context);
+    private static final String RETURNED_DOCUMENTS = "returned_documents";
+
+    public DownloadDispatcher() {
+        super(log, "downloadMonitorThread");
+        status.initIntegerCounterValues(RETURNED_DOCUMENTS);
     }
 
     public Boolean isDownloaded(Task task) {
@@ -24,6 +26,7 @@ public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread
     }
 
     public Document returnDocument(Task task) {
+        status.incrementValue(RETURNED_DOCUMENTS);
         DownloadMonitorThreadDriver downloadMonitorThreadDriver = getDownloadMonitorThreadDriver(task);
         if (downloadMonitorThreadDriver.isDownloaded(task))
             return downloadMonitorThreadDriver.returnDocument(task);

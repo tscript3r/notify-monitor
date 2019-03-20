@@ -6,9 +6,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -22,7 +24,8 @@ public class StatusCollectorTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        statusCollector = new StatusCollector(context);
+        statusCollector = new StatusCollector();
+        statusCollector.setApplicationContext(context);
     }
 
     @Test

@@ -6,10 +6,6 @@ import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 
 public class AdMapperTest {

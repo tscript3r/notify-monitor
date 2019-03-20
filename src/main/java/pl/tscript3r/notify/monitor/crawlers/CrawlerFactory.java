@@ -1,8 +1,10 @@
 package pl.tscript3r.notify.monitor.crawlers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.status.Status;
@@ -14,15 +16,16 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class CrawlerFactory implements Statusable {
+public class CrawlerFactory implements ApplicationContextAware, Statusable {
 
-    private final ApplicationContext context;
+    private static final String CRAWLER_INSTANCES_CREATED = "crawler_instances_created";
+
+    private final Status status = Status.create(this.getClass());
     private final HashMap<String, String> hostnameParsers = new HashMap<>(5);
-    private Integer crawlerInstancesCount = 0;
+    private ApplicationContext context;
 
-    public CrawlerFactory(ApplicationContext context) {
-        this.context = context;
-        scanLocalPackageForCrawlerImplementations();
+    public CrawlerFactory() {
+        status.initIntegerCounterValues(CRAWLER_INSTANCES_CREATED);
     }
 
     private void scanLocalPackageForCrawlerImplementations() {
@@ -54,7 +57,7 @@ public class CrawlerFactory implements Statusable {
         if (!isCompatible(hostname))
             throw new IncompatibleHostnameException(hostname);
         Crawler crawler = (Crawler) context.getBean(hostnameParsers.get(hostname));
-        crawlerInstancesCount++;
+        status.incrementValue(CRAWLER_INSTANCES_CREATED);
         return crawler;
     }
 
@@ -66,8 +69,12 @@ public class CrawlerFactory implements Statusable {
 
     @Override
     public Status receiveStatus() {
-        Status status = Status.create(this.getClass());
-        status.addValue("crawler_instances_created", crawlerInstancesCount.toString());
         return status;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+        scanLocalPackageForCrawlerImplementations();
     }
 }

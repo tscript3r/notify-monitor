@@ -2,7 +2,7 @@ package pl.tscript3r.notify.monitor.components;
 
 import org.junit.Before;
 import org.junit.Test;
-import pl.tscript3r.notify.monitor.config.DownloaderSettings;
+import pl.tscript3r.notify.monitor.config.DownloaderConfig;
 
 public class JsoupDocumentDownloaderTest {
 
@@ -10,13 +10,13 @@ public class JsoupDocumentDownloaderTest {
 
     @Before
     public void setUp() throws Exception {
-        DownloaderSettings downloaderSettings = new DownloaderSettings();
-        downloaderSettings.setConnectionTimeout(5000);
-        downloaderSettings.setFollowRedirects(true);
-        downloaderSettings.setMaxBodySize(5 * 1024 * 1024);
-        downloaderSettings.setUserAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31");
+        DownloaderConfig downloaderConfig = new DownloaderConfig();
+        downloaderConfig.setConnectionTimeout(5000);
+        downloaderConfig.setFollowRedirects(true);
+        downloaderConfig.setMaxBodySize(5 * 1024 * 1024);
+        downloaderConfig.setUserAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31");
 
-        jsoupDocumentDownloader = new JsoupDocumentDownloader(downloaderSettings);
+        jsoupDocumentDownloader = new JsoupDocumentDownloader(downloaderConfig);
     }
 
     @Test

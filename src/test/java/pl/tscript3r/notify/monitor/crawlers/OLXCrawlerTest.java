@@ -64,8 +64,4 @@ public class OLXCrawlerTest {
         assertEquals(Objects.hash(OLX_PL), olxParser.hashCode());
     }
 
-    @Test
-    public void receiveStatusNotNull() {
-        assertNotNull(olxParser.receiveStatus());
-    }
 }

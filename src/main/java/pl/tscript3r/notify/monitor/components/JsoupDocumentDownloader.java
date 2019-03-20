@@ -4,7 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import pl.tscript3r.notify.monitor.config.DownloaderSettings;
+import pl.tscript3r.notify.monitor.config.DownloaderConfig;
 
 import java.io.IOException;
 
@@ -12,18 +12,18 @@ import java.io.IOException;
 @Scope("prototype")
 public class JsoupDocumentDownloader {
 
-    private final DownloaderSettings downloaderSettings;
+    private final DownloaderConfig downloaderConfig;
 
-    public JsoupDocumentDownloader(DownloaderSettings downloaderSettings) {
-        this.downloaderSettings = downloaderSettings;
+    public JsoupDocumentDownloader(DownloaderConfig downloaderConfig) {
+        this.downloaderConfig = downloaderConfig;
     }
 
     public Document download(String url) throws IOException {
         return Jsoup.connect(url)
-                .userAgent(downloaderSettings.getUserAgent())
-                .timeout(downloaderSettings.getConnectionTimeout() * 1000)
-                .followRedirects(downloaderSettings.getFollowRedirects())
-                .maxBodySize(downloaderSettings.getMaxBodySize() * 1024)
+                .userAgent(downloaderConfig.getUserAgent())
+                .timeout(downloaderConfig.getConnectionTimeout() * 1000)
+                .followRedirects(downloaderConfig.getFollowRedirects())
+                .maxBodySize(downloaderConfig.getMaxBodySize() * 1024)
                 .ignoreHttpErrors(true)
                 .get();
     }

@@ -34,9 +34,10 @@ public class DownloadDispatcherTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        downloadDispatcher = new DownloadDispatcher(context);
+        downloadDispatcher = new DownloadDispatcher();
         when(context.getBean(anyString())).thenReturn(downloadMonitorThread);
         when(downloadMonitorThread.getDriver()).thenReturn(downloadMonitorThreadDriver);
+        downloadDispatcher.setApplicationContext(context);
     }
 
 

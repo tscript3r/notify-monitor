@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Component
 @Scope("prototype")
 public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
-    
+
     private final JsoupDocumentDownloader jsoupDocumentDownloader;
     private final Integer downloaderQueueLimit;
     private final Integer cooldownTime;
@@ -92,12 +92,12 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
                     .collect(Collectors.toSet());
         }
     }
-    
+
     private void checkDownloadAndPut(Task task) throws InterruptedException {
         if (task.isRefreshable())
             try {
                 Document document = downloadDocument(task);
-                if(document != null)
+                if (document != null)
                     synchronized (downloadTasks) {
                         downloadTasks.put(task, document);
                     }
@@ -111,7 +111,7 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
     }
 
     private void handleException(Exception e) throws InterruptedException {
-        if(e instanceof ConnectException || e instanceof UnknownHostException) {
+        if (e instanceof ConnectException || e instanceof UnknownHostException) {
             logSuppressedError(e);
             Thread.sleep(cooldownTime);
         } else
@@ -122,4 +122,5 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
         log.error("Following exception appeared: [" + e.getClass().getSimpleName() + ": " +
                 e.getMessage() + "] - after cooldown time (" + cooldownTime + " sec) thread will resume.");
     }
+
 }

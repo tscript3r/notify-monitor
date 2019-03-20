@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Component
 @ConfigurationProperties("notify.monitor.downloader")
-public class DownloaderSettings {
+public class DownloaderConfig {
 
     private Integer connectionTimeout;
     private Integer maxBodySize;

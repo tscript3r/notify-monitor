@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 import pl.tscript3r.notify.monitor.threads.drivers.MonitorThreadDriver;
 
-public class AbstractMonitorThread implements MonitorThread {
+public abstract class AbstractMonitorThread implements MonitorThread {
 
     private final Logger log;
     private final MonitorThreadDriver monitorThreadDriver;
@@ -61,7 +61,9 @@ public class AbstractMonitorThread implements MonitorThread {
                 monitorThreadDriver.execute(betweenDelay);
                 Thread.sleep(iterationDelay);
             } catch (InterruptedException e) {
-                if (!isStopped)
+                if (isStopped)
+                    break;
+                else
                     throwException(e);
             }
         }

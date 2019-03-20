@@ -1,28 +1,39 @@
 package pl.tscript3r.notify.monitor.dispatchers;
 
 import org.slf4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.status.Status;
+import pl.tscript3r.notify.monitor.status.Statusable;
 import pl.tscript3r.notify.monitor.threads.MonitorThread;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDispatcher<T extends MonitorThread> {
+public abstract class AbstractDispatcher<T extends MonitorThread> implements ApplicationContextAware, DisposableBean,
+        Statusable {
 
+    private static final String ADDED_TASKS = "added_tasks";
+    private static final String REMOVED_TASKS = "removed_tasks";
+
+    protected final Status status = Status.create(this.getClass());
     private final Logger log;
     private final String beanName;
-    private final ApplicationContext context;
-    protected final List<T> monitorThreads = new ArrayList<>();
+    final List<T> monitorThreads = new ArrayList<>();
+    private ApplicationContext context;
 
-    public AbstractDispatcher(Logger log, String threadBeanName, ApplicationContext context) {
+    public AbstractDispatcher(Logger log, String threadBeanName) {
         this.log = log;
         this.beanName = threadBeanName;
-        this.context = context;
+        status.initIntegerCounterValues(ADDED_TASKS, REMOVED_TASKS);
     }
 
     public void addTask(Task task) {
         log.debug("Adding task id=" + task.getId());
+        status.incrementValue(ADDED_TASKS);
         findFreeMonitorThread().getDriver().addTask(task);
     }
 
@@ -44,6 +55,7 @@ public abstract class AbstractDispatcher<T extends MonitorThread> {
     }
 
     public Boolean removeTask(Task task) {
+        status.incrementValue(REMOVED_TASKS);
         for (MonitorThread monitorThread : monitorThreads)
             if (monitorThread.getDriver().hasTask(task))
                 return monitorThread.getDriver().removeTask(task);
@@ -55,5 +67,20 @@ public abstract class AbstractDispatcher<T extends MonitorThread> {
             if (monitorThread.getDriver().hasTask(task))
                 return true;
         return false;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+    }
+
+    @Override
+    public void destroy() {
+        monitorThreads.forEach(MonitorThread::stop);
+    }
+
+    @Override
+    public Status receiveStatus() {
+        return status;
     }
 }
