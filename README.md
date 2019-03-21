@@ -17,7 +17,7 @@ lets say an new added car with an good price to an advertising service,
 so that no one will be quicker than you? Or are you tired to checkout
 every ad services for what you are looking for? That is why I created 
 this API. This service is designed to collect only the new ads and
-return it to the client when he asks for them.
+return them to the client when he asks for them.
 
 #### Technologies
 * Java 1.8
@@ -55,10 +55,13 @@ java -jar target/*.jar
 
 #### Usage example
 First of all you will need to add an task - to do that:
+
 ```
 curl -X POST -H "Content-Type: application/json" -d '{"url":"https://www.olx.pl/motoryzacja/samochody/wroclaw/", "users_id": [1, 2]}' localhost:8080/api/v1/tasks/
 ```
+
 Response example:
+
 ```
 {
     "id": 3,
@@ -70,18 +73,21 @@ Response example:
     "refresh_interval": 120,
     "stored_ads_limit": 50
 }
-
 ```
+
 Any returned ad will have the 'users_id' values to identify the task owner users.
 This fields are of course mandatory. You can additionally add the 'refresh_interval' 
 and 'stored_ads_limit' values - for more information please refer to the documentation.
 In the near future I have planned to add feature which will auto-send the found ads to 
-the given url, so there will be an additional field: "return_url".
+the given url, so there will be an additional field: 'return_url'.
 For now to receive the new found ads:
+
 ```
 curl -X GET -H localhost:8080/api/v1/tasks/1/ads
 ```
+
 Response example:
+
 ```
 {
     "ads": [
@@ -101,4 +107,5 @@ Response example:
             }
         }
     ]
+}
 ```
