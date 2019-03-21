@@ -33,8 +33,22 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-      # run tests! and gen code coverage
-      - run: mvn integration-test cobertura:cobertura
+      # save tests
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/junit/ \;
+            mkdir -p ~/checkstyle/
+            find . -type f -regex ".*/target/checkstyle-reports/.*xml" -exec cp {} ~/junit/ \;
+          when: always
 
       - store_test_results:
-          path: target/surefire-reports
+          path: ~/junit
+
+      - store_artifacts:
+          path: ~/junit
+
+
+      # publish the coverage report to codecov.io
+      - run: bash <(curl -s https://codecov.io/bash)
