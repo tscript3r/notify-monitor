@@ -38,5 +38,3 @@ jobs:
       - run: mvn cobertura:cobertura
 
       - run: bash <(curl -s https://codecov.io/bash)
-
-      - run: mvn -s .circleci.settings.xml -DskipTests deploy
