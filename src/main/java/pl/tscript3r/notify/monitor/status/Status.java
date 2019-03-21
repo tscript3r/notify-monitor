@@ -25,7 +25,7 @@ public class Status {
             setValue(value, 0);
     }
 
-    public void incrementValue(String key, Integer count) {
+    private void incrementValue(String key, Integer count) {
         if (values.containsKey(key)) {
             Object value = values.get(key);
             if (isNumeric(value))

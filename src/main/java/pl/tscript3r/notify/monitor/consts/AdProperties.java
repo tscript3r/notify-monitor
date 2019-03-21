@@ -8,4 +8,7 @@ public class AdProperties {
     public static final String CATEGORY = "category";
     public static final String PRICE = "price";
 
+    private AdProperties() {
+    }
+
 }

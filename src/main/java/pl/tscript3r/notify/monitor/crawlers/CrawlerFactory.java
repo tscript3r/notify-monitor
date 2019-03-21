@@ -1,7 +1,6 @@
 package pl.tscript3r.notify.monitor.crawlers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -26,6 +25,12 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
 
     public CrawlerFactory() {
         status.initIntegerCounterValues(CRAWLER_INSTANCES_CREATED);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        context = applicationContext;
+        scanLocalPackageForCrawlerImplementations();
     }
 
     private void scanLocalPackageForCrawlerImplementations() {
@@ -72,9 +77,4 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
         return status;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        context = applicationContext;
-        scanLocalPackageForCrawlerImplementations();
-    }
 }

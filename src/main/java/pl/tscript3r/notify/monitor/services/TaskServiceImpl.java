@@ -11,7 +11,6 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 import pl.tscript3r.notify.monitor.status.Status;
-import pl.tscript3r.notify.monitor.status.Statusable;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
 import java.util.List;
@@ -67,9 +66,8 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     public void saveAll(List<Task> tasks) {
         status.incrementValue(SAVE_ALL_CALLS);
         log.debug("Saving " + tasks.size() + " tasks");
-        tasks.forEach(task -> {
-            taskDispatcher.addTask(super.save(task));
-        });
+        tasks.forEach(task ->
+                taskDispatcher.addTask(super.save(task)));
     }
 
     @Override

@@ -112,13 +112,13 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
 
     private void handleException(Exception e) throws InterruptedException {
         if (e instanceof ConnectException || e instanceof UnknownHostException) {
-            logSuppressedError(e);
+            logSuppressedException(e);
             Thread.sleep(cooldownTime);
         } else
             throw new CrawlerException(e.getMessage());
     }
 
-    private void logSuppressedError(Exception e) {
+    private void logSuppressedException(Exception e) {
         log.error("Following exception appeared: [" + e.getClass().getSimpleName() + ": " +
                 e.getMessage() + "] - after cooldown time (" + cooldownTime + " sec) thread will resume.");
     }

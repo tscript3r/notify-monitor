@@ -33,24 +33,26 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (loadBootstrap) {
-
-            taskService.saveAll(Arrays.asList(
-                    Task.builder()
-                            .refreshInterval(defaultInterval)
-                            .adContainerLimit(defaultAdContainerLimit)
-                            .usersId(Sets.newHashSet(1L, 2L))
-                            .url("https://www.olx.pl/oddam-za-darmo/")
-                            .build(),
-                    Task.builder()
-                            .refreshInterval(defaultInterval)
-                            .adContainerLimit(defaultAdContainerLimit)
-                            .usersId(Sets.newHashSet(1L))
-                            .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
-                            .build()
-            ));
-
+            addInitialTasks();
             log.warn("Bootstrap data loaded");
         }
+    }
+
+    private void addInitialTasks() {
+        taskService.saveAll(Arrays.asList(
+                Task.builder()
+                        .refreshInterval(defaultInterval)
+                        .adContainerLimit(defaultAdContainerLimit)
+                        .usersId(Sets.newHashSet(1L, 2L))
+                        .url("https://www.olx.pl/oddam-za-darmo/")
+                        .build(),
+                Task.builder()
+                        .refreshInterval(defaultInterval)
+                        .adContainerLimit(defaultAdContainerLimit)
+                        .usersId(Sets.newHashSet(1L))
+                        .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
+                        .build()
+        ));
     }
 
 }

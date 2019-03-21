@@ -8,6 +8,7 @@ import pl.tscript3r.notify.monitor.domain.Ad;
 
 @Mapper
 public interface AdMapper {
+
     AdMapper INSTANCE = Mappers.getMapper(AdMapper.class);
 
     @Mapping(source = "ad.task.usersId", target = "usersId")

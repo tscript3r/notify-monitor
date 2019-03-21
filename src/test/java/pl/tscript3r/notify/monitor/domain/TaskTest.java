@@ -13,7 +13,7 @@ public class TaskTest {
         assertTrue(task.isRefreshable());
         task.setRefreshTime();
         assertFalse(task.isRefreshable());
-        Thread.sleep(10);
+        Thread.sleep(1);
         assertTrue(task.isRefreshable());
     }
 

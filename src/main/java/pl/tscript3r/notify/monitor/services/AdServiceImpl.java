@@ -7,7 +7,6 @@ import pl.tscript3r.notify.monitor.components.AdContainer;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 import pl.tscript3r.notify.monitor.status.Status;
-import pl.tscript3r.notify.monitor.status.Statusable;
 
 import java.util.List;
 import java.util.stream.Collectors;

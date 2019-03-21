@@ -41,7 +41,7 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     @Override
     public Boolean isFull() {
-        return !(tasks.size() < crawlerThreadCapacity);
+        return (tasks.size() >= crawlerThreadCapacity);
     }
 
     @Override
@@ -90,7 +90,8 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
     private void crawlTask(Task task) {
         Document document = getDocument(task);
         if (document != null)
-            adContainer.addAds(task, getParser(task).getAds(task, document));
+            adContainer.addAds(task,
+                    getParser(task).getAds(task, document));
     }
 
     private Document getDocument(Task task) {

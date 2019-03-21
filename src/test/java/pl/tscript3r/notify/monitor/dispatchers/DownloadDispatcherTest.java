@@ -8,12 +8,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.exceptions.DownloadException;
 import pl.tscript3r.notify.monitor.threads.DownloadMonitorThread;
 import pl.tscript3r.notify.monitor.threads.drivers.DownloadMonitorThreadDriver;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -70,13 +70,13 @@ public class DownloadDispatcherTest {
         assertNotNull(downloadDispatcher.returnDocument(task));
     }
 
-    @Test
+    @Test(expected = DownloadException.class)
     public void returnNullDocument() {
         Task task = getDefaultTask();
         downloadDispatcher.addTask(task);
         when(downloadMonitorThreadDriver.isDownloaded(any())).thenReturn(false);
         when(downloadMonitorThreadDriver.hasTask(any())).thenReturn(true);
         when(downloadMonitorThreadDriver.returnDocument(any())).thenReturn(new Document(""));
-        assertNull(downloadDispatcher.returnDocument(task));
+        downloadDispatcher.returnDocument(task);
     }
 }

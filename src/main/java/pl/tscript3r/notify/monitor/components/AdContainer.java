@@ -30,6 +30,8 @@ public class AdContainer implements Statusable {
 
         @Override
         public boolean equals(Object o) {
+            if (o == null) return false;
+            if (!(o instanceof AdDecorated)) return false;
             AdDecorated that = (AdDecorated) o;
             return Objects.equals(ad, that.ad);
         }
@@ -92,7 +94,7 @@ public class AdContainer implements Statusable {
                 if (skippedCount >= removeCount)
                     cutOffSet.add(adDecorated);
                 skippedCount++;
-            }  while (it.hasNext());
+            } while (it.hasNext());
             tasksAds.put(task, cutOffSet);
             log.debug("Task id=" + task.getId() + " stored ads list has been limited (size=" + cutOffSet.size() + ")");
         }
@@ -100,7 +102,7 @@ public class AdContainer implements Statusable {
 
     public Set<Ad> returnAllAds(Task task) {
         synchronized (tasksAds) {
-            if (tasksAds.containsKey(task) && tasksAds.get(task).size() > 0)
+            if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
                 return adsDecoratedToAdsSet(tasksAds.get(task));
             else
                 return Sets.newHashSet();
@@ -109,7 +111,7 @@ public class AdContainer implements Statusable {
 
     public Set<Ad> returnNewAdsAndMarkAsReturned(Task task) {
         synchronized (tasksAds) {
-            if (tasksAds.containsKey(task) && tasksAds.get(task).size() > 0)
+            if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
                 return adsDecoratedToAdsSet(tasksAds.get(task)
                         .stream()
                         .filter(adDecorated -> {
@@ -142,7 +144,6 @@ public class AdContainer implements Statusable {
 
     @Override
     public Status receiveStatus() {
-        Status status = Status.create(this.getClass());
         status.setValue("current_tasks", tasksAds.size());
         status.setValue("current_ads", countTotalStoredAds());
         status.setValue("current_new_ads", countCurrentNewAds());

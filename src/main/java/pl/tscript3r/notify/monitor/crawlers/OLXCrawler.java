@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 class OLXCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "olx.pl";
+    private static final String CLASS_STRING = "class";
+    private static final String STRONG_STRING = "strong";
 
     @Override
     public String getHandledHostname() {
@@ -29,7 +31,7 @@ class OLXCrawler implements Crawler {
     }
 
     @Override
-    public List<Ad> getAds(Task task, Document document) throws CrawlerException {
+    public List<Ad> getAds(Task task, Document document) {
         Elements adsElements = getAdsElements(document, Pattern.compile("fixed breakword\\s\\sad_*"));
         if (!adsElements.isEmpty())
             return parseMainLayoutElements(adsElements, task);
@@ -42,7 +44,7 @@ class OLXCrawler implements Crawler {
     }
 
     private Elements getAdsElements(Document document, Pattern pattern) {
-        return document.getElementsByAttributeValueMatching("class",
+        return document.getElementsByAttributeValueMatching(CLASS_STRING,
                 pattern);
     }
 
@@ -50,13 +52,13 @@ class OLXCrawler implements Crawler {
         List<Ad> adsList = new ArrayList<>();
         elements.forEach(adElement -> {
             Ad ad = new Ad(task, adElement.select("a[href]").attr("href"));
-            ad.addProperty(AdProperties.TITLE, adElement.select("strong")
+            ad.addProperty(AdProperties.TITLE, adElement.select(STRONG_STRING)
                     .first()
                     .text());
             ad.addProperty(AdProperties.THUMBNAIL_URL, adElement.select("img[src]")
                     .attr("src"));
             ad.addProperty(AdProperties.LOCATION, adElement.select("small[class]")
-                    .attr("class", "breadcrumb x-normal")
+                    .attr(CLASS_STRING, "breadcrumb x-normal")
                     .select("span")
                     .first()
                     .text());
@@ -64,7 +66,7 @@ class OLXCrawler implements Crawler {
                     .first()
                     .text());
             ad.addProperty(AdProperties.PRICE, adElement.select("p")
-                    .select("strong")
+                    .select(STRONG_STRING)
                     .text());
 
             adsList.add(ad);
@@ -76,14 +78,14 @@ class OLXCrawler implements Crawler {
     private List<Ad> parseWorkLayoutElements(Elements elements, Task task) {
         List<Ad> adList = new ArrayList<>();
         elements.forEach(adElement -> {
-            if (StringUtils.containsIgnoreCase(adElement.attr("class"), "offer ")) {
+            if (StringUtils.containsIgnoreCase(adElement.attr(CLASS_STRING), "offer ")) {
                 Ad ad = new Ad(task, adElement.select("a[href]")
                         .attr("href"));
                 ad.addProperty(AdProperties.TITLE, adElement.select("div[class]")
-                        .attr("class", "list-item__price")
+                        .attr(CLASS_STRING, "list-item__price")
                         .text());
                 ad.addProperty(AdProperties.LOCATION, adElement.select("strong[class]")
-                        .attr("strong", "list-item__location")
+                        .attr(STRONG_STRING, "list-item__location")
                         .text());
                 adList.add(ad);
             }

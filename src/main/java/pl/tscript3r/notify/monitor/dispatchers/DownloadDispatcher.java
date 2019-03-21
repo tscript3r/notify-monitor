@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.exceptions.DownloadException;
 import pl.tscript3r.notify.monitor.threads.DownloadMonitorThread;
 import pl.tscript3r.notify.monitor.threads.drivers.DownloadMonitorThreadDriver;
 
@@ -30,7 +31,7 @@ public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread
         DownloadMonitorThreadDriver downloadMonitorThreadDriver = getDownloadMonitorThreadDriver(task);
         if (downloadMonitorThreadDriver.isDownloaded(task))
             return downloadMonitorThreadDriver.returnDocument(task);
-        return null;
+        throw new DownloadException();
     }
 
     private DownloadMonitorThreadDriver getDownloadMonitorThreadDriver(Task task) {

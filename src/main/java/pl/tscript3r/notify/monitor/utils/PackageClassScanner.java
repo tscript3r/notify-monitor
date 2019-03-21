@@ -19,16 +19,16 @@ public class PackageClassScanner {
     private Set<BeanDefinition> packageClasses;
     private Boolean throwExceptions = true;
 
-    public synchronized static String getBeanName(String className) throws ClassNotFoundException {
+    public static synchronized String getBeanName(String className) throws ClassNotFoundException {
         Class foundClass = Class.forName(className);
         return Introspector.decapitalize(foundClass.getSimpleName());
     }
 
-    public synchronized static PackageClassScanner scan(ApplicationContext context, String packagePath) {
+    public static synchronized PackageClassScanner scan(ApplicationContext context, String packagePath) {
         return new PackageClassScanner(context, packagePath, Pattern.compile(".*"));
     }
 
-    public synchronized static PackageClassScanner scan(ApplicationContext context, String packagePath,
+    public static synchronized PackageClassScanner scan(ApplicationContext context, String packagePath,
                                                         Pattern classNamePattern) {
         return new PackageClassScanner(context, packagePath, classNamePattern);
     }
@@ -161,8 +161,7 @@ public class PackageClassScanner {
     private Set<BeanDefinition> loadBeanDefinitionsClassesInPackage(String packagePath, Pattern classNameFilterPattern) {
         final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new RegexPatternTypeFilter(classNameFilterPattern));
-        final Set<BeanDefinition> classes = provider.findCandidateComponents(packagePath);
-        return classes;
+        return provider.findCandidateComponents(packagePath);
     }
 
     private Class loadClass(BeanDefinition beanDefinition) throws ClassNotFoundException {
