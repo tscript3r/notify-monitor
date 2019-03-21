@@ -13,7 +13,7 @@ which is refreshing given URL and looking for new added content.
 
 #### General info
 Did you ever wanted to be as soon as possible be informed about 
-lets say an new added car with an good price to an advertising service, 
+lets say an new added car with an good price on an advertising service, 
 so that no one will be quicker than you? Or are you tired to checkout
 every ad services for what you are looking for? That is why I created 
 this API. This service is designed to collect only the new ads and
@@ -83,7 +83,7 @@ the given url, so there will be an additional field: 'return_url'.
 For now to receive the new found ads:
 
 ```
-curl -X GET -H localhost:8080/api/v1/tasks/1/ads
+curl -X GET localhost:8080/api/v1/tasks/1/ads
 ```
 
 Response example:

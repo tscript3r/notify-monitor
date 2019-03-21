@@ -10,6 +10,7 @@ import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
@@ -70,14 +71,18 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     @Override
     public void execute(Integer betweenDelay) throws InterruptedException {
-        for (Task task : getShallowCopiedTasks()) {
-            if (downloadDispatcher.isDownloaded(task)) {
-                crawlTask(task);
-                task.setRefreshTime();
-                log.debug("Task id=" + task.getId() + " downloaded");
-            } else if (!downloadDispatcher.containsTask(task))
-                sendToDownload(task);
-            Thread.sleep(betweenDelay);
+        try {
+            for (Task task : getShallowCopiedTasks()) {
+                if (downloadDispatcher.isDownloaded(task)) {
+                    crawlTask(task);
+                    task.setRefreshTime();
+                    log.debug("Task id=" + task.getId() + " downloaded");
+                } else if (!downloadDispatcher.containsTask(task))
+                    sendToDownload(task);
+                Thread.sleep(betweenDelay);
+            }
+        } catch (CrawlerException e) {
+            log.error("CrawlerException: %s", e.getMessage());
         }
     }
 

@@ -119,8 +119,8 @@ public class DownloadMonitorThreadDriver implements MonitorThreadDriver {
     }
 
     private void logSuppressedException(Exception e) {
-        log.error("Following exception appeared: [" + e.getClass().getSimpleName() + ": " +
-                e.getMessage() + "] - after cooldown time (" + cooldownTime + " sec) thread will resume.");
+        log.error("Following exception appeared: [%s: %s] - after cooldown time (%d sec) thread will resume",
+                e.getClass().getSimpleName(), e.getMessage(), cooldownTime);
     }
 
 }
