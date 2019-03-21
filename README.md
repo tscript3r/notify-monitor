@@ -1,4 +1,5 @@
-#notify-monitor [![codecov](https://codecov.io/gh/tscript3r/notify-monitor/branch/master/graph/badge.svg)](https://codecov.io/gh/tscript3r/notify-monitor) [![CircleCI](https://circleci.com/gh/tscript3r/notify-monitor.svg?style=svg)](https://circleci.com/gh/tscript3r/notify-monitor)
+## notify-monitor [![codecov](https://codecov.io/gh/tscript3r/notify-monitor/branch/master/graph/badge.svg)](https://codecov.io/gh/tscript3r/notify-monitor) [![CircleCI](https://circleci.com/gh/tscript3r/notify-monitor.svg?style=svg)](https://circleci.com/gh/tscript3r/notify-monitor)
+
 REST API to receive new added ads - it is basically a crawler, 
 which is refreshing given URL and looking for new added content.
 
@@ -94,9 +95,9 @@ Response example:
             ],
             "additional_properties": {
                 "location": "Jaworzno",
-                "title": "Oddam ziemię z wykopu",
-                "category": "Dom i Ogród » Materiały budowlane",
-                "price": "Za darmo"
+                "title": "Super fura",
+                "category": "Motoryzacja » Samochody osobowe",
+                "price": "499 zł"
             }
         }
     ]
