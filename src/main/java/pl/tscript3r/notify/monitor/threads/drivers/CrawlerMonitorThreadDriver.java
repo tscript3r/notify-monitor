@@ -9,9 +9,11 @@ import pl.tscript3r.notify.monitor.components.AdContainer;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
+import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
+import pl.tscript3r.notify.monitor.services.AdFilterService;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
 import java.util.ArrayList;
@@ -26,15 +28,18 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
     private final DownloadDispatcher downloadDispatcher;
     private final AdContainer adContainer;
     private final CrawlerFactory crawlerFactory;
+    private final AdFilterService adFilterService;
     private final List<Crawler> crawlers;
     private final HashSet<Task> tasks;
     private final Integer crawlerThreadCapacity;
 
     public CrawlerMonitorThreadDriver(DownloadDispatcher downloadDispatcher, AdContainer adContainer, CrawlerFactory crawlerFactory,
+                                      AdFilterService adFilterService,
                                       @Value("#{new Integer('${notify.monitor.threads.crawler.taskLimit}')}") Integer crawlerThreadCapacity) {
         this.downloadDispatcher = downloadDispatcher;
         this.adContainer = adContainer;
         this.crawlerFactory = crawlerFactory;
+        this.adFilterService = adFilterService;
         this.crawlerThreadCapacity = crawlerThreadCapacity;
         tasks = new HashSet<>(crawlerThreadCapacity + 1);
         crawlers = new ArrayList<>(3);
@@ -94,9 +99,10 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     private void crawlTask(Task task) {
         Document document = getDocument(task);
-        if (document != null)
-            adContainer.addAds(task,
-                    getParser(task).getAds(task, document));
+        if (document != null) {
+            List<Ad> ads = getParser(task).getAds(task, document);
+            adContainer.addAds(task, adFilterService.filter(ads));
+        }
     }
 
     private Document getDocument(Task task) {

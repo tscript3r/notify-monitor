@@ -13,6 +13,7 @@ import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
+import pl.tscript3r.notify.monitor.services.AdFilterService;
 
 import java.util.Arrays;
 
@@ -35,6 +36,9 @@ public class CrawlerMonitorThreadDriverTest {
     CrawlerFactory crawlerFactory;
 
     @Mock
+    AdFilterService adFilterService;
+
+    @Mock
     Crawler crawler;
 
     CrawlerMonitorThreadDriver crawlerMonitorThreadDriver;
@@ -42,7 +46,7 @@ public class CrawlerMonitorThreadDriverTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(downloadDispatcher, adContainer, crawlerFactory, 2);
+        crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(downloadDispatcher, adContainer, crawlerFactory, adFilterService, 2);
     }
 
     private Task getDefaultTask() {
@@ -109,6 +113,7 @@ public class CrawlerMonitorThreadDriverTest {
         verify(crawlerFactory, times(1)).getParser(any());
         verify(crawler, times(1)).getAds(any(), any());
         verify(downloadDispatcher, times(1)).returnDocument(any());
+        verify(adFilterService, times(1)).filter(anyList());
         assertFalse(task.isRefreshable());
     }
 

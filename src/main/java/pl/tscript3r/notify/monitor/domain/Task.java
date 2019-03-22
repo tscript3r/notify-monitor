@@ -4,7 +4,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.tscript3r.notify.monitor.filters.AdFilter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -26,6 +28,10 @@ public class Task extends BaseEntity {
     @Getter
     @Setter
     private Integer adContainerLimit;
+
+    @Getter
+    @Setter
+    private Set<AdFilter> adFilters = new HashSet<>();
 
     private Long lastRefreshTime = 0L;
 

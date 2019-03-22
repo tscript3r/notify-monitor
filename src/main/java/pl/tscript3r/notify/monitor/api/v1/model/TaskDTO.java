@@ -30,4 +30,7 @@ public class TaskDTO {
     @JsonProperty("stored_ads_limit")
     private Integer adContainerLimit;
 
+    @JsonProperty("filters")
+    private Set<FilterDTO> filterListDTO;
+
 }

@@ -31,7 +31,6 @@ public abstract class AbstractDispatcher<T extends MonitorThread> implements App
     }
 
     public void addTask(Task task) {
-        log.debug("Adding task id=" + task.getId());
         status.incrementValue(ADDED_TASKS);
         findFreeMonitorThread().getDriver().addTask(task);
     }

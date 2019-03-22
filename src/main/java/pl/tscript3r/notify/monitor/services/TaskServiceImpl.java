@@ -2,6 +2,7 @@ package pl.tscript3r.notify.monitor.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pl.tscript3r.notify.monitor.api.v1.mapper.FilterMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.components.TaskDefaultValueSetter;
@@ -34,15 +35,19 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private final Status status = Status.create(this.getClass());
     private final TaskDefaultValueSetter taskDefaultValueSetter;
     private final TaskMapper taskMapper;
+    private final FilterMapper filterMapper;
     private final CrawlerFactory crawlerFactory;
     private final TaskDispatcher taskDispatcher;
+    private final AdFilterService adFilterService;
 
-    public TaskServiceImpl(TaskDefaultValueSetter taskDefaultValueSetter, TaskMapper taskMapper,
-                           CrawlerFactory parserFactory, TaskDispatcher taskDispatcher) {
+    public TaskServiceImpl(TaskDefaultValueSetter taskDefaultValueSetter, TaskMapper taskMapper, FilterMapper filterMapper,
+                           CrawlerFactory parserFactory, TaskDispatcher taskDispatcher, AdFilterService adFilterService) {
         this.taskDefaultValueSetter = taskDefaultValueSetter;
         this.taskMapper = taskMapper;
+        this.filterMapper = filterMapper;
         this.crawlerFactory = parserFactory;
         this.taskDispatcher = taskDispatcher;
+        this.adFilterService = adFilterService;
         status.initIntegerCounterValues(GET_TASK_ID_CALLS, GET_TASK_DTO_ID_CALLS, SAVE_ALL_CALLS, GET_ALL_CALLS,
                 SAVE_DTO_CALLS, UPDATE_CALLS, DELETE_ID_CALLS, IS_ADDED_CALLS);
     }
@@ -66,8 +71,11 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     public void saveAll(List<Task> tasks) {
         status.incrementValue(SAVE_ALL_CALLS);
         log.debug("Saving " + tasks.size() + " tasks");
-        tasks.forEach(task ->
-                taskDispatcher.addTask(super.save(task)));
+        tasks.forEach(task -> {
+            taskDispatcher.addTask(super.save(task));
+            if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
+                task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
+        });
     }
 
     @Override
@@ -89,6 +97,8 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
             throw new IncompatibleHostnameException(HostnameExtractor.getDomain(taskDTO.getUrl()));
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
+        if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
+            task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
         taskDispatcher.addTask(task);
         return taskMapper.taskToTaskDTO(task);
     }
@@ -103,6 +113,9 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         updateTask(task, taskDTO);
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task returnedTask = super.save(task);
+        adFilterService.remove(task);
+        if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
+            task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
         return taskMapper.taskToTaskDTO(returnedTask);
     }
 
@@ -115,13 +128,21 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
             task.setRefreshInterval(taskDTO.getRefreshInterval());
         if (taskDTO.getAdContainerLimit() != null)
             task.setAdContainerLimit(taskDTO.getAdContainerLimit());
+        if (taskDTO.getFilterListDTO() != null && !taskDTO.getFilterListDTO().isEmpty()) {
+            task.getAdFilters().clear();
+            taskDTO.getFilterListDTO().forEach(filterDTO -> {
+                task.getAdFilters().add(filterMapper.filterDTOToAdFilter(filterDTO));
+            });
+        }
     }
 
     @Override
     public Boolean deleteById(Long id) {
         status.incrementValue(DELETE_ID_CALLS);
         log.debug("Deleting task id=" + id);
-        return taskDispatcher.removeTask(super.deleteId(id));
+        Task removedTask = super.deleteId(id);
+        adFilterService.remove(removedTask);
+        return taskDispatcher.removeTask(removedTask);
     }
 
     @Override

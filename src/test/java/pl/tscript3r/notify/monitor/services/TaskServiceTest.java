@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import pl.tscript3r.notify.monitor.api.v1.mapper.FilterMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.components.TaskDefaultValueSetter;
@@ -38,12 +39,16 @@ public class TaskServiceTest {
     @Mock
     TaskDispatcher taskDispatcher;
 
+    @Mock
+    AdFilterService adFilterService;
+
     TaskDefaultValueSetter taskDefaultValueSetter;
 
     @InjectMocks
     TaskServiceImpl taskService;
 
     private TaskMapper taskMapper = TaskMapper.INSTANCE;
+    private FilterMapper filterMapper = FilterMapper.INSTANCE;
     private Task task;
 
     @Before
@@ -51,8 +56,8 @@ public class TaskServiceTest {
         MockitoAnnotations.initMocks(this);
         when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
         taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 60, 30);
-        taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper,
-                crawlerFactory, taskDispatcher);
+        taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper, filterMapper,
+                crawlerFactory, taskDispatcher, adFilterService);
         task = new Task(ID, Sets.newHashSet(1L), URL, 120, 60);
         taskService.saveDTO(taskMapper.taskToTaskDTO(task));
     }
@@ -135,7 +140,7 @@ public class TaskServiceTest {
 
     @Test
     public void addTaskWithoutTaskSettings() {
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null, null);
         assertNull(taskDTO.getRefreshInterval());
         TaskDTO returnedTaskDTO = taskService.saveDTO(taskDTO);
         assertNotNull(returnedTaskDTO.getRefreshInterval());
@@ -145,7 +150,7 @@ public class TaskServiceTest {
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
         when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 80);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 80, null);
         taskService.saveDTO(taskDTO);
     }
 }
