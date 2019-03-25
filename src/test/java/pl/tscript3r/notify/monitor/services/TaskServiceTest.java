@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.api.v1.mapper.FilterMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
+import pl.tscript3r.notify.monitor.api.v1.model.FilterDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.components.TaskDefaultValueSetter;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
@@ -15,6 +16,7 @@ import pl.tscript3r.notify.monitor.dispatchers.TaskDispatcher;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
+import pl.tscript3r.notify.monitor.filters.AdFilterType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,16 +24,16 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TaskServiceTest {
 
     private static final long ID = 1L;
     private static final long USER_ID = 2L;
     private static final String URL = "https://www.olx.pl/";
-    public static final String URL_2 = "https://www.olx.pl/testPackage";
-    public static final Long USER_ID2 = 2L;
-    public static final long ID2 = 2L;
+    private static final String URL_2 = "https://www.olx.pl/testPackage";
+    private static final Long USER_ID2 = 3L;
+    private static final long ID2 = 2L;
 
     @Mock
     CrawlerFactory crawlerFactory;
@@ -112,6 +114,12 @@ public class TaskServiceTest {
         TaskDTO taskDTO = taskMapper.taskToTaskDTO(task);
         taskDTO.setUrl(URL_2);
         taskDTO.setUsersId(Sets.newHashSet(USER_ID2));
+        FilterDTO filterDTO = new FilterDTO();
+        filterDTO.setCaseSensitive(false);
+        filterDTO.setFilterType(AdFilterType.MATCH);
+        filterDTO.setProperty("test");
+        filterDTO.setWords(Sets.newHashSet("a", "b"));
+        taskDTO.setFilterListDTO(Sets.newHashSet(filterDTO));
         taskService.update(ID, taskDTO);
         TaskDTO returnedTaskDTO = taskService.getTaskDTOById(ID);
         assertEquals(URL_2, returnedTaskDTO.getUrl());
@@ -152,5 +160,26 @@ public class TaskServiceTest {
         when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
         TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 80, null);
         taskService.saveDTO(taskDTO);
+    }
+
+    @Test
+    public void testSendAdFilters() {
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setId(ID);
+        taskDTO.setUrl("https://www.olx.pl/");
+        taskDTO.setUsersId(Sets.newHashSet(USER_ID, USER_ID2));
+        FilterDTO filterDTO = new FilterDTO();
+        filterDTO.setCaseSensitive(false);
+        filterDTO.setFilterType(AdFilterType.MATCH);
+        filterDTO.setProperty("test");
+        filterDTO.setWords(Sets.newHashSet("a", "b"));
+        taskDTO.setFilterListDTO(Sets.newHashSet(filterDTO));
+        taskService.saveDTO(taskDTO);
+        verify(adFilterService, times(1)).add(any(), any());
+    }
+
+    @Test
+    public void statusNotNull() {
+        assertNotNull(taskService.receiveStatus());
     }
 }

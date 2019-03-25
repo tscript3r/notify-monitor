@@ -79,4 +79,10 @@ public class DownloadDispatcherTest {
         when(downloadMonitorThreadDriver.returnDocument(any())).thenReturn(new Document(""));
         downloadDispatcher.returnDocument(task);
     }
+
+    @Test
+    public void statusNotNull() {
+        assertNotNull(downloadDispatcher.receiveStatus());
+    }
+
 }

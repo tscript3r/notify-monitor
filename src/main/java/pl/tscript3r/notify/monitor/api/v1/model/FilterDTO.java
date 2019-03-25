@@ -2,6 +2,7 @@ package pl.tscript3r.notify.monitor.api.v1.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import pl.tscript3r.notify.monitor.filters.AdFilterType;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -15,7 +16,7 @@ public class FilterDTO {
 
     @NotNull
     @JsonProperty("filter_type")
-    private FilterTypeDTO filterType;
+    private AdFilterType filterType;
 
     @NotNull
     private String property;

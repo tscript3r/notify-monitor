@@ -73,9 +73,13 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         log.debug("Saving " + tasks.size() + " tasks");
         tasks.forEach(task -> {
             taskDispatcher.addTask(super.save(task));
-            if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
-                task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
+            sendAdFilters(task);
         });
+    }
+
+    private void sendAdFilters(Task task) {
+        if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
+            task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
     }
 
     @Override
@@ -97,8 +101,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
             throw new IncompatibleHostnameException(HostnameExtractor.getDomain(taskDTO.getUrl()));
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task task = super.save(taskMapper.taskDTOToTask(taskDTO));
-        if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
-            task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
+        sendAdFilters(task);
         taskDispatcher.addTask(task);
         return taskMapper.taskToTaskDTO(task);
     }
@@ -110,12 +113,11 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         Task task = findById(id);
         if (findById(id) == null)
             throw new TaskNotFoundException(id);
+        adFilterService.remove(task);
         updateTask(task, taskDTO);
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         Task returnedTask = super.save(task);
-        adFilterService.remove(task);
-        if (task.getAdFilters() != null && !task.getAdFilters().isEmpty())
-            task.getAdFilters().forEach(adFilter -> adFilterService.add(task, adFilter));
+        sendAdFilters(returnedTask);
         return taskMapper.taskToTaskDTO(returnedTask);
     }
 
@@ -130,9 +132,8 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
             task.setAdContainerLimit(taskDTO.getAdContainerLimit());
         if (taskDTO.getFilterListDTO() != null && !taskDTO.getFilterListDTO().isEmpty()) {
             task.getAdFilters().clear();
-            taskDTO.getFilterListDTO().forEach(filterDTO -> {
-                task.getAdFilters().add(filterMapper.filterDTOToAdFilter(filterDTO));
-            });
+            taskDTO.getFilterListDTO().forEach(filterDTO ->
+                    task.getAdFilters().add(filterMapper.filterDTOToAdFilter(filterDTO)));
         }
     }
 

@@ -1,8 +1,8 @@
-package pl.tscript3r.notify.monitor.api.v1.model;
+package pl.tscript3r.notify.monitor.filters;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public enum FilterTypeDTO {
+public enum AdFilterType {
 
     @JsonProperty("exclude")
     EXCLUDE,

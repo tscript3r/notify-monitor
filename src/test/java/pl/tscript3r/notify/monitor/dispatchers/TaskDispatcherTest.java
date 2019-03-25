@@ -10,8 +10,7 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.threads.CrawlerMonitorThread;
 import pl.tscript3r.notify.monitor.threads.drivers.CrawlerMonitorThreadDriver;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -114,4 +113,10 @@ public class TaskDispatcherTest {
         assertTrue(taskDispatcher.containsTask(task));
         verify(crawlerMonitorThreadDriver, times(2)).hasTask(any());
     }
+
+    @Test
+    public void statusNotNull() {
+        assertNotNull(taskDispatcher.receiveStatus());
+    }
+
 }

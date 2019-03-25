@@ -34,6 +34,11 @@ public class AdTest {
         assertEquals(ad.getValue(KEY), VALUE);
     }
 
+    @Test
+    public void getNotAddedProperty() {
+        assertTrue(getDefaultAd().getValue(KEY).isEmpty());
+    }
+
     private Ad getDefaultAd() {
         return new Ad(Task.builder().id(1L).build(), "http://ad.pl/");
     }

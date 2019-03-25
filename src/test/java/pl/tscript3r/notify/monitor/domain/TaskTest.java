@@ -18,6 +18,12 @@ public class TaskTest {
     }
 
     @Test
+    public void taskAdFiltersTest() {
+        Task task = Task.builder().build();
+        assertNotNull(task.getAdFilters());
+    }
+
+    @Test
     public void equals() {
         Task task = Task.builder().id(1L).usersId(Sets.newHashSet(1L)).build();
         Task task2 = Task.builder().id(1L).usersId(Sets.newHashSet(1L)).build();
