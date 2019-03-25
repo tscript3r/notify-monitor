@@ -1,6 +1,7 @@
 package pl.tscript3r.notify.monitor.domain;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@ToString
 public class Ad extends BaseEntity {
 
     private static long idCounter = 0L;
@@ -58,15 +60,6 @@ public class Ad extends BaseEntity {
             return additionalProperties.get(key);
         else
             return "";
-    }
-
-    @Override
-    public String toString() {
-        return "Ad{" +
-                "task.id=" + task.getId() +
-                ", url='" + url + '\'' +
-                ", additionalProperties=" + additionalProperties +
-                '}';
     }
 
     @Override

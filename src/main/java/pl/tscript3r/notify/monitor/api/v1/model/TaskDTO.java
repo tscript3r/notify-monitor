@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ public class TaskDTO {
     @JsonProperty("stored_ads_limit")
     private Integer adContainerLimit;
 
+    @Valid
     @JsonProperty("filters")
     private Set<FilterDTO> filterListDTO;
 

@@ -1,7 +1,6 @@
 package pl.tscript3r.notify.monitor.crawlers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Scope;
@@ -36,10 +35,6 @@ class OLXCrawler implements Crawler {
         if (!adsElements.isEmpty())
             return parseMainLayoutElements(adsElements, task);
 
-        adsElements = getAdsElements(document, Pattern.compile("offer\\s{0,8}"));
-        if (!adsElements.isEmpty())
-            return parseWorkLayoutElements(adsElements, task);
-
         throw new CrawlerException("Unexpected error appeared");
     }
 
@@ -73,25 +68,6 @@ class OLXCrawler implements Crawler {
         });
 
         return adsList;
-    }
-
-    private List<Ad> parseWorkLayoutElements(Elements elements, Task task) {
-        List<Ad> adList = new ArrayList<>();
-        elements.forEach(adElement -> {
-            if (StringUtils.containsIgnoreCase(adElement.attr(CLASS_STRING), "offer ")) {
-                Ad ad = new Ad(task, adElement.select("a[href]")
-                        .attr("href"));
-                ad.addProperty(AdProperties.TITLE, adElement.select("div[class]")
-                        .attr(CLASS_STRING, "list-item__price")
-                        .text());
-                ad.addProperty(AdProperties.LOCATION, adElement.select("strong[class]")
-                        .attr(STRONG_STRING, "list-item__location")
-                        .text());
-                adList.add(ad);
-            }
-        });
-
-        return adList;
     }
 
     @Override

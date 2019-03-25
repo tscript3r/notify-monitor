@@ -164,4 +164,5 @@ public class AdContainer implements Statusable {
             result += countNewAds(task);
         return result;
     }
+
 }

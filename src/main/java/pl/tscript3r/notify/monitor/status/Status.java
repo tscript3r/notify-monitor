@@ -53,7 +53,7 @@ public class Status {
         incrementValue(key, 1);
     }
 
-    public String getName() {
+    public String getOwnerClassName() {
         return ownerClass.getSimpleName();
     }
 

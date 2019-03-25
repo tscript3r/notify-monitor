@@ -17,7 +17,6 @@ public interface TaskMapper {
     TaskDTO taskToTaskDTO(Task task);
 
     default Task taskDTOToTask(TaskDTO taskDTO) {
-        FilterMapper filterMapper = FilterMapper.INSTANCE;
         if (taskDTO == null)
             return null;
         Task task = new Task();
@@ -32,6 +31,7 @@ public interface TaskMapper {
         task.setAdContainerLimit(taskDTO.getAdContainerLimit());
         if (taskDTO.getFilterListDTO() != null &&
                 !taskDTO.getFilterListDTO().isEmpty()) {
+            FilterMapper filterMapper = FilterMapper.INSTANCE;
             Set<AdFilter> adFilters = new HashSet<>();
             taskDTO.getFilterListDTO().forEach(filterDTO ->
                     adFilters.add(filterMapper.filterDTOToAdFilter(filterDTO)));
