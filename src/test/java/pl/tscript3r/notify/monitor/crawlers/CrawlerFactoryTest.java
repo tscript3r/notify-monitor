@@ -14,60 +14,79 @@ import static org.mockito.Mockito.when;
 
 public class CrawlerFactoryTest {
 
-    public static final String DOMAIN = "domain.com";
-    public static final String NOT_ADDED_DOMAIN = "notAddedDomain.com";
+    private static final String RANDOM_DOMAIN = "random-%s-domain.com";
+    private static final String NOT_ADDED_DOMAIN = "notAddedDomain.com";
+
+    private Integer randomDomainCounter;
 
     @Mock
     ApplicationContext context;
 
-    CrawlerFactory parserFactory;
-
     @Mock
-    Crawler parser;
+    Crawler crawler;
+
+    private CrawlerFactory crawlerFactory;
 
     @Before
     public void setUp() {
+        randomDomainCounter = 0;
         MockitoAnnotations.initMocks(this);
-        when(context.getBean(anyString())).thenReturn(parser);
+        when(context.getBean(anyString())).thenReturn(crawler);
         when(context.containsBeanDefinition(anyString())).thenReturn(true);
         when(context.isPrototype(anyString())).thenReturn(true);
     }
 
-    public void defaultSetUp() {
-        when(parser.getHandledHostname()).thenReturn(DOMAIN);
-        parserFactory = new CrawlerFactory();
-        parserFactory.setApplicationContext(context);
+    private void defaultSetUp() {
+        randomDomainCounter = 0;
+        when(crawler.getHandledHostname()).thenAnswer((a) -> getGeneratedDomainName());
+        crawlerFactory = new CrawlerFactory();
+        crawlerFactory.setApplicationContext(context);
+        randomDomainCounter = 0;
+    }
+
+    private String getGeneratedDomainName() {
+        randomDomainCounter++;
+        return String.format(RANDOM_DOMAIN, randomDomainCounter.toString());
     }
 
     @Test(expected = FatalBeanException.class)
     public void constructorFailTest() {
-        when(parser.getHandledHostname()).thenReturn(null);
-        parserFactory = new CrawlerFactory();
-        parserFactory.setApplicationContext(context);
+        when(crawler.getHandledHostname()).thenReturn(null);
+        crawlerFactory = new CrawlerFactory();
+        crawlerFactory.setApplicationContext(context);
     }
 
     @Test
     public void isCompatible() {
         defaultSetUp();
-        assertTrue(parserFactory.isCompatible(DOMAIN));
-        assertFalse(parserFactory.isCompatible(NOT_ADDED_DOMAIN));
+        when(crawler.getHandledHostname()).thenReturn(getGeneratedDomainName());
+        assertTrue(crawlerFactory.isCompatible(getGeneratedDomainName()));
+        assertFalse(crawlerFactory.isCompatible(NOT_ADDED_DOMAIN));
     }
 
     @Test
     public void getParser() {
         defaultSetUp();
-        assertEquals(parser, parserFactory.getParser(DOMAIN));
+        when(crawler.getHandledHostname()).thenReturn(getGeneratedDomainName());
+        assertEquals(crawler, crawlerFactory.getParser(getGeneratedDomainName()));
     }
 
     @Test(expected = IncompatibleHostnameException.class)
     public void getParserException() {
         defaultSetUp();
-        parserFactory.getParser(NOT_ADDED_DOMAIN);
+        crawlerFactory.getParser(NOT_ADDED_DOMAIN);
+    }
+
+    @Test(expected = FatalBeanException.class)
+    public void duplicatedDomainCrawlerImplementationsException() {
+        when(crawler.getHandledHostname()).thenReturn(RANDOM_DOMAIN);
+        crawlerFactory = new CrawlerFactory();
+        crawlerFactory.setApplicationContext(context);
     }
 
     @Test
     public void receiveStatusNotNull() {
         defaultSetUp();
-        assertNotNull(parserFactory.receiveStatus());
+        assertNotNull(crawlerFactory.receiveStatus());
     }
 }

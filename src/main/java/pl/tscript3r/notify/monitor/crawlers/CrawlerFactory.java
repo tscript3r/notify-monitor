@@ -43,15 +43,15 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
                 .forEach(beanDefinition -> {
                     try {
                         String beanName = PackageClassScanner.getBeanName(beanDefinition.getBeanClassName());
-                        Crawler parser = (Crawler) context.getBean(beanName);
-                        if (parser.getHandledHostname() != null) {
-                            if (isCompatible(parser.getHandledHostname()))
+                        Crawler crawler = (Crawler) context.getBean(beanName);
+                        if (crawler.getHandledHostname() != null) {
+                            if (isCompatible(crawler.getHandledHostname()))
                                 throw new FatalBeanException("Found two or more crawlers for " +
-                                        parser.getHandledHostname());
+                                        crawler.getHandledHostname());
                         } else
-                            throw new FatalBeanException(parser.getClass() +
+                            throw new FatalBeanException(crawler.getClass() +
                                     " returns null on getHandledHostname");
-                        hostnameParsers.put(parser.getHandledHostname(), beanName);
+                        hostnameParsers.put(crawler.getHandledHostname(), beanName);
                     } catch (ClassNotFoundException e) {
                         throw new FatalBeanException(e.getMessage());
                     }
@@ -67,9 +67,7 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
     }
 
     public Boolean isCompatible(String hostname) {
-        return hostnameParsers.keySet()
-                .stream()
-                .anyMatch(listedHostname -> listedHostname.equals(hostname));
+        return hostnameParsers.containsKey(hostname);
     }
 
     @Override
