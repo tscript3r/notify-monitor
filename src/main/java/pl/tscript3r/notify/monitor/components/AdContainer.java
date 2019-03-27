@@ -81,7 +81,7 @@ public class AdContainer implements Statusable {
         tasksAds.put(task, adsDecorated);
     }
 
-    // TODO: probably to refactor, saveDTO test
+    // TODO: probably to refactor
     private void limitAds(Task task) {
         if (tasksAds.get(task).size() > task.getAdContainerLimit()) {
             LinkedHashSet<AdDecorated> currentSet = tasksAds.get(task);

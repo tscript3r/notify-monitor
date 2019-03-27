@@ -35,11 +35,12 @@ return them to the client when he asks for them.
 #### Supported services
 ##### Currently:
 * OLX.pl
+* OTOMoto.pl
 ##### Near future:
 * Allegro.pl
 * OTODom.pl
-* OTOMoto.pl
 * KupBilecik.pl
+* HLTV.org
 ####
 
 #### Running notify-monitor locally
@@ -76,8 +77,36 @@ Response example:
 ```
 
 Any returned ad will have the 'users_id' values to identify the task owner users.
-This fields are of course mandatory. You can additionally add the 'refresh_interval' 
-and 'stored_ads_limit' values - for more information please refer to the documentation.
+This field and the 'url' are of course mandatory by adding new task. You can 
+additionally add the 'refresh_interval' and 'stored_ads_limit' values - for more 
+information please refer to the documentation.
+
+Additionally I have added filters, so that you can set it on any property. 
+There are four types of filters:
+* match - selected property value has to be equal to given value
+* include - selected property value has to contain given value
+* exclude - oppositely to include filter
+* regex - given regular expression has to match to the property value
+
+Example task adding with filter:
+```
+{
+    "url": "https://www.olx.pl/motoryzacja/samochody/", 
+    "users_id": [1, 2]
+    "filters": [
+        {
+        	"filter_type": "exclude",
+        	"property": "title",
+        	"case_sensitive": false,
+        	"words": [
+        		"kia",
+        		"honda"
+        	]
+        }
+    ]
+}
+```
+
 In the near future I have planned to add feature which will auto-send the found ads to 
 the given url, so there will be an additional field: 'return_url'.
 For now to receive the new found ads:

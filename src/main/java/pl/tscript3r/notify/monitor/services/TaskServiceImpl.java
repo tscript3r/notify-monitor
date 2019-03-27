@@ -31,7 +31,6 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private static final String DELETE_ID_CALLS = "delete_id_calls";
     private static final String IS_ADDED_CALLS = "is_added_calls";
 
-    // TODO: saveDTO similar URLs auto detection & saveDTO user id to existing one
     private final Status status = Status.create(this.getClass());
     private final TaskDefaultValueSetter taskDefaultValueSetter;
     private final TaskMapper taskMapper;

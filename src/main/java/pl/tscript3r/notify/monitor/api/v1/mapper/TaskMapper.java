@@ -23,7 +23,7 @@ public interface TaskMapper {
         task.setId(taskDTO.getId());
         Set<Long> set = taskDTO.getUsersId();
         if (set != null)
-            task.setUsersId(new HashSet<Long>(set));
+            task.setUsersId(new HashSet<>(set));
         else
             task.setUsersId(null);
         task.setUrl(taskDTO.getUrl());

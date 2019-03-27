@@ -35,8 +35,6 @@ public class Task extends BaseEntity {
 
     private Long lastRefreshTime = 0L;
 
-    // TODO: saveDTO enabled property? Can be on "hold" with -> v1/tasks/1/stop | start
-
     @Builder
     public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Integer adContainerLimit) {
         super(id);

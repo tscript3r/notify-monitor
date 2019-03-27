@@ -11,8 +11,8 @@ import pl.tscript3r.notify.monitor.status.Statusable;
 @Component
 public class TaskDefaultValueSetter implements Statusable {
 
-    public static final String REFRESH_OVERRIDES_COUNT = "refresh_overrides";
-    public static final String CONTAINER_OVERRIDES_COUNT = "container_overrides";
+    private static final String REFRESH_OVERRIDES_COUNT = "refresh_overrides";
+    private static final String CONTAINER_OVERRIDES_COUNT = "container_overrides";
     private final Status status = Status.create(this.getClass());
     private final Integer defaultRefreshInterval;
     private final Integer minimalInterval;
