@@ -27,6 +27,8 @@ public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread
     public Document returnDocument(Task task) {
         status.incrementValue(RETURNED_DOCUMENTS);
         DownloadMonitorThreadDriver downloadMonitorThreadDriver = getDownloadMonitorThreadDriver(task);
+        if(downloadMonitorThreadDriver == null)
+            throw new DownloadException();
         if (downloadMonitorThreadDriver.isDownloaded(task))
             return downloadMonitorThreadDriver.returnDocument(task);
         throw new DownloadException();
@@ -37,7 +39,7 @@ public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread
             if (downloadMonitorThread.getDriver().hasTask(task))
                 return (DownloadMonitorThreadDriver) downloadMonitorThread.getDriver();
         }
-        throw new DownloadException();
+        return null;
     }
 
 }
