@@ -1,15 +1,15 @@
-## notify-monitor [![codecov](https://codecov.io/gh/tscript3r/notify-monitor/branch/master/graph/badge.svg)](https://codecov.io/gh/tscript3r/notify-monitor) [![CircleCI](https://circleci.com/gh/tscript3r/notify-monitor.svg?style=svg)](https://circleci.com/gh/tscript3r/notify-monitor)
+## notify-monitor [![codecov](https://codecov.io/gh/tscript3r/notify-monitor/branch/master/graph/badge.svg)](https://codecov.io/gh/tscript3r/notify-monitor) [![CircleCI](https://circleci.com/gh/tscript3r/notify-monitor.svg?style=svg)](https://circleci.com/gh/tscript3r/notify-monitor) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ded55019a4c4454ea1198d3ae9d06ff7)](https://www.codacy.com/app/tscript3r/notify-monitor?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tscript3r/notify-monitor&amp;utm_campaign=Badge_Grade)
 
 REST API to receive new added ads - it is basically a crawler, 
 which is refreshing given URL and looking for new added content.
 
 ### Table of Contents
-*  [General info](#general-info)
-*  [Technologies](#technologies)
-*  [Supported services](#supported-services)
-*  [Running notify-monitor locally](#running-notify-monitor-locally)
-*  [Process flow diagram](#process-flow-diagram)
-*  [Usage example](#usage-example)
+*    [General info](#general-info)
+*    [Technologies](#technologies)
+*    [Supported services](#supported-services)
+*    [Running notify-monitor locally](#running-notify-monitor-locally)
+*    [Process flow diagram](#process-flow-diagram)
+*    [Usage example](#usage-example)
 
 #### General info
 Did you ever wanted to be as soon as possible be informed about 
@@ -20,27 +20,27 @@ this API. This service is designed to collect only the new ads and
 return them to the client when he asks for them.
 
 #### Technologies
-*  Java 1.8
-*  Multithreaded
-*  Spring Boot 2.1.3
-*  Spring MVC
-*  Spring Actuator
-*  Spring Devtools
-*  MapStruct 1.2.0
-*  Swagger 2.7.0
-*  Jsoup 1.7.2
-*  Mockito 2.23.4
-*  JUnit 4
+*    Java 1.8
+*    Multithreaded
+*    Spring Boot 2.1.3
+*    Spring MVC
+*    Spring Actuator
+*    Spring Devtools
+*    MapStruct 1.2.0
+*    Swagger 2.7.0
+*    Jsoup 1.7.2
+*    Mockito 2.23.4
+*    JUnit 4
 
 #### Supported services
 ##### Currently:
-*  OLX.pl
-*  OTOMoto.pl
+*    OLX.pl
+*    OTOMoto.pl
 ##### Near future:
-*  Allegro.pl
-*  OTODom.pl
-*  KupBilecik.pl
-*  HLTV.org
+*    Allegro.pl
+*    OTODom.pl
+*    KupBilecik.pl
+*    HLTV.org
 ####
 
 #### Running notify-monitor locally
@@ -83,10 +83,10 @@ information please refer to the documentation.
 
 Additionally I have added filters, so that you can set it on any property. 
 There are four types of filters:
-*  match - selected property value has to be equal to given value
-*  include - selected property value has to contain given value
-*  exclude - oppositely to include filter
-*  regex - given regular expression has to match to the property value
+*    match - selected property value has to be equal to given value
+*    include - selected property value has to contain given value
+*    exclude - oppositely to include filter
+*    regex - given regular expression has to match to the property value
 
 Example task adding with filter:
 ```
