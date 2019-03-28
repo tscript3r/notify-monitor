@@ -9,9 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 public class TaskMapperTest {
 
-    public static final String URL = "URL";
-    public static final long ID = 3L;
-    public static final long USER_ID = 1L;
+    private static final String URL = "URL";
+    private static final long ID = 3L;
+    private static final long USER_ID = 1L;
     private TaskMapper taskMapper = TaskMapper.INSTANCE;
 
     @Test

@@ -28,10 +28,10 @@ public class StatusControllerTest {
     @InjectMocks
     StatusController statusController;
 
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(statusController).build();
     }

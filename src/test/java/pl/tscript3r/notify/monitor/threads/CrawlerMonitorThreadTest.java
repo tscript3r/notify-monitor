@@ -15,10 +15,10 @@ public class CrawlerMonitorThreadTest {
     @Mock
     CrawlerMonitorThreadDriver monitorThreadDriver;
 
-    CrawlerMonitorThread crawlerMonitorThread;
+    private CrawlerMonitorThread crawlerMonitorThread;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         crawlerMonitorThread = new CrawlerMonitorThread(monitorThreadDriver, 0, 0);
     }

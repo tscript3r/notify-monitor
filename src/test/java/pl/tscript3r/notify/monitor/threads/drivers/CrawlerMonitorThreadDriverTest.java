@@ -41,10 +41,10 @@ public class CrawlerMonitorThreadDriverTest {
     @Mock
     Crawler crawler;
 
-    CrawlerMonitorThreadDriver crawlerMonitorThreadDriver;
+    private CrawlerMonitorThreadDriver crawlerMonitorThreadDriver;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(downloadDispatcher, adContainer, crawlerFactory, adFilterService, 2);
     }

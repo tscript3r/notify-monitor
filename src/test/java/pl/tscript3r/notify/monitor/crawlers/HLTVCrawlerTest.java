@@ -18,7 +18,7 @@ public class HLTVCrawlerTest extends AbstractCrawlerTest {
     private HLTVCrawler hltvCrawler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         hltvCrawler = new HLTVCrawler();
     }
 

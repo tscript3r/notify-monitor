@@ -10,12 +10,12 @@ import static org.junit.Assert.assertEquals;
 
 public class AdMapperTest {
 
-    public static final long ID1 = 1L;
-    public static final long ID2 = 2L;
-    public static final long ID3 = 3L;
-    public static final String URL = "https://www.olx.pl/test/";
-    public static final String KEY = "test";
-    public static final String VALUE = "testable";
+    private static final long ID1 = 1L;
+    private static final long ID2 = 2L;
+    private static final long ID3 = 3L;
+    private static final String URL = "https://www.olx.pl/test/";
+    private static final String KEY = "test";
+    private static final String VALUE = "testable";
     private AdMapper adMapper = AdMapper.INSTANCE;
 
     @Test

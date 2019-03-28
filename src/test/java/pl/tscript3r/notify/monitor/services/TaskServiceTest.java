@@ -44,8 +44,6 @@ public class TaskServiceTest {
     @Mock
     AdFilterService adFilterService;
 
-    TaskDefaultValueSetter taskDefaultValueSetter;
-
     @InjectMocks
     TaskServiceImpl taskService;
 
@@ -57,7 +55,7 @@ public class TaskServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
-        taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 60, 30);
+        TaskDefaultValueSetter taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 60, 30);
         taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper, filterMapper,
                 crawlerFactory, taskDispatcher, adFilterService);
         task = new Task(ID, Sets.newHashSet(1L), URL, 120, 60);
@@ -152,7 +150,7 @@ public class TaskServiceTest {
         assertNull(taskDTO.getRefreshInterval());
         TaskDTO returnedTaskDTO = taskService.saveDTO(taskDTO);
         assertNotNull(returnedTaskDTO.getRefreshInterval());
-        assertTrue(returnedTaskDTO.getRefreshInterval() == 120);
+        assertEquals(returnedTaskDTO.getRefreshInterval().longValue(), 120);
     }
 
     @Test(expected = IncompatibleHostnameException.class)

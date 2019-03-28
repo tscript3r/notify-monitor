@@ -6,10 +6,10 @@ import pl.tscript3r.notify.monitor.config.DownloaderConfig;
 
 public class JsoupDocumentDownloaderTest {
 
-    JsoupDocumentDownloader jsoupDocumentDownloader;
+    private JsoupDocumentDownloader jsoupDocumentDownloader;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         DownloaderConfig downloaderConfig = new DownloaderConfig();
         downloaderConfig.setConnectionTimeout(5000);
         downloaderConfig.setFollowRedirects(true);

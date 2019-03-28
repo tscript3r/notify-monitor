@@ -10,10 +10,10 @@ import static org.junit.Assert.assertNotNull;
 
 public class TaskDefaultValueSetterTest {
 
-    TaskDefaultValueSetter taskDefaultValueSetter;
+    private TaskDefaultValueSetter taskDefaultValueSetter;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 60, 30);
     }
 

@@ -24,12 +24,12 @@ public class AdServiceImplTest {
     @Mock
     AdContainer adContainer;
 
-    AdMapper adMapper = AdMapper.INSTANCE;
+    private AdMapper adMapper = AdMapper.INSTANCE;
 
-    AdService adService;
+    private AdService adService;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         adService = new AdServiceImpl(taskService, adContainer, adMapper);
     }

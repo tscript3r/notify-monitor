@@ -17,7 +17,7 @@ import pl.tscript3r.notify.monitor.status.Statusable;
 @RequestMapping(Paths.AD_TASK_PATH)
 public class AdController implements Statusable {
 
-    public static final String NEW_ADS_RETURN_CALLS = "new_ads_return_calls";
+    private static final String NEW_ADS_RETURN_CALLS = "new_ads_return_calls";
 
     private final Status status = Status.create(this.getClass());
     private final TaskService taskService;

@@ -15,11 +15,11 @@ import static org.junit.Assert.*;
 
 public class AdContainerTest {
 
-    AdContainer adContainer;
-    Ad one;
-    Ad two;
-    Ad three;
-    Task task;
+    private AdContainer adContainer;
+    private Ad one;
+    private Ad two;
+    private Ad three;
+    private Task task;
 
     @Before
     public void setUp() {

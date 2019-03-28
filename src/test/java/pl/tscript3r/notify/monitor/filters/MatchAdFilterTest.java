@@ -17,7 +17,7 @@ public class MatchAdFilterTest {
     private MatchAdFilter matchAdFilter;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         properties = new HashMap<>();
     }
 

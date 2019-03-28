@@ -36,15 +36,15 @@ public class AdControllerTest extends AbstractRestControllerTest {
     @Mock
     TaskService taskService;
 
-    AdMapper adMapper = AdMapper.INSTANCE;
+    private AdMapper adMapper = AdMapper.INSTANCE;
 
     @InjectMocks
     AdController adController;
 
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(adController).build();
     }

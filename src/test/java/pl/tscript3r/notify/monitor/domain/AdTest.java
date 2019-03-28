@@ -6,8 +6,8 @@ import static org.junit.Assert.*;
 
 public class AdTest {
 
-    public static final String KEY = "key";
-    public static final String VALUE = "value";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
 
     @Test
     public void addPropertyNull() {

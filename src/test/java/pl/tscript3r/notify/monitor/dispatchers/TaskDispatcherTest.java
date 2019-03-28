@@ -28,10 +28,10 @@ public class TaskDispatcherTest {
     @Mock
     CrawlerMonitorThreadDriver crawlerMonitorThreadDriver;
 
-    TaskDispatcher taskDispatcher;
+    private TaskDispatcher taskDispatcher;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(context.getBean(anyString())).thenReturn(crawlerMonitorThread);
         when(crawlerMonitorThread.getDriver()).thenReturn(crawlerMonitorThreadDriver);

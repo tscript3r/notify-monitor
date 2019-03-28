@@ -29,10 +29,10 @@ public class DownloadDispatcherTest {
     @Mock
     DownloadMonitorThreadDriver downloadMonitorThreadDriver;
 
-    DownloadDispatcher downloadDispatcher;
+    private DownloadDispatcher downloadDispatcher;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         downloadDispatcher = new DownloadDispatcher();
         when(context.getBean(anyString())).thenReturn(downloadMonitorThread);

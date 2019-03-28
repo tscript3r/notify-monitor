@@ -17,7 +17,7 @@ public class RegexAdFilterTest {
     private RegexAdFilter regexAdFilter;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         properties = new HashMap<>();
     }
 

@@ -23,7 +23,7 @@ public class DownloadMonitorThreadDriverTest {
     @Mock
     JsoupDocumentDownloader jsoupDocumentDownloader;
 
-    DownloadMonitorThreadDriver downloadMonitorThreadDriver;
+    private DownloadMonitorThreadDriver downloadMonitorThreadDriver;
 
     @Before
     public void setUp() throws Exception {
