@@ -14,12 +14,6 @@ import java.util.Map;
 @EqualsAndHashCode(of = "url", callSuper = false)
 public class Ad extends BaseEntity {
 
-    private static long idCounter = 0L;
-
-    private static long getIdValue() {
-        return idCounter++;
-    }
-
     @Getter
     @NotNull
     private final Task task;
@@ -30,10 +24,16 @@ public class Ad extends BaseEntity {
     private final String url;
 
     @Getter
-    private Map<String, String> additionalProperties = new HashMap<>();
+    private final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+    private static long idCounter = 0L;
 
     @Getter
-    private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    private Map<String, String> additionalProperties = new HashMap<>();
+
+    private static long getIdValue() {
+        return idCounter++;
+    }
 
     public Ad(Task task, String url) {
         super(getIdValue());
