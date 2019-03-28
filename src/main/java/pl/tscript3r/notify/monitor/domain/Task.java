@@ -1,16 +1,14 @@
 package pl.tscript3r.notify.monitor.domain;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pl.tscript3r.notify.monitor.filters.AdFilter;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
+@ToString
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Task extends BaseEntity {
 
     @Getter
@@ -56,26 +54,4 @@ public class Task extends BaseEntity {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Task{" +
-                "id=" + getId() +
-                ", userId=" + usersId +
-                ", url='" + url + '\'' +
-                ", refreshInterval=" + refreshInterval +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return Objects.equals(getId(), task.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
 }

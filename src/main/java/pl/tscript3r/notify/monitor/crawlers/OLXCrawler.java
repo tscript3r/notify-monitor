@@ -73,9 +73,9 @@ class OLXCrawler implements Crawler {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || o instanceof Crawler) return false;
+        if (!(o instanceof Crawler)) return false;
         Crawler crawler = (Crawler) o;
-        return Objects.equals(HANDLED_HOSTNAME, crawler.getHandledHostname());
+        return Objects.equals(this.getHandledHostname(), crawler.getHandledHostname());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package pl.tscript3r.notify.monitor.dispatchers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.domain.Task;
@@ -8,14 +7,13 @@ import pl.tscript3r.notify.monitor.exceptions.DownloadException;
 import pl.tscript3r.notify.monitor.threads.DownloadMonitorThread;
 import pl.tscript3r.notify.monitor.threads.drivers.DownloadMonitorThreadDriver;
 
-@Slf4j
 @Component
 public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread> {
 
     private static final String RETURNED_DOCUMENTS = "returned_documents";
 
     public DownloadDispatcher() {
-        super(log, "downloadMonitorThread");
+        super("downloadMonitorThread");
         status.initIntegerCounterValues(RETURNED_DOCUMENTS);
     }
 
@@ -39,7 +37,7 @@ public class DownloadDispatcher extends AbstractDispatcher<DownloadMonitorThread
             if (downloadMonitorThread.getDriver().hasTask(task))
                 return (DownloadMonitorThreadDriver) downloadMonitorThread.getDriver();
         }
-        return null;
+        throw new DownloadException();
     }
 
 }

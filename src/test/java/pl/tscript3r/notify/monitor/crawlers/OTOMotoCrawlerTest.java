@@ -8,13 +8,14 @@ import pl.tscript3r.notify.monitor.domain.Task;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
 public class OTOMotoCrawlerTest extends AbstractCrawlerTest {
 
-    private static final String OTOMOTO_PL = "otomoto.pl";
-    OTOMotoCrawler otoMotoCrawler;
+    private static final String HANDLED_HOSTNAME = "otomoto.pl";
+    private OTOMotoCrawler otoMotoCrawler;
 
     @Before
     public void setUp() {
@@ -30,6 +31,7 @@ public class OTOMotoCrawlerTest extends AbstractCrawlerTest {
         Ad ad = ads.get(0);
         assertNotNull(ad.getUrl());
         assertFalse(ad.getUrl().isEmpty());
+        assertTrue(isValidUrl(ad.getUrl()));
         assertTrue(ad.hasKey(AdProperties.TITLE));
         assertTrue(ad.hasKey(AdProperties.PRICE));
         assertTrue(ad.hasKey(AdProperties.LOCATION));
@@ -42,6 +44,17 @@ public class OTOMotoCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void getHandledHostname() {
-        assertEquals(OTOMOTO_PL, otoMotoCrawler.getHandledHostname());
+        assertEquals(HANDLED_HOSTNAME, otoMotoCrawler.getHandledHostname());
     }
+
+    @Test
+    public void equalsTest() {
+        assertEquals(otoMotoCrawler, new OTOMotoCrawler());
+    }
+
+    @Test
+    public void hashCodeTest() {
+        assertEquals(Objects.hash(HANDLED_HOSTNAME), otoMotoCrawler.hashCode());
+    }
+
 }

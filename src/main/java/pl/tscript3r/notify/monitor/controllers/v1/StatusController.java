@@ -10,7 +10,7 @@ import pl.tscript3r.notify.monitor.status.StatusCollector;
 
 import java.util.List;
 
-@Api(description = "Retrieves current status of the application components")
+@Api("Retrieves current status of the application components")
 @RestController
 @RequestMapping(Paths.STATUS_PATH)
 public class StatusController {

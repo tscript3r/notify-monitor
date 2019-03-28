@@ -1,6 +1,5 @@
 package pl.tscript3r.notify.monitor.dispatchers;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -19,13 +18,11 @@ public abstract class AbstractDispatcher<T extends MonitorThread> implements App
     private static final String REMOVED_TASKS = "removed_tasks";
 
     protected final Status status = Status.create(this.getClass());
-    private final Logger log;
     private final String beanName;
     final List<T> monitorThreads = new ArrayList<>();
     private ApplicationContext context;
 
-    public AbstractDispatcher(Logger log, String threadBeanName) {
-        this.log = log;
+    public AbstractDispatcher(String threadBeanName) {
         this.beanName = threadBeanName;
         status.initIntegerCounterValues(ADDED_TASKS, REMOVED_TASKS);
     }

@@ -14,8 +14,8 @@ import static org.junit.Assert.*;
 
 public class OLXCrawlerTest extends AbstractCrawlerTest {
 
-    public static final String OLX_PL = "olx.pl";
-    OLXCrawler olxParser;
+    private static final String HANDLED_HOSTNAME = "olx.pl";
+    private OLXCrawler olxParser;
 
     @Before
     public void setUp() {
@@ -24,7 +24,7 @@ public class OLXCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void getHandledHostname() {
-        assertEquals(OLX_PL, olxParser.getHandledHostname());
+        assertEquals(HANDLED_HOSTNAME, olxParser.getHandledHostname());
     }
 
     @Test
@@ -34,6 +34,7 @@ public class OLXCrawlerTest extends AbstractCrawlerTest {
         assertEquals(3, ads.size());
         Ad ad = ads.get(0);
         assertNotNull(ad.getUrl());
+        assertTrue(isValidUrl(ad.getUrl()));
         assertTrue(ad.hasKey(AdProperties.LOCATION));
         assertTrue(ad.hasKey(AdProperties.TITLE));
         assertTrue(ad.hasKey(AdProperties.CATEGORY));
@@ -42,12 +43,12 @@ public class OLXCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void equalsTest() {
-        // TODO: implement
+        assertEquals(olxParser, new OLXCrawler());
     }
 
     @Test
     public void hashCodeTest() {
-        assertEquals(Objects.hash(OLX_PL), olxParser.hashCode());
+        assertEquals(Objects.hash(HANDLED_HOSTNAME), olxParser.hashCode());
     }
 
 }

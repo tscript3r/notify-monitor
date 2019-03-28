@@ -6,7 +6,7 @@ import pl.tscript3r.notify.monitor.domain.BaseEntity;
 import java.util.*;
 
 @Slf4j
-public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> {
+public abstract class AbstractMapService<T extends BaseEntity, S extends Long> {
 
     // TODO: erase this?
 
@@ -17,36 +17,36 @@ public abstract class AbstractMapService<T extends BaseEntity, ID extends Long> 
         return new HashSet<>(map.values());
     }
 
-    T findById(ID id) {
-        log.debug("Searching for object id=" + id);
-        return map.get(id);
+    T findById(S s) {
+        log.debug("Searching for object id=" + s);
+        return map.get(s);
     }
 
-    T save(T object) {
+    T save(T t) {
         log.debug("Saving new object");
-        if (object != null) {
-            if (object.getId() == null) {
-                object.setId(getNextId());
-                log.debug("Given object had no id, was set for id=" + object.getId());
+        if (t != null) {
+            if (t.getId() == null) {
+                t.setId(getNextId());
+                log.debug("Given object had no id, was set for id=" + t.getId());
             }
-            map.put(object.getId(), object);
+            map.put(t.getId(), t);
         } else
             throw new RuntimeException("Object cannot be null");
 
-        return object;
+        return t;
     }
 
-    T deleteId(ID id) {
-        log.debug("Deleting object id=" + id);
-        return map.remove(id);
+    T deleteId(S s) {
+        log.debug("Deleting object id=" + s);
+        return map.remove(s);
     }
 
-    Boolean delete(T object) {
-        return map.entrySet().removeIf(entry -> entry.getValue().equals(object));
+    Boolean delete(T t) {
+        return map.entrySet().removeIf(entry -> entry.getValue().equals(t));
     }
 
     private Long getNextId() {
-        Long nextId;
+        long nextId;
 
         try {
             nextId = Collections.max(map.keySet()) + 1;

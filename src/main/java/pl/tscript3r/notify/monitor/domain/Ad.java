@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.URL;
@@ -8,20 +9,15 @@ import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @ToString
+@EqualsAndHashCode(of = "url", callSuper = false)
 public class Ad extends BaseEntity {
 
     private static long idCounter = 0L;
 
     private static long getIdValue() {
-        // I know - very optimistic that nothing else
-        // will break until this value is reached }: )
-        if (idCounter <= Long.MAX_VALUE)
-            return idCounter++;
-        else
-            return idCounter = 0;
+        return idCounter++;
     }
 
     @Getter
@@ -40,7 +36,7 @@ public class Ad extends BaseEntity {
     private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     public Ad(Task task, String url) {
-        setId(getIdValue());
+        super(getIdValue());
         this.task = task;
         this.url = url;
     }
@@ -60,19 +56,6 @@ public class Ad extends BaseEntity {
             return additionalProperties.get(key);
         else
             return "";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Ad ad = (Ad) o;
-        return Objects.equals(url, ad.url);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(url);
     }
 
 }

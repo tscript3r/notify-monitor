@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 public class PackageClassScanner {
 
+    public static final String CLASS = "Class ";
     private ApplicationContext context;
     private Set<BeanDefinition> packageClasses;
     private Boolean throwExceptions = true;
@@ -51,7 +52,7 @@ public class PackageClassScanner {
                                 requiredInterface))
                             return true;
                         else {
-                            throwException("Class " + foundBeanDefinition.getBeanClassName() +
+                            throwException(CLASS + foundBeanDefinition.getBeanClassName() +
                                     " does not implement required interface");
                             return false;
                         }
@@ -76,7 +77,7 @@ public class PackageClassScanner {
                     }
                     Boolean result = context.containsBeanDefinition(beanName);
                     if (!result)
-                        throwException("Class " + foundBeanClass.getBeanClassName() +
+                        throwException(CLASS + foundBeanClass.getBeanClassName() +
                                 " is not a spring component");
                     return result;
                 })
@@ -91,7 +92,7 @@ public class PackageClassScanner {
                     try {
                         String beanName = getBeanName(foundBeanClass.getBeanClassName());
                         if (!context.isPrototype(beanName)) {
-                            throwException("Class " + foundBeanClass.getBeanClassName() +
+                            throwException(CLASS + foundBeanClass.getBeanClassName() +
                                     " is not a prototype component");
                             return false;
                         } else
@@ -114,7 +115,7 @@ public class PackageClassScanner {
                         if (hasModifier(foundClass, modifier))
                             return true;
                         else {
-                            throwException("Class " + foundClass.getName() + " does not have the required modifier.");
+                            throwException(CLASS + foundClass.getName() + " does not have the required modifier.");
                             return false;
                         }
                     } catch (ClassNotFoundException e) {

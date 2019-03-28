@@ -14,24 +14,4 @@ public interface AdFilterService {
 
     List<Ad> filter(List<Ad> ads);
 
-    /*
-{
-    "url": "https://www.olx.pl/moda/?view=list",
-    "users_id": [
-    	1
-    ],
-    "filters": [
-        {
-        	"filter_type": "match",
-        	"property": "title",
-        	"case_sensitive": false,
-        	"words": [
-        		"A",
-        		"B"
-        	]
-        }
-    ]
-}
-     */
-
 }

@@ -14,7 +14,7 @@ import pl.tscript3r.notify.monitor.status.Statusable;
 
 import javax.validation.Valid;
 
-@Api(description = "CRUD operations for tasks")
+@Api("CRUD operations for tasks")
 @Slf4j
 @RestController
 @RequestMapping(Paths.TASK_PATH)

@@ -8,9 +8,11 @@ import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -23,6 +25,8 @@ class OTOMotoCrawler implements Crawler {
     @Override
     public List<Ad> getAds(Task task, Document document) {
         Elements adsElements = getAdsElements(document, Pattern.compile("adListingItem offer-item is-row.*"));
+        if (adsElements.isEmpty())
+            throw new CrawlerException("Unexpected error appeared");
         return createAds(adsElements, task);
     }
 
@@ -46,6 +50,8 @@ class OTOMotoCrawler implements Crawler {
             ad.addProperty(AdProperties.FUEL_TYPE, element.select("li[data-code=fuel_type]").text());
             resultAds.add(ad);
         });
+        if (resultAds.isEmpty())
+            throw new CrawlerException("Unexpected error appeared");
         return resultAds;
     }
 
@@ -53,4 +59,18 @@ class OTOMotoCrawler implements Crawler {
     public String getHandledHostname() {
         return HANDLED_HOSTNAME;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Crawler)) return false;
+        Crawler crawler = (Crawler) o;
+        return Objects.equals(this.getHandledHostname(), crawler.getHandledHostname());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(HANDLED_HOSTNAME);
+    }
+
 }
