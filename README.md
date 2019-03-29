@@ -10,6 +10,7 @@ which is refreshing given URL and looking for new added content.
 *    [Running notify-monitor locally](#running-notify-monitor-locally)
 *    [Process flow diagram](#process-flow-diagram)
 *    [Usage example](#usage-example)
+*    [Adding new ad service](#adding-new-ad-service)
 
 #### General info
 Did you ever wanted to be as soon as possible be informed about 
@@ -36,12 +37,11 @@ return them to the client when he asks for them.
 ##### Currently:
 *    OLX.pl
 *    OTOMoto.pl
-##### Near future:
-*    Allegro.pl
 *    OTODom.pl
 *    KupBilecik.pl
 *    HLTV.org
-####
+##### Near future:
+*    Allegro.pl
 
 #### Running notify-monitor locally
 ```
@@ -58,7 +58,7 @@ java -jar target/*.jar
 First of all you will need to add an task - to do that:
 
 ```
-curl -X POST -H "Content-Type: application/json" -d '{"url":"https://www.olx.pl/motoryzacja/samochody/wroclaw/", "users_id": [1, 2]}' localhost:8080/api/v1/tasks/
+curl -X POST -H "Content-Type: application/json" -d '{"url":"https://www.olx.pl/motoryzacja/y/wroclaw/", "users_id": [1, 2]}' localhost:8080/api/v1/tasks/
 ```
 
 Response example:
@@ -66,7 +66,7 @@ Response example:
 ```
 {
     "id": 3,
-    "url": "https://www.olx.pl/motoryzacja/samochody/wroclaw/",
+    "url": "https://www.olx.pl/motoryzacja/y/wroclaw/",
     "users_id": [
         1,
         2
@@ -138,3 +138,18 @@ Response example:
     ]
 }
 ```
+
+#### Adding new ad service
+Adding an new crawler for an web ad service is very simple - simply create an new 
+java class at package: pl.tscript3r.monitor.crawlers with the following name pattern:
+*Crawler.java, for example: SuperServiceCrawler.java, and after that:
+*    implement the Crawler interface
+*    make the class package private
+*    annotate with @Component and @Scope("prototype")
+*    equals and hashCode has to use only with his handled hostname in the following format: 
+"superservice.com"
+
+And that is it - your crawler implementation class will be automatically indexed by 
+CrawlerFactory and the app will now be able to handle your implemented web service. 
+For more information refer to the Crawler interface docs, and to the package-info in 
+crawlers package, you can also check existing implementations for usage example.

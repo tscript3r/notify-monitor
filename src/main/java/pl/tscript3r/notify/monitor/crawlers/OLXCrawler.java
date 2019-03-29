@@ -8,34 +8,30 @@ import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 @Scope("prototype")
-class OLXCrawler implements Crawler {
+class OLXCrawler extends AbstractCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "olx.pl";
     private static final String CLASS_STRING = "class";
     private static final String STRONG_STRING = "strong";
 
-    @Override
-    public String getHandledHostname() {
-        return HANDLED_HOSTNAME;
+    public OLXCrawler() {
+        super(HANDLED_HOSTNAME);
     }
 
     @Override
     public List<Ad> getAds(Task task, Document document) {
         Elements adsElements = getAdsElements(document, Pattern.compile("fixed breakword\\s\\sad_*"));
-        if (!adsElements.isEmpty())
-            return parseMainLayoutElements(adsElements, task);
-
-        throw new CrawlerException("Unexpected error appeared");
+        if (adsElements.isEmpty())
+            throwException(NO_AD_ELEMENTS_EXCEPTION);
+        return parseMainLayoutElements(task, adsElements);
     }
 
     private Elements getAdsElements(Document document, Pattern pattern) {
@@ -43,44 +39,31 @@ class OLXCrawler implements Crawler {
                 pattern);
     }
 
-    private List<Ad> parseMainLayoutElements(Elements elements, Task task) {
+    private List<Ad> parseMainLayoutElements(Task task, Elements elements) {
         List<Ad> adsList = new ArrayList<>();
         elements.forEach(adElement -> {
             Ad ad = new Ad(task, adElement.select("a[href]").attr("href"));
-            ad.addProperty(AdProperties.TITLE, adElement.select(STRONG_STRING)
+            addPropertyWhenValueNotEmpty(ad, AdProperties.TITLE, adElement.select(STRONG_STRING)
                     .first()
                     .text());
-            ad.addProperty(AdProperties.THUMBNAIL_URL, adElement.select("img[src]")
+            addPropertyWhenValueNotEmpty(ad, AdProperties.THUMBNAIL_URL, adElement.select("img[src]")
                     .attr("src"));
-            ad.addProperty(AdProperties.LOCATION, adElement.select("small[class]")
+            addPropertyWhenValueNotEmpty(ad, AdProperties.LOCATION, adElement.select("small[class]")
                     .attr(CLASS_STRING, "breadcrumb x-normal")
                     .select("span")
                     .first()
                     .text());
-            ad.addProperty(AdProperties.CATEGORY, adElement.select("small[class]")
+            addPropertyWhenValueNotEmpty(ad, AdProperties.CATEGORY, adElement.select("small[class]")
                     .first()
                     .text());
-            ad.addProperty(AdProperties.PRICE, adElement.select("p")
+            addPropertyWhenValueNotEmpty(ad, AdProperties.PRICE, adElement.select("p")
                     .select(STRONG_STRING)
                     .text());
-
             adsList.add(ad);
         });
-
+        if (adsList.isEmpty())
+            throwException(NO_ADS_CREATED_EXCEPTION);
         return adsList;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Crawler)) return false;
-        Crawler crawler = (Crawler) o;
-        return Objects.equals(this.getHandledHostname(), crawler.getHandledHostname());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(HANDLED_HOSTNAME);
     }
 
 }

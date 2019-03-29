@@ -1,6 +1,5 @@
 package pl.tscript3r.notify.monitor.crawlers;
 
-import org.apache.commons.validator.routines.UrlValidator;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -9,33 +8,30 @@ import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
-import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 @Scope("prototype")
-class HLTVCrawler implements Crawler {
+class HLTVCrawler extends AbstractCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "hltv.org";
-    private static final String UNEXPECTED_ERROR_APPEARED = "Unexpected error appeared";
+
+    public HLTVCrawler() {
+        super(HANDLED_HOSTNAME);
+    }
 
     @Override
     public List<Ad> getAds(Task task, Document document) {
         Elements daysElements = getDaysElements(document);
         if (daysElements.isEmpty())
-            throwException(UNEXPECTED_ERROR_APPEARED);
+            throwException(NO_AD_ELEMENTS_EXCEPTION);
         return getAdsFromDaysElements(daysElements, task);
     }
 
     private Elements getDaysElements(Document document) {
         return document.getElementsByClass("results-sublist");
-    }
-
-    private void throwException(String message) {
-        throw new CrawlerException(message);
     }
 
     private List<Ad> getAdsFromDaysElements(Elements daysElements, Task task) {
@@ -70,34 +66,15 @@ class HLTVCrawler implements Crawler {
             ad.addProperty(AdProperties.DATE, date);
             resultAds.add(ad);
         });
+        if (resultAds.isEmpty())
+            throwException(NO_ADS_CREATED_EXCEPTION);
         return resultAds;
     }
 
     private String getGameUrl(Element gameElement) {
-        String result = "https://www.hltv.org" + gameElement.select("a[class=a-reset").attr("href");
-        String[] schemes = {"http", "https"};
-        UrlValidator urlValidator = new UrlValidator(schemes);
-        if (!urlValidator.isValid(result))
-            throwException("URL is invalid");
+        String result = "https://www.hltv.org" + gameElement.select("a[class=a-reset]").attr("href");
+        validateUrl(result);
         return result;
-    }
-
-    @Override
-    public String getHandledHostname() {
-        return HANDLED_HOSTNAME;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Crawler)) return false;
-        Crawler crawler = (Crawler) o;
-        return Objects.equals(this.getHandledHostname(), crawler.getHandledHostname());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(HANDLED_HOSTNAME);
     }
 
 }

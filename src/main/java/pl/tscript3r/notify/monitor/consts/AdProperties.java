@@ -12,6 +12,9 @@ public class AdProperties {
     public static final String ENGINE_CAPACITY = "engine_capacity";
     public static final String FUEL_TYPE = "fuel_type";
     public static final String DATE = "date";
+    public static final String YARDAGE = "yardage";
+    public static final String ROOMS = "rooms";
+    public static final String SELLER = "seller";
 
     private AdProperties() {
     }

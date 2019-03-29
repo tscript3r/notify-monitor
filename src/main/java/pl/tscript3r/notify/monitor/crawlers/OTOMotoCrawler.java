@@ -12,21 +12,24 @@ import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 @Scope("prototype")
-class OTOMotoCrawler implements Crawler {
+class OTOMotoCrawler extends AbstractCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "otomoto.pl";
+
+    public OTOMotoCrawler() {
+        super(HANDLED_HOSTNAME);
+    }
 
     @Override
     public List<Ad> getAds(Task task, Document document) {
         Elements adsElements = getAdsElements(document, Pattern.compile("adListingItem offer-item is-row.*"));
         if (adsElements.isEmpty())
-            throw new CrawlerException("Unexpected error appeared");
+            throwException(NO_AD_ELEMENTS_EXCEPTION);
         return createAds(adsElements, task);
     }
 
@@ -38,39 +41,26 @@ class OTOMotoCrawler implements Crawler {
     private List<Ad> createAds(Elements elements, Task task) {
         List<Ad> resultAds = new ArrayList<>();
         elements.forEach(element -> {
-            Ad ad = new Ad(task, element.select("a[href]").attr("href"));
-            ad.addProperty(AdProperties.THUMBNAIL_URL, element.select("img[class]")
-                    .attr("data-src"));
-            ad.addProperty(AdProperties.TITLE, element.select("a[data-ad-id]").text());
-            ad.addProperty(AdProperties.PRICE, element.select("span[class=offer-price__number]").text());
-            ad.addProperty(AdProperties.LOCATION, element.select("span[class=offer-item__location]").text());
-            ad.addProperty(AdProperties.PRODUCTION_YEAR, element.select("li[data-code=year]").text());
-            ad.addProperty(AdProperties.MILEAGE, element.select("li[data-code=mileage]").text());
-            ad.addProperty(AdProperties.ENGINE_CAPACITY, element.select("li[data-code=engine_capacity]").text());
-            ad.addProperty(AdProperties.FUEL_TYPE, element.select("li[data-code=fuel_type]").text());
+            String url = element.select("a[href]").attr("href");
+            validateUrl(url);
+            Ad ad = new Ad(task, url);
+            String thumbnailUrl = element.select("img[class]").attr("data-src");
+            if (isUrlValid(thumbnailUrl))
+                addPropertyWhenValueNotEmpty(ad, AdProperties.THUMBNAIL_URL, thumbnailUrl);
+            else
+                log.warn("Invalid thumbnail url; rejected={}", thumbnailUrl);
+            addPropertyWhenValueNotEmpty(ad, AdProperties.TITLE, element.select("a[data-ad-id]").text());
+            addPropertyWhenValueNotEmpty(ad, AdProperties.PRICE, element.select("span[class=offer-price__number]").text());
+            addPropertyWhenValueNotEmpty(ad, AdProperties.LOCATION, element.select("span[class=offer-item__location]").text());
+            addPropertyWhenValueNotEmpty(ad, AdProperties.PRODUCTION_YEAR, element.select("li[data-code=year]").text());
+            addPropertyWhenValueNotEmpty(ad, AdProperties.MILEAGE, element.select("li[data-code=mileage]").text());
+            addPropertyWhenValueNotEmpty(ad, AdProperties.ENGINE_CAPACITY, element.select("li[data-code=engine_capacity]").text());
+            addPropertyWhenValueNotEmpty(ad, AdProperties.FUEL_TYPE, element.select("li[data-code=fuel_type]").text());
             resultAds.add(ad);
         });
         if (resultAds.isEmpty())
-            throw new CrawlerException("Unexpected error appeared");
+            throw new CrawlerException(NO_ADS_CREATED_EXCEPTION);
         return resultAds;
-    }
-
-    @Override
-    public String getHandledHostname() {
-        return HANDLED_HOSTNAME;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Crawler)) return false;
-        Crawler crawler = (Crawler) o;
-        return Objects.equals(this.getHandledHostname(), crawler.getHandledHostname());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(HANDLED_HOSTNAME);
     }
 
 }
