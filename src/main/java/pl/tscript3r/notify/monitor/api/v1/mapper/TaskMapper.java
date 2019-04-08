@@ -28,7 +28,6 @@ public interface TaskMapper {
             task.setUsersId(null);
         task.setUrl(taskDTO.getUrl());
         task.setRefreshInterval(taskDTO.getRefreshInterval());
-        task.setAdContainerLimit(taskDTO.getAdContainerLimit());
         if (taskDTO.getFilterListDTO() != null &&
                 !taskDTO.getFilterListDTO().isEmpty()) {
             FilterMapper filterMapper = FilterMapper.INSTANCE;

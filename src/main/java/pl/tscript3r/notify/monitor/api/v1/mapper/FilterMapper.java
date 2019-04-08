@@ -15,13 +15,13 @@ public interface FilterMapper {
             filterDTO.setCaseSensitive(false);
         switch (filterDTO.getFilterType()) {
             case MATCH:
-                return new MatchAdFilter(filterDTO.getProperty(), filterDTO.getCaseSensitive(), filterDTO.getWords());
+                return new MatchAdFilter(filterDTO.getProperty(), filterDTO.getCaseSensitive(), filterDTO.getStrings());
             case REGEX:
-                return new RegexAdFilter(filterDTO.getProperty(), filterDTO.getWords());
+                return new RegexAdFilter(filterDTO.getProperty(), filterDTO.getStrings());
             case EXCLUDE:
-                return new ExcludeAdFilter(filterDTO.getProperty(), filterDTO.getCaseSensitive(), filterDTO.getWords());
+                return new ExcludeAdFilter(filterDTO.getProperty(), filterDTO.getCaseSensitive(), filterDTO.getStrings());
             case INCLUDE:
-                return new IncludeAdFilter(filterDTO.getProperty(), filterDTO.getCaseSensitive(), filterDTO.getWords());
+                return new IncludeAdFilter(filterDTO.getProperty(), filterDTO.getCaseSensitive(), filterDTO.getStrings());
             default:
                 throw new RuntimeException();
         }

@@ -12,27 +12,19 @@ import pl.tscript3r.notify.monitor.status.Statusable;
 public class TaskDefaultValueSetter implements Statusable {
 
     private static final String REFRESH_OVERRIDES_COUNT = "refresh_overrides";
-    private static final String CONTAINER_OVERRIDES_COUNT = "container_overrides";
     private final Status status = Status.create(this.getClass());
     private final Integer defaultRefreshInterval;
     private final Integer minimalInterval;
-    private final Integer adContainerDefaultLimit;
-    private final Integer adContainerMinimal;
 
     public TaskDefaultValueSetter(@Value("#{new Integer('${notify.monitor.task.defaultInterval}')}") Integer defaultRefreshInterval,
-                                  @Value("#{new Integer('${notify.monitor.task.minInterval}')}") Integer minimalInterval,
-                                  @Value("#{new Integer('${notify.monitor.ad.queue.defaultLimit}')}") Integer adContainerLimit,
-                                  @Value("#{new Integer('${notify.monitor.ad.queue.minLimit}')}") Integer adContainerMinimal) {
+                                  @Value("#{new Integer('${notify.monitor.task.minInterval}')}") Integer minimalInterval) {
         this.defaultRefreshInterval = defaultRefreshInterval;
         this.minimalInterval = minimalInterval;
-        this.adContainerDefaultLimit = adContainerLimit;
-        this.adContainerMinimal = adContainerMinimal;
-        status.initIntegerCounterValues(REFRESH_OVERRIDES_COUNT, CONTAINER_OVERRIDES_COUNT);
+        status.initIntegerCounterValues(REFRESH_OVERRIDES_COUNT);
     }
 
     public void validateAndSetDefaults(TaskDTO task) {
         refreshInterval(task);
-        adContainer(task);
     }
 
     private void refreshInterval(TaskDTO task) {
@@ -40,14 +32,6 @@ public class TaskDefaultValueSetter implements Statusable {
             status.incrementValue(REFRESH_OVERRIDES_COUNT);
             log.debug("Refresh interval has been overridden");
             task.setRefreshInterval(defaultRefreshInterval);
-        }
-    }
-
-    private void adContainer(TaskDTO task) {
-        if (task.getAdContainerLimit() == null || task.getAdContainerLimit() < adContainerMinimal) {
-            status.incrementValue(CONTAINER_OVERRIDES_COUNT);
-            log.debug("Container limit has been overridden");
-            task.setAdContainerLimit(adContainerDefaultLimit);
         }
     }
 

@@ -71,15 +71,15 @@ Response example:
         1,
         2
     ],
-    "refresh_interval": 120,
-    "stored_ads_limit": 50
+    "refresh_interval": 120
 }
 ```
 
 Any returned ad will have the 'users_id' values to identify the task owner users.
 This field and the 'url' are of course mandatory by adding new task. You can 
-additionally add the 'refresh_interval' and 'stored_ads_limit' values - for more 
-information please refer to the documentation.
+additionally add the 'refresh_interval' value - it is basically time interval 
+between refresh iterations of the given task.
+
 
 Additionally I have added filters, so that you can set it on any property. 
 There are four types of filters:

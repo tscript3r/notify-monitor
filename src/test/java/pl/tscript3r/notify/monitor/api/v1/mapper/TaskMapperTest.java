@@ -30,7 +30,7 @@ public class TaskMapperTest {
 
     @Test
     public void taskDTOToTask() {
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, 120, 80, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, 120, null);
         Task taskResult = taskMapper.taskDTOToTask(taskDTO);
 
         assertEquals(taskDTO.getRefreshInterval(), taskResult.getRefreshInterval());

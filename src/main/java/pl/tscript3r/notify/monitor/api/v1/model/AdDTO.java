@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Past;
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Set;
@@ -16,20 +17,22 @@ import java.util.Set;
 @NoArgsConstructor
 public class AdDTO {
 
-    @NotNull
+    @NotEmpty
     private Long id;
 
-    @NotNull
+    @NotEmpty
     @JsonProperty("users_id")
     private Set<Long> usersId;
 
     @URL
-    @NotNull
+    @NotEmpty
     private String url;
 
     @JsonProperty("additional_properties")
     private Map<String, String> additionalProperties;
 
+    @Past
+    @NotEmpty
     private Timestamp timestamp;
 
 }

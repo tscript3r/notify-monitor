@@ -55,10 +55,10 @@ public class TaskServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
-        TaskDefaultValueSetter taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 60, 30);
+        TaskDefaultValueSetter taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60);
         taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper, filterMapper,
-                crawlerFactory, taskDispatcher, adFilterService);
-        task = new Task(ID, Sets.newHashSet(1L), URL, 120, 60);
+                crawlerFactory, taskDispatcher, adFilterService, 1.5F);
+        task = new Task(ID, Sets.newHashSet(1L), URL, 120, 1.5F);
         taskService.saveDTO(taskMapper.taskToTaskDTO(task));
     }
 
@@ -116,7 +116,7 @@ public class TaskServiceTest {
         filterDTO.setCaseSensitive(false);
         filterDTO.setFilterType(AdFilterType.MATCH);
         filterDTO.setProperty("test");
-        filterDTO.setWords(Sets.newHashSet("a", "b"));
+        filterDTO.setStrings(Sets.newHashSet("a", "b"));
         taskDTO.setFilterListDTO(Sets.newHashSet(filterDTO));
         taskService.update(ID, taskDTO);
         TaskDTO returnedTaskDTO = taskService.getTaskDTOById(ID);
@@ -146,7 +146,7 @@ public class TaskServiceTest {
 
     @Test
     public void addTaskWithoutTaskSettings() {
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null);
         assertNull(taskDTO.getRefreshInterval());
         TaskDTO returnedTaskDTO = taskService.saveDTO(taskDTO);
         assertNotNull(returnedTaskDTO.getRefreshInterval());
@@ -156,7 +156,7 @@ public class TaskServiceTest {
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
         when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 80, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, null);
         taskService.saveDTO(taskDTO);
     }
 
@@ -170,7 +170,7 @@ public class TaskServiceTest {
         filterDTO.setCaseSensitive(false);
         filterDTO.setFilterType(AdFilterType.MATCH);
         filterDTO.setProperty("test");
-        filterDTO.setWords(Sets.newHashSet("a", "b"));
+        filterDTO.setStrings(Sets.newHashSet("a", "b"));
         taskDTO.setFilterListDTO(Sets.newHashSet(filterDTO));
         taskService.saveDTO(taskDTO);
         verify(adFilterService, times(1)).add(any(), any());

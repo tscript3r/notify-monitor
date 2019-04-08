@@ -3,7 +3,7 @@ package pl.tscript3r.notify.monitor.services;
 import org.springframework.stereotype.Service;
 import pl.tscript3r.notify.monitor.api.v1.mapper.AdMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
-import pl.tscript3r.notify.monitor.components.AdContainer;
+import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 import pl.tscript3r.notify.monitor.status.Status;
@@ -32,7 +32,7 @@ public class AdServiceImpl implements AdService {
     public List<AdDTO> getNewAds(Task task) {
         status.incrementValue(RETURNED_NEW_ADS);
         if (task == null)
-            throw new TaskNotFoundException("Empty value");
+            throw new TaskNotFoundException("null value");
         if (taskService.isAdded(task))
             return adContainer.returnNewAdsAndMarkAsReturned(task)
                     .stream()

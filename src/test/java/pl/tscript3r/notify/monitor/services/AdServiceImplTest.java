@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.api.v1.mapper.AdMapper;
-import pl.tscript3r.notify.monitor.components.AdContainer;
+import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;

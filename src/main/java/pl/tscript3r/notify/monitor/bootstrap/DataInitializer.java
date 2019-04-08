@@ -16,17 +16,17 @@ public class DataInitializer implements CommandLineRunner {
 
     private final TaskService taskService;
     private final Integer defaultInterval;
-    private final Integer defaultAdContainerLimit;
+    private final Float adContainerMultiplier;
     private final Boolean loadBootstrap;
 
     public DataInitializer(TaskService taskService,
                            @Value("#{new Boolean('${notify.monitor.loadBootstrap}')}") Boolean loadBootstrap,
                            @Value("#{new Integer('${notify.monitor.task.defaultInterval}')}") Integer defaultInterval,
-                           @Value("#{new Integer('${notify.monitor.ad.queue.defaultLimit}')}")
-                                   Integer defaultAdContainerLimit) {
+                           @Value("#{new Float('${notify.monitor.ad.container.multiplier}')}")
+                                   Float adContainerMultiplier) {
         this.taskService = taskService;
         this.defaultInterval = defaultInterval;
-        this.defaultAdContainerLimit = defaultAdContainerLimit;
+        this.adContainerMultiplier = adContainerMultiplier;
         this.loadBootstrap = loadBootstrap;
     }
 
@@ -42,13 +42,13 @@ public class DataInitializer implements CommandLineRunner {
         taskService.saveAll(Arrays.asList(
                 Task.builder()
                         .refreshInterval(defaultInterval)
-                        .adContainerLimit(defaultAdContainerLimit)
+                        .adContainerMultiplier(adContainerMultiplier)
                         .usersId(Sets.newHashSet(1L, 2L))
                         .url("https://www.olx.pl/oddam-za-darmo/")
                         .build(),
                 Task.builder()
                         .refreshInterval(defaultInterval)
-                        .adContainerLimit(defaultAdContainerLimit)
+                        .adContainerMultiplier(adContainerMultiplier)
                         .usersId(Sets.newHashSet(1L))
                         .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
                         .build()

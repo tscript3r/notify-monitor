@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import pl.tscript3r.notify.monitor.components.AdContainer;
+import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;

@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import pl.tscript3r.notify.monitor.components.AdContainer;
+import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
 import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;

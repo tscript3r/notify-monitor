@@ -25,7 +25,7 @@ public class Task extends BaseEntity {
 
     @Getter
     @Setter
-    private Integer adContainerLimit;
+    private Float adContainerMultiplier;
 
     @Getter
     @Setter
@@ -34,12 +34,12 @@ public class Task extends BaseEntity {
     private Long lastRefreshTime = 0L;
 
     @Builder
-    public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Integer adContainerLimit) {
+    public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Float adContainerMultiplier) {
         super(id);
         this.usersId = usersId;
         this.url = url;
         this.refreshInterval = refreshInterval;
-        this.adContainerLimit = adContainerLimit;
+        this.adContainerMultiplier = adContainerMultiplier;
     }
 
     public Boolean isRefreshable() {

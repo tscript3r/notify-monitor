@@ -15,7 +15,7 @@ public class FilterMapperTest {
     @Test
     public void filterDTOToAdFilterWithNoCaseSensitive() {
         FilterDTO filterDTO = new FilterDTO();
-        filterDTO.setWords(Sets.newHashSet("a", "b"));
+        filterDTO.setStrings(Sets.newHashSet("a", "b"));
         filterDTO.setProperty("test");
         filterDTO.setFilterType(AdFilterType.MATCH);
         AdFilter adFilter = FilterMapper.INSTANCE.filterDTOToAdFilter(filterDTO);

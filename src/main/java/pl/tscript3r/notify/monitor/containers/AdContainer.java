@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.components;
+package pl.tscript3r.notify.monitor.containers;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -17,51 +17,16 @@ import java.util.stream.Collectors;
 public class AdContainer implements Statusable {
 
     private final Status status = Status.create(this.getClass());
-    private final Map<Task, LinkedHashSet<AdDecorated>> tasksAds = new HashMap<>();
+    private final Map<Task, Set<AdDecorated>> tasksAds = new HashMap<>();
     private BigInteger totalReceivedAdsCount = new BigInteger("0");
-
-    private class AdDecorated {
-        Ad ad;
-        Boolean returned = false;
-
-        AdDecorated(Ad ad) {
-            this.ad = ad;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null) return false;
-            if (!(o instanceof AdDecorated)) return false;
-            AdDecorated that = (AdDecorated) o;
-            return Objects.equals(ad, that.ad);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(ad);
-        }
-    }
-
-    private LinkedHashSet<AdDecorated> adsToDecoratedAdsSet(Collection<Ad> ads) {
-        return ads.stream()
-                .map(AdDecorated::new)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    private LinkedHashSet<Ad> adsDecoratedToAdsSet(Collection<AdDecorated> ads) {
-        return ads.stream()
-                .map(adDecorated -> adDecorated.ad)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
 
     public void addAds(Task task, Collection<Ad> ads) {
         addTotalReceivedAdsCount(ads.size());
         synchronized (tasksAds) {
             if (tasksAds.containsKey(task))
-                mergeAds(task, adsToDecoratedAdsSet(ads));
+                mergeAds(task, AdDecorated.adsToAdDecoratedSizeLimitedSet(ads));
             else
                 initialAdAddition(task, ads);
-            limitAds(task);
         }
         log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
     }
@@ -76,34 +41,20 @@ public class AdContainer implements Statusable {
     }
 
     private void initialAdAddition(Task task, Collection<Ad> ads) {
-        LinkedHashSet<AdDecorated> adsDecorated = adsToDecoratedAdsSet(ads);
+        Set<AdDecorated> adsDecorated =
+                AdDecorated.adsToAdDecoratedSizeLimitedSet(getSizeLimit(task, ads.size()), ads);
         adsDecorated.forEach(adDecorated -> adDecorated.returned = true);
         tasksAds.put(task, adsDecorated);
     }
 
-    // TODO: probably to refactor
-    private void limitAds(Task task) {
-        if (tasksAds.get(task).size() > task.getAdContainerLimit()) {
-            LinkedHashSet<AdDecorated> currentSet = tasksAds.get(task);
-            LinkedHashSet<AdDecorated> cutOffSet = new LinkedHashSet<>(task.getAdContainerLimit());
-            Iterator it = currentSet.iterator();
-            int removeCount = tasksAds.get(task).size() - task.getAdContainerLimit();
-            int skippedCount = 0;
-            do {
-                AdDecorated adDecorated = (AdDecorated) it.next();
-                if (skippedCount >= removeCount)
-                    cutOffSet.add(adDecorated);
-                skippedCount++;
-            } while (it.hasNext());
-            tasksAds.put(task, cutOffSet);
-            log.debug("Task id=" + task.getId() + " stored ads list has been limited (size=" + cutOffSet.size() + ")");
-        }
+    private int getSizeLimit(Task task, int initialListSize) {
+        return Math.round(initialListSize * task.getAdContainerMultiplier());
     }
 
     public Set<Ad> returnAllAds(Task task) {
         synchronized (tasksAds) {
             if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
-                return adsDecoratedToAdsSet(tasksAds.get(task));
+                return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task));
             else
                 return Sets.newHashSet();
         }
@@ -112,7 +63,7 @@ public class AdContainer implements Statusable {
     public Set<Ad> returnNewAdsAndMarkAsReturned(Task task) {
         synchronized (tasksAds) {
             if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
-                return adsDecoratedToAdsSet(tasksAds.get(task)
+                return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task)
                         .stream()
                         .filter(adDecorated -> {
                             if (!adDecorated.returned) {
@@ -121,7 +72,7 @@ public class AdContainer implements Statusable {
                             } else
                                 return false;
                         })
-                        .collect(Collectors.toCollection(ArrayList::new)));
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
             else
                 return Sets.newHashSet();
 
@@ -153,7 +104,7 @@ public class AdContainer implements Statusable {
 
     private Long countTotalStoredAds() {
         long result = 0;
-        for (LinkedHashSet<AdDecorated> value : tasksAds.values())
+        for (Set<AdDecorated> value : tasksAds.values())
             result += value.size();
         return result;
     }

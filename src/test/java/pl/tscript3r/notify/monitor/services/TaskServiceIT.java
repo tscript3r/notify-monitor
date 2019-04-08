@@ -62,7 +62,6 @@ public class TaskServiceIT {
 
     private void update(Long id, TaskDTO taskDTO) {
         TaskDTO returnedTaskDTO = taskService.update(id, taskDTO);
-        assertEquals(getUpdateTaskDTO().getAdContainerLimit(), returnedTaskDTO.getAdContainerLimit());
         assertEquals(getUpdateTaskDTO().getRefreshInterval(), returnedTaskDTO.getRefreshInterval());
         assertEquals(getUpdateTaskDTO().getUrl(), returnedTaskDTO.getUrl());
         assertEquals(getUpdateTaskDTO().getUsersId(), returnedTaskDTO.getUsersId());
@@ -72,7 +71,6 @@ public class TaskServiceIT {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setUrl("https://www.olx.pl/task-updated");
         taskDTO.setUsersId(Sets.newHashSet(666L));
-        taskDTO.setAdContainerLimit(99);
         taskDTO.setRefreshInterval(999);
         return taskDTO;
     }

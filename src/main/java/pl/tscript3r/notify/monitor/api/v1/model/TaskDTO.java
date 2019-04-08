@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 @Getter
@@ -17,19 +17,16 @@ public class TaskDTO {
 
     private Long id;
 
-    @NotNull
+    @NotEmpty(message = "Users IDs has to be set")
     @JsonProperty("users_id")
     private Set<Long> usersId;
 
-    @URL
-    @NotNull
+    @URL(message = "Invalid URL")
+    @NotEmpty(message = "Observed URL has to be set")
     private String url;
 
     @JsonProperty("refresh_interval")
     private Integer refreshInterval;
-
-    @JsonProperty("stored_ads_limit")
-    private Integer adContainerLimit;
 
     @Valid
     @JsonProperty("filters")

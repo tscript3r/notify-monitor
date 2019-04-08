@@ -35,7 +35,7 @@ public class AdFilterServiceImplTest {
                 .usersId(Sets.newHashSet(1L))
                 .url("https://www.olx.pl/test")
                 .refreshInterval(500)
-                .adContainerLimit(50)
+                .adContainerMultiplier(1.5F)
                 .build();
         adFilterService = new AdFilterServiceImpl();
     }

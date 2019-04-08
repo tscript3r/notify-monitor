@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.components;
+package pl.tscript3r.notify.monitor.containers;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class AdContainerTest {
         adContainer = new AdContainer();
         task = Task.builder()
                 .refreshInterval(0)
-                .adContainerLimit(4)
+                .adContainerMultiplier(0.5F)
                 .url("http://www.olx.pl/oddam-za-darmo/")
                 .id(1L)
                 .usersId(Sets.newHashSet(1L)).build();
@@ -51,7 +51,7 @@ public class AdContainerTest {
         adContainer.addAds(task, getInitialAds());
         List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four")));
         adContainer.addAds(task, additionalAd);
-        assertEquals(4, adContainer.returnAllAds(task).size());
+        assertEquals(3, adContainer.returnAllAds(task).size());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class AdContainerTest {
         adContainer.addAds(task, getInitialAds());
         List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four"), one, two));
         adContainer.addAds(task, additionalAd);
-        assertEquals(4, adContainer.returnAllAds(task).size());
+        assertEquals(3, adContainer.returnAllAds(task).size());
     }
 
     @Test
@@ -70,6 +70,7 @@ public class AdContainerTest {
 
     @Test
     public void receiveNewAds() {
+        task.setAdContainerMultiplier(2F);
         adContainer.addAds(task, getInitialAds());
         assertEquals(0, adContainer.returnNewAdsAndMarkAsReturned(task).size());
         List<Ad> additionalAds = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four"), one, two));
@@ -114,9 +115,8 @@ public class AdContainerTest {
         List<Ad> overLimitAds = Arrays.asList(five, six);
         adContainer.addAds(task, overLimitAds);
         assertEquals(2, adContainer.returnNewAdsAndMarkAsReturned(task).size());
-        assertEquals(4, adContainer.returnAllAds(task).size());
+        assertEquals(3, adContainer.returnAllAds(task).size());
         Set<Ad> allReturnedAds = adContainer.returnAllAds(task);
-        assertTrue(allReturnedAds.contains(three));
         assertTrue(allReturnedAds.contains(four));
         assertTrue(allReturnedAds.contains(five));
         assertTrue(allReturnedAds.contains(six));

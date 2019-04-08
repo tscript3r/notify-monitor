@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import pl.tscript3r.notify.monitor.filters.AdFilterType;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 @Getter
@@ -14,17 +14,17 @@ import java.util.Set;
 @NoArgsConstructor
 public class FilterDTO {
 
-    @NotNull
+    @NotEmpty(message = "Filter type has to be set, available filter types are: regex, match, include, exclude")
     @JsonProperty("filter_type")
     private AdFilterType filterType;
 
-    @NotNull
+    @NotEmpty(message = "Property value has to be set")
     private String property;
 
     @JsonProperty("case_sensitive")
     private Boolean caseSensitive;
 
-    @NotNull
-    private Set<String> words;
+    @NotEmpty(message = "Filter strings has to be set")
+    private Set<String> strings;
 
 }
