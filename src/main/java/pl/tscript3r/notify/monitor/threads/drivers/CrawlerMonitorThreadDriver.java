@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
+import pl.tscript3r.notify.monitor.crawlers.api.ApiCrawler;
+import pl.tscript3r.notify.monitor.crawlers.html.HtmlCrawler;
 import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
@@ -17,6 +19,7 @@ import pl.tscript3r.notify.monitor.services.AdFilterService;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -97,34 +100,48 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
         }
     }
 
+    private void sendToDownload(Task task) {
+        downloadDispatcher.addTask(task);
+    }
+
     private void crawlTask(Task task) {
-        Document document = getDocument(task);
-        if (document != null) {
-            List<Ad> ads = getParser(task).getAds(task, document);
+        Crawler crawler = getCrawler(task);
+        List<Ad> ads = getAds(crawler, task);
+        if (ads != null && !ads.isEmpty())
             adContainer.addAds(task, adFilterService.filter(ads));
-        }
+    }
+
+    private Crawler getCrawler(Task task) {
+        if (!crawlers.isEmpty())
+            for (Crawler crawler : crawlers)
+                if (crawlerCompatible(crawler, task))
+                    return crawler;
+        Crawler result = crawlerFactory.getParser(HostnameExtractor.getDomain(task.getUrl()));
+        crawlers.add(result);
+        return result;
+    }
+
+    public List<Ad> getAds(Crawler crawler, Task task) {
+        if (crawler instanceof ApiCrawler)
+            return ((ApiCrawler) crawler).getAds(task);
+        if (crawler instanceof HtmlCrawler)
+            return htmlCrawl(crawler, task);
+        throw new CrawlerException("Unrecognized crawler instance");
+    }
+
+    private List<Ad> htmlCrawl(Crawler crawler, Task task) {
+        Document document = getDocument(task);
+        if (getDocument(task) != null)
+            return ((HtmlCrawler) crawler).getAds(task, document);
+        else
+            return Collections.emptyList();
     }
 
     private Document getDocument(Task task) {
         return downloadDispatcher.returnDocument(task);
     }
 
-    private void sendToDownload(Task task) {
-        downloadDispatcher.addTask(task);
-    }
-
-    private Crawler getParser(Task task) {
-        if (!crawlers.isEmpty())
-            for (Crawler crawler : crawlers)
-                if (parserCompatible(crawler, task))
-                    return crawler;
-
-        Crawler result = crawlerFactory.getParser(HostnameExtractor.getDomain(task.getUrl()));
-        crawlers.add(result);
-        return result;
-    }
-
-    private Boolean parserCompatible(Crawler crawler, Task task) {
+    private Boolean crawlerCompatible(Crawler crawler, Task task) {
         return crawler.getHandledHostname().equals(HostnameExtractor.getDomain(task.getUrl()));
     }
 

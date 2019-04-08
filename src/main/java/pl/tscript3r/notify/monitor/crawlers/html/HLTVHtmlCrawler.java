@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,11 +14,11 @@ import java.util.List;
 
 @Component
 @Scope("prototype")
-class HLTVCrawler extends AbstractCrawler implements Crawler {
+class HLTVHtmlCrawler extends AbstractHtmlCrawler implements HtmlCrawler {
 
     private static final String HANDLED_HOSTNAME = "hltv.org";
 
-    public HLTVCrawler() {
+    public HLTVHtmlCrawler() {
         super(HANDLED_HOSTNAME);
     }
 

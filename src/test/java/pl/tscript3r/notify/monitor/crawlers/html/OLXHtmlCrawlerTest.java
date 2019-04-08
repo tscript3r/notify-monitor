@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,14 +12,14 @@ import java.util.Objects;
 
 import static org.junit.Assert.*;
 
-public class OLXCrawlerTest extends AbstractCrawlerTest {
+public class OLXHtmlCrawlerTest extends AbstractCrawlerTest {
 
     private static final String HANDLED_HOSTNAME = "olx.pl";
-    private OLXCrawler olxParser;
+    private OLXHtmlCrawler olxParser;
 
     @Before
     public void setUp() {
-        olxParser = new OLXCrawler();
+        olxParser = new OLXHtmlCrawler();
     }
 
     @Test
@@ -43,7 +43,7 @@ public class OLXCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void equalsTest() {
-        assertEquals(olxParser, new OLXCrawler());
+        assertEquals(olxParser, new OLXHtmlCrawler());
     }
 
     @Test

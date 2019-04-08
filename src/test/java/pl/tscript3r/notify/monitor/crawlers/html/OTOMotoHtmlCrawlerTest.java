@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,20 +12,20 @@ import java.util.Objects;
 
 import static org.junit.Assert.*;
 
-public class OTOMotoCrawlerTest extends AbstractCrawlerTest {
+public class OTOMotoHtmlCrawlerTest extends AbstractCrawlerTest {
 
     private static final String HANDLED_HOSTNAME = "otomoto.pl";
-    private OTOMotoCrawler otoMotoCrawler;
+    private OTOMotoHtmlCrawler otoMotoHtmlCrawler;
 
     @Before
     public void setUp() {
-        otoMotoCrawler = new OTOMotoCrawler();
+        otoMotoHtmlCrawler = new OTOMotoHtmlCrawler();
     }
 
     @Test
     public void getAds() throws IOException {
         Task task = getDefaultTask();
-        List<Ad> ads = otoMotoCrawler.getAds(task, loadResource("OTOMoto.html"));
+        List<Ad> ads = otoMotoHtmlCrawler.getAds(task, loadResource("OTOMoto.html"));
         assertNotNull(ads);
         assertEquals(2, ads.size());
         Ad ad = ads.get(0);
@@ -44,17 +44,17 @@ public class OTOMotoCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void getHandledHostname() {
-        assertEquals(HANDLED_HOSTNAME, otoMotoCrawler.getHandledHostname());
+        assertEquals(HANDLED_HOSTNAME, otoMotoHtmlCrawler.getHandledHostname());
     }
 
     @Test
     public void equalsTest() {
-        assertEquals(otoMotoCrawler, new OTOMotoCrawler());
+        assertEquals(otoMotoHtmlCrawler, new OTOMotoHtmlCrawler());
     }
 
     @Test
     public void hashCodeTest() {
-        assertEquals(Objects.hash(HANDLED_HOSTNAME), otoMotoCrawler.hashCode());
+        assertEquals(Objects.hash(HANDLED_HOSTNAME), otoMotoHtmlCrawler.hashCode());
     }
 
 }

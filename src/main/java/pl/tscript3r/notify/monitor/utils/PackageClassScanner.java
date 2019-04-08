@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class PackageClassScanner {
 
-    public static final String CLASS = "Class ";
+    private static final String CLASS = "Class ";
     private ApplicationContext context;
     private Set<BeanDefinition> packageClasses;
     private Boolean throwExceptions = true;
@@ -75,7 +75,7 @@ public class PackageClassScanner {
                     } catch (ClassNotFoundException e) {
                         throwException(e);
                     }
-                    Boolean result = context.containsBeanDefinition(beanName);
+                    boolean result = context.containsBeanDefinition(beanName);
                     if (!result)
                         throwException(CLASS + foundBeanClass.getBeanClassName() +
                                 " is not a spring component");

@@ -1,20 +1,15 @@
 package pl.tscript3r.notify.monitor.crawlers;
 
-import org.jsoup.nodes.Document;
-import pl.tscript3r.notify.monitor.domain.Ad;
-import pl.tscript3r.notify.monitor.domain.Task;
-
-import java.util.List;
-
+/**
+ * This interface should not be directly implemented - use HtmlCrawler or ApiCrawler.
+ * If only this interface will be implemented there will be a CrawlerException thrown.
+ * Has been created to get the handled hostname of his implementation mostly by the
+ * CrawlerFactory.
+ */
 public interface Crawler {
 
     /**
-     * Returns all currently found ads from the url
-     */
-    List<Ad> getAds(Task task, Document document);
-
-    /**
-     * @return Handled hostname by example format: "olx.pl"
+     * @return Handled hostname in the following format: "domain.com"
      */
     String getHandledHostname();
 

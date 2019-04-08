@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.validator.routines.UrlValidator;

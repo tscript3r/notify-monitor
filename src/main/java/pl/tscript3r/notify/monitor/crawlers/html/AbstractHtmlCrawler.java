@@ -1,19 +1,20 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.util.Objects;
 
-abstract class AbstractCrawler implements Crawler {
+abstract class AbstractHtmlCrawler implements Crawler {
 
     static final String NO_AD_ELEMENTS_EXCEPTION = "No ads elements has been found";
     static final String NO_ADS_CREATED_EXCEPTION = "No ads has been created";
     private final UrlValidator urlValidator = new UrlValidator(new String[]{"http", "https"});
     private final String handledHostname;
 
-    AbstractCrawler(String handledHostname) {
+    AbstractHtmlCrawler(String handledHostname) {
         this.handledHostname = handledHostname;
     }
 

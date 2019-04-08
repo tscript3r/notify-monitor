@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -16,13 +16,13 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 @Scope("prototype")
-class OLXCrawler extends AbstractCrawler implements Crawler {
+class OLXHtmlCrawler extends AbstractHtmlCrawler implements HtmlCrawler {
 
     private static final String HANDLED_HOSTNAME = "olx.pl";
     private static final String CLASS_STRING = "class";
     private static final String STRONG_STRING = "strong";
 
-    public OLXCrawler() {
+    public OLXHtmlCrawler() {
         super(HANDLED_HOSTNAME);
     }
 

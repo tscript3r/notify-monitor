@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -17,11 +17,11 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 @Scope("prototype")
-class OTOMotoCrawler extends AbstractCrawler implements Crawler {
+class OTOMotoHtmlCrawler extends AbstractHtmlCrawler implements HtmlCrawler {
 
     private static final String HANDLED_HOSTNAME = "otomoto.pl";
 
-    public OTOMotoCrawler() {
+    public OTOMotoHtmlCrawler() {
         super(HANDLED_HOSTNAME);
     }
 

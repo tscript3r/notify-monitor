@@ -20,7 +20,7 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
     private static final String CRAWLER_INSTANCES_CREATED = "crawler_instances_created";
 
     private final Status status = Status.create(this.getClass());
-    private final HashMap<String, String> hostnameParsers = new HashMap<>(5);
+    private final HashMap<String, String> hostnameCrawlers = new HashMap<>(5);
     private ApplicationContext context;
 
     public CrawlerFactory() {
@@ -30,11 +30,11 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         context = applicationContext;
-        scanLocalPackageForCrawlerImplementations();
+        scanLocalPackageForCrawlerImplementations(this.getClass().getPackage().toString() + ".html");
     }
 
-    private void scanLocalPackageForCrawlerImplementations() {
-        PackageClassScanner.scan(context, this.getClass().getPackage().getName(),
+    private void scanLocalPackageForCrawlerImplementations(String packagePath) {
+        PackageClassScanner.scan(context, packagePath,
                 Pattern.compile(".*Crawler"))
                 .filterByInterface(Crawler.class)
                 .filterByModifier(0) // 0 stands for package-private access
@@ -51,7 +51,7 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
                         } else
                             throw new FatalBeanException(crawler.getClass() +
                                     " returns null on getHandledHostname");
-                        hostnameParsers.put(crawler.getHandledHostname(), beanName);
+                        hostnameCrawlers.put(crawler.getHandledHostname(), beanName);
                     } catch (ClassNotFoundException e) {
                         throw new FatalBeanException(e.getMessage());
                     }
@@ -61,13 +61,13 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
     public Crawler getParser(String hostname) {
         if (!isCompatible(hostname))
             throw new IncompatibleHostnameException(hostname);
-        Crawler crawler = (Crawler) context.getBean(hostnameParsers.get(hostname));
+        Crawler crawler = (Crawler) context.getBean(hostnameCrawlers.get(hostname));
         status.incrementValue(CRAWLER_INSTANCES_CREATED);
         return crawler;
     }
 
     public Boolean isCompatible(String hostname) {
-        return hostnameParsers.containsKey(hostname);
+        return hostnameCrawlers.containsKey(hostname);
     }
 
     @Override

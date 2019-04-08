@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers;
+package pl.tscript3r.notify.monitor.crawlers.html;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,20 +12,20 @@ import java.util.Objects;
 
 import static org.junit.Assert.*;
 
-public class HLTVCrawlerTest extends AbstractCrawlerTest {
+public class HLTVHtmlCrawlerTest extends AbstractCrawlerTest {
 
     private static final String HANDLED_HOSTNAME = "hltv.org";
-    private HLTVCrawler hltvCrawler;
+    private HLTVHtmlCrawler hltvHtmlCrawler;
 
     @Before
     public void setUp() {
-        hltvCrawler = new HLTVCrawler();
+        hltvHtmlCrawler = new HLTVHtmlCrawler();
     }
 
     @Test
     public void getAds() throws IOException {
         Task task = getDefaultTask();
-        List<Ad> ads = hltvCrawler.getAds(task, loadResource("HLTV.html"));
+        List<Ad> ads = hltvHtmlCrawler.getAds(task, loadResource("HLTV.html"));
         assertNotNull(ads);
         assertEquals(3, ads.size());
         Ad ad = ads.get(0);
@@ -38,19 +38,19 @@ public class HLTVCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void getHandledHostname() {
-        assertEquals(HANDLED_HOSTNAME, hltvCrawler.getHandledHostname());
+        assertEquals(HANDLED_HOSTNAME, hltvHtmlCrawler.getHandledHostname());
     }
 
 
     @Test
     public void equalsTest() {
-        assertEquals(hltvCrawler, new HLTVCrawler());
+        assertEquals(hltvHtmlCrawler, new HLTVHtmlCrawler());
 
     }
 
     @Test
     public void hashCodeTest() {
-        assertEquals(Objects.hash(HANDLED_HOSTNAME), hltvCrawler.hashCode());
+        assertEquals(Objects.hash(HANDLED_HOSTNAME), hltvHtmlCrawler.hashCode());
     }
 
 }
