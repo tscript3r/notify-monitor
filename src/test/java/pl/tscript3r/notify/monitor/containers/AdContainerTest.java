@@ -43,7 +43,7 @@ public class AdContainerTest {
     public void addAds() {
         adContainer.addAds(task, getInitialAds());
         assertTrue(adContainer.anyAds(task));
-        assertEquals(3, adContainer.returnAllAds(task).size());
+        assertEquals(2, adContainer.returnAllAds(task).size());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class AdContainerTest {
         adContainer.addAds(task, getInitialAds());
         List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four")));
         adContainer.addAds(task, additionalAd);
-        assertEquals(3, adContainer.returnAllAds(task).size());
+        assertEquals(2, adContainer.returnAllAds(task).size());
     }
 
     @Test
@@ -59,13 +59,13 @@ public class AdContainerTest {
         adContainer.addAds(task, getInitialAds());
         List<Ad> additionalAd = new ArrayList<>(Arrays.asList(new Ad(task, task.getUrl() + "four"), one, two));
         adContainer.addAds(task, additionalAd);
-        assertEquals(3, adContainer.returnAllAds(task).size());
+        assertEquals(2, adContainer.returnAllAds(task).size());
     }
 
     @Test
     public void receiveAds() {
         adContainer.addAds(task, getInitialAds());
-        assertEquals(3, adContainer.returnAllAds(task).size());
+        assertEquals(2, adContainer.returnAllAds(task).size());
     }
 
     @Test
@@ -115,9 +115,8 @@ public class AdContainerTest {
         List<Ad> overLimitAds = Arrays.asList(five, six);
         adContainer.addAds(task, overLimitAds);
         assertEquals(2, adContainer.returnNewAdsAndMarkAsReturned(task).size());
-        assertEquals(3, adContainer.returnAllAds(task).size());
+        assertEquals(2, adContainer.returnAllAds(task).size());
         Set<Ad> allReturnedAds = adContainer.returnAllAds(task);
-        assertTrue(allReturnedAds.contains(four));
         assertTrue(allReturnedAds.contains(five));
         assertTrue(allReturnedAds.contains(six));
     }

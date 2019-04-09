@@ -30,12 +30,12 @@ public class CrawlerFactory implements ApplicationContextAware, Statusable {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         context = applicationContext;
-        scanLocalPackageForCrawlerImplementations(this.getClass().getPackage().toString() + ".html");
+        String basePackage = this.getClass().getPackage().getName();
+        scanLocalPackageForCrawlerImplementations(basePackage + ".html", basePackage + ".api");
     }
 
-    private void scanLocalPackageForCrawlerImplementations(String packagePath) {
-        PackageClassScanner.scan(context, packagePath,
-                Pattern.compile(".*Crawler"))
+    private void scanLocalPackageForCrawlerImplementations(String... packagePath) {
+        PackageClassScanner.scan(context, Pattern.compile(".*Crawler"), packagePath)
                 .filterByInterface(Crawler.class)
                 .filterByModifier(0) // 0 stands for package-private access
                 .filterSpringComponents()

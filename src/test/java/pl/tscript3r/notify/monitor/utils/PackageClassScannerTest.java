@@ -38,8 +38,7 @@ public class PackageClassScannerTest {
 
     @Test
     public void scanWithPattern() {
-        assertEquals(2, PackageClassScanner.scan(context,
-                TEST_PACKAGE_PATH, Pattern.compile(".*Test"))
+        assertEquals(2, PackageClassScanner.scan(context, Pattern.compile(".*Test"), TEST_PACKAGE_PATH)
                 .getBeanNames().size());
     }
 

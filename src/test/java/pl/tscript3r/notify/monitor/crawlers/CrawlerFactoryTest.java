@@ -89,4 +89,5 @@ public class CrawlerFactoryTest {
         defaultSetUp();
         assertNotNull(crawlerFactory.receiveStatus());
     }
+
 }

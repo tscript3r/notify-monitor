@@ -14,6 +14,7 @@ import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
+import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 import pl.tscript3r.notify.monitor.services.AdFilterService;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
@@ -70,7 +71,7 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
     @Override
     public Boolean addTask(Task task) {
         synchronized (tasks) {
-            log.debug("Received task id=" + task.getId());
+            log.debug("Received task id={}", task.getId());
             if (isFull())
                 throw new MonitorThreadException("Tried to save a task to a full CrawlerMonitorThread");
             return tasks.add(task);
@@ -79,18 +80,20 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     @Override
     public void execute(Integer betweenDelay) throws InterruptedException {
-        try {
-            for (Task task : getShallowCopiedTasks()) {
+        for (Task task : getShallowCopiedTasks()) {
+            try {
                 if (downloadDispatcher.isDownloaded(task)) {
                     crawlTask(task);
                     task.setRefreshTime();
-                    log.debug("Task id=" + task.getId() + " downloaded");
+                    log.debug("Task id={} downloaded", task.getId());
                 } else if (!downloadDispatcher.containsTask(task))
                     sendToDownload(task);
                 Thread.sleep(betweenDelay);
+            } catch (CrawlerException e) {
+                log.error("CrawlerException: {}", e.getMessage());
+            } catch (IncompatibleHostnameException e) {
+                log.error("IncompatibleHostnameException: {}", e.getMessage());
             }
-        } catch (CrawlerException e) {
-            log.error("CrawlerException: %s", e.getMessage());
         }
     }
 
@@ -131,7 +134,7 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     private List<Ad> htmlCrawl(Crawler crawler, Task task) {
         Document document = getDocument(task);
-        if (getDocument(task) != null)
+        if (document != null)
             return ((HtmlCrawler) crawler).getAds(task, document);
         else
             return Collections.emptyList();
@@ -142,7 +145,8 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
     }
 
     private Boolean crawlerCompatible(Crawler crawler, Task task) {
-        return crawler.getHandledHostname().equals(HostnameExtractor.getDomain(task.getUrl()));
+        return crawler.getHandledHostname()
+                .equals(HostnameExtractor.getDomain(task.getUrl()));
     }
 
 }

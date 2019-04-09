@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.RegexPatternTypeFilter;
 
 import java.beans.Introspector;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -17,7 +18,7 @@ public class PackageClassScanner {
 
     private static final String CLASS = "Class ";
     private ApplicationContext context;
-    private Set<BeanDefinition> packageClasses;
+    private Set<BeanDefinition> packageClasses = new HashSet<>();
     private Boolean throwExceptions = true;
 
     public static synchronized String getBeanName(String className) throws ClassNotFoundException {
@@ -25,18 +26,31 @@ public class PackageClassScanner {
         return Introspector.decapitalize(foundClass.getSimpleName());
     }
 
-    public static synchronized PackageClassScanner scan(ApplicationContext context, String packagePath) {
-        return new PackageClassScanner(context, packagePath, Pattern.compile(".*"));
+    public static synchronized PackageClassScanner scan(ApplicationContext context, String... packagePaths) {
+        return new PackageClassScanner(context, Pattern.compile(".*"), packagePaths);
     }
 
-    public static synchronized PackageClassScanner scan(ApplicationContext context, String packagePath,
-                                                        Pattern classNamePattern) {
-        return new PackageClassScanner(context, packagePath, classNamePattern);
+    public static synchronized PackageClassScanner scan(ApplicationContext context, Pattern classNamePattern,
+                                                        String... packagePaths) {
+        return new PackageClassScanner(context, classNamePattern, packagePaths);
     }
 
-    private PackageClassScanner(ApplicationContext context, String packagePath, Pattern classNamePattern) {
+    private PackageClassScanner(ApplicationContext context, Pattern classNamePattern, String... packagePaths) {
         this.context = context;
-        packageClasses = loadBeanDefinitionsClassesInPackage(packagePath, classNamePattern);
+        for (String packagePath : packagePaths)
+            packageClasses.addAll(loadBeanDefinitionsClassesInPackage(packagePath, classNamePattern));
+    }
+
+    /**
+     * Found at:
+     * https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection
+     *
+     * @return all classes in the given package
+     */
+    private Set<BeanDefinition> loadBeanDefinitionsClassesInPackage(String packagePath, Pattern classNameFilterPattern) {
+        final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new RegexPatternTypeFilter(classNameFilterPattern));
+        return provider.findCandidateComponents(packagePath);
     }
 
     public PackageClassScanner ignoreExceptions() {
@@ -64,6 +78,20 @@ public class PackageClassScanner {
                 })
                 .collect(Collectors.toSet());
         return this;
+    }
+
+    private Boolean implementsInterface(Class[] interfaces, Class searchedInterface) {
+        if (interfaces.length > 0) {
+            for (Class iteratedInterface : interfaces) {
+                if (compareInterfaces(iteratedInterface, searchedInterface))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private Boolean compareInterfaces(Class source, Class compared) {
+        return compared.isAssignableFrom(source);
     }
 
     public PackageClassScanner filterSpringComponents() {
@@ -153,34 +181,8 @@ public class PackageClassScanner {
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * Found at:
-     * https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection
-     *
-     * @return all classes in the given package
-     */
-    private Set<BeanDefinition> loadBeanDefinitionsClassesInPackage(String packagePath, Pattern classNameFilterPattern) {
-        final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new RegexPatternTypeFilter(classNameFilterPattern));
-        return provider.findCandidateComponents(packagePath);
-    }
-
     private Class loadClass(BeanDefinition beanDefinition) throws ClassNotFoundException {
         return Class.forName(beanDefinition.getBeanClassName());
-    }
-
-    private Boolean implementsInterface(Class[] interfaces, Class searchedInterface) {
-        if (interfaces.length > 0) {
-            for (Class iteratedInterface : interfaces) {
-                if (compareInterfaces(iteratedInterface, searchedInterface))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    private Boolean compareInterfaces(Class source, Class compared) {
-        return source.getName().equals(compared.getName());
     }
 
     private void throwException(Exception e) {
