@@ -98,7 +98,7 @@ Example task adding with filter:
         	"filter_type": "exclude",
         	"property": "title",
         	"case_sensitive": false,
-        	"words": [
+        	"strings": [
         		"kia",
         		"honda"
         	]

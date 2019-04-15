@@ -12,7 +12,7 @@ public class TaskMapperTest {
     private static final String URL = "URL";
     private static final long ID = 3L;
     private static final long USER_ID = 1L;
-    private TaskMapper taskMapper = TaskMapper.INSTANCE;
+    private TaskMapper taskMapper = new TaskMapper(null);
 
     @Test
     public void taskToTaskDTO() {

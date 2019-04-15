@@ -3,7 +3,7 @@ package pl.tscript3r.notify.monitor.services;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import pl.tscript3r.notify.monitor.api.v1.mapper.FilterMapper;
+import pl.tscript3r.notify.monitor.api.v1.mapper.AdFilterMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.TaskMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.components.TaskDefaultValueSetter;
@@ -35,18 +35,18 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     private final Status status = Status.create(this.getClass());
     private final TaskDefaultValueSetter taskDefaultValueSetter;
     private final TaskMapper taskMapper;
-    private final FilterMapper filterMapper;
+    private final AdFilterMapper adFilterMapper;
     private final CrawlerFactory crawlerFactory;
     private final TaskDispatcher taskDispatcher;
     private final AdFilterService adFilterService;
     private final Float adContainerMultiplier;
 
-    public TaskServiceImpl(TaskDefaultValueSetter taskDefaultValueSetter, TaskMapper taskMapper, FilterMapper filterMapper,
+    public TaskServiceImpl(TaskDefaultValueSetter taskDefaultValueSetter, TaskMapper taskMapper, AdFilterMapper adFilterMapper,
                            CrawlerFactory parserFactory, TaskDispatcher taskDispatcher, AdFilterService adFilterService,
                            @Value("#{new Float('${notify.monitor.ad.container.multiplier}')}") Float adContainerMultiplier) {
         this.taskDefaultValueSetter = taskDefaultValueSetter;
         this.taskMapper = taskMapper;
-        this.filterMapper = filterMapper;
+        this.adFilterMapper = adFilterMapper;
         this.crawlerFactory = parserFactory;
         this.taskDispatcher = taskDispatcher;
         this.adFilterService = adFilterService;
@@ -136,7 +136,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
         if (taskDTO.getFilterListDTO() != null && !taskDTO.getFilterListDTO().isEmpty()) {
             task.getAdFilters().clear();
             taskDTO.getFilterListDTO().forEach(filterDTO ->
-                    task.getAdFilters().add(filterMapper.filterDTOToAdFilter(filterDTO)));
+                    task.getAdFilters().add(adFilterMapper.adFilterDTOToAdFilter(filterDTO)));
         }
     }
 

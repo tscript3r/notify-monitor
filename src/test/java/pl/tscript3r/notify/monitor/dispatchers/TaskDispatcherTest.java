@@ -105,6 +105,16 @@ public class TaskDispatcherTest {
     }
 
     @Test
+    public void removeNotAddedTask() {
+        Task task = Task.builder()
+                .id(123L)
+                .usersId(Sets.newHashSet(1L, 2L))
+                .url("https://www.test.pl/")
+                .build();
+        assertFalse(taskDispatcher.removeTask(task));
+    }
+
+    @Test
     public void containsTask() {
         Task task = getDefaultTask();
         assertFalse(taskDispatcher.containsTask(task));

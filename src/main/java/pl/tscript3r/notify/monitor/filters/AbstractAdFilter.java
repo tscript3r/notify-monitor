@@ -1,11 +1,13 @@
 package pl.tscript3r.notify.monitor.filters;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
-abstract class AbstractAdFilter {
+@Getter
+public abstract class AbstractAdFilter {
 
     final String propertyKey;
     final Boolean caseSensitive;

@@ -5,6 +5,7 @@ import org.junit.Test;
 import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,6 +35,19 @@ public class HLTVHtmlCrawlerTest extends AbstractCrawlerTest {
         assertTrue(isValidUrl(ad.getUrl()));
         assertTrue(ad.hasKey(AdProperties.DATE));
         assertNotNull(ad.getTask());
+    }
+
+    @Test(expected = CrawlerException.class)
+    public void validateUrlTestFail() {
+        hltvHtmlCrawler.validateUrl("https://invalidurl");
+    }
+
+    @Test
+    public void validateUrl() {
+        hltvHtmlCrawler.validateUrl("https://google.pl");
+        hltvHtmlCrawler.validateUrl("http://google.pl");
+        hltvHtmlCrawler.validateUrl("https://www.google.pl");
+        hltvHtmlCrawler.validateUrl("http://www.google.pl");
     }
 
     @Test

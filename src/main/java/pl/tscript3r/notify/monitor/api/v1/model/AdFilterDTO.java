@@ -5,6 +5,7 @@ import lombok.*;
 import pl.tscript3r.notify.monitor.filters.AdFilterType;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Getter
@@ -12,9 +13,9 @@ import java.util.Set;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class FilterDTO {
+public class AdFilterDTO {
 
-    @NotEmpty(message = "Filter type has to be set, available filter types are: regex, match, include, exclude")
+    @NotNull(message = "Filter type has to be set, available filter types are: regex, match, include, exclude")
     @JsonProperty("filter_type")
     private AdFilterType filterType;
 

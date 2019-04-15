@@ -38,25 +38,24 @@ class HLTVHtmlCrawler extends AbstractHtmlCrawler implements HtmlCrawler {
         List<Ad> resultAds = new ArrayList<>();
         daysElements.forEach(dayElement -> {
             String date = getDateFromDayElement(dayElement);
-            resultAds.addAll(
-                    createAdsFromDayElement(date, task, dayElement.select("div[class=result-con]"))
-            );
+            if (!date.isEmpty())
+                resultAds.addAll(
+                        createAdsFromDayElement(date, task, dayElement.select("div[class=result-con]"))
+                );
         });
         return resultAds;
     }
 
     private String getDateFromDayElement(Element dayElement) {
-        String result = cleanDate(dayElement.select("span[class=standard-headline]").text());
-        if (result.isEmpty())
-            throwException("Cannot get date elements");
-        return result;
+        return cleanDate(dayElement.select("span[class=standard-headline]").text());
     }
 
     private String cleanDate(String date) {
         final String DATE_REFUSE = "Results for ";
-        if (!date.contains(DATE_REFUSE))
-            throwException("Days date format has been changed");
-        return date.substring(date.indexOf(DATE_REFUSE) + DATE_REFUSE.length());
+        if (!date.isEmpty())
+            return date.substring(date.indexOf(DATE_REFUSE) + DATE_REFUSE.length());
+        else
+            return "";
     }
 
     private List<Ad> createAdsFromDayElement(String date, Task task, Elements dayElements) {

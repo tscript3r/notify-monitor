@@ -1,22 +1,48 @@
 package pl.tscript3r.notify.monitor.api.v1.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
+import pl.tscript3r.notify.monitor.api.v1.model.AdFilterDTO;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.filters.AdFilter;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Mapper
-public interface TaskMapper {
+@Component
+public class TaskMapper {
 
-    TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);
+    private final AdFilterMapper adFilterMapper;
 
-    TaskDTO taskToTaskDTO(Task task);
+    public TaskMapper(AdFilterMapper adFilterMapper) {
+        this.adFilterMapper = adFilterMapper;
+    }
 
-    default Task taskDTOToTask(TaskDTO taskDTO) {
+    public TaskDTO taskToTaskDTO(Task task) {
+        if (task == null)
+            return null;
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setId(task.getId());
+        Set<Long> set = task.getUsersId();
+        if (set != null)
+            taskDTO.setUsersId(new HashSet<Long>(set));
+        else
+            taskDTO.setUsersId(null);
+        taskDTO.setUrl(task.getUrl());
+        taskDTO.setRefreshInterval(task.getRefreshInterval());
+        if (task.getAdFilters() != null &&
+                !task.getAdFilters().isEmpty()) {
+            Set<AdFilterDTO> adFiltersDTO = new HashSet<>();
+            task.getAdFilters().forEach(adFilter ->
+                    adFiltersDTO.add(adFilterMapper.adFilterToAdFilterDTO(adFilter)));
+            taskDTO.setFilterListDTO(adFiltersDTO);
+        } else
+            taskDTO.setFilterListDTO(Collections.emptySet());
+        return taskDTO;
+    }
+
+    public Task taskDTOToTask(TaskDTO taskDTO) {
         if (taskDTO == null)
             return null;
         Task task = new Task();
@@ -30,10 +56,9 @@ public interface TaskMapper {
         task.setRefreshInterval(taskDTO.getRefreshInterval());
         if (taskDTO.getFilterListDTO() != null &&
                 !taskDTO.getFilterListDTO().isEmpty()) {
-            FilterMapper filterMapper = FilterMapper.INSTANCE;
             Set<AdFilter> adFilters = new HashSet<>();
             taskDTO.getFilterListDTO().forEach(filterDTO ->
-                    adFilters.add(filterMapper.filterDTOToAdFilter(filterDTO)));
+                    adFilters.add(adFilterMapper.adFilterDTOToAdFilter(filterDTO)));
             task.setAdFilters(adFilters);
         }
         return task;

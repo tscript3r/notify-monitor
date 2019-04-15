@@ -1,10 +1,13 @@
 package pl.tscript3r.notify.monitor.filters;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Getter
 public class RegexAdFilter implements AdFilter {
 
     private final String propertyKey;
@@ -15,7 +18,6 @@ public class RegexAdFilter implements AdFilter {
         this.patterns = patterns.stream()
                 .map(Pattern::compile)
                 .collect(Collectors.toSet());
-        // TODO: can throw PatternSyntaxException !
     }
 
     @Override

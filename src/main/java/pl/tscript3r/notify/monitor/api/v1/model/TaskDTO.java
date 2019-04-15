@@ -30,6 +30,6 @@ public class TaskDTO {
 
     @Valid
     @JsonProperty("filters")
-    private Set<FilterDTO> filterListDTO;
+    private Set<AdFilterDTO> filterListDTO;
 
 }
