@@ -1,33 +1,33 @@
 package pl.tscript3r.notify.monitor.threads.drivers;
 
 import com.google.common.collect.Sets;
-import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.containers.AdContainer;
+import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
-import pl.tscript3r.notify.monitor.crawlers.html.HtmlCrawler;
-import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
-import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
+import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
+import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
 import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 import pl.tscript3r.notify.monitor.services.AdFilterService;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class CrawlerMonitorThreadDriverTest {
-
-    @Mock
-    DownloadDispatcher downloadDispatcher;
 
     @Mock
     AdContainer adContainer;
@@ -39,14 +39,19 @@ public class CrawlerMonitorThreadDriverTest {
     AdFilterService adFilterService;
 
     @Mock
-    HtmlCrawler crawler;
+    Crawler crawler;
+
+    @Mock
+    Crawler secondCrawler;
 
     private CrawlerMonitorThreadDriver crawlerMonitorThreadDriver;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(downloadDispatcher, adContainer, crawlerFactory, adFilterService, 2);
+        crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(adContainer, crawlerFactory, adFilterService, 1,
+                5);
+        when(crawlerFactory.getParser(any())).thenReturn(crawler);
     }
 
     private Task getDefaultTask() {
@@ -56,111 +61,151 @@ public class CrawlerMonitorThreadDriverTest {
                 .url("https://www.olx.pl/oddam-za-darmo/")
                 .usersId(Sets.newHashSet(1L))
                 .refreshInterval(5000)
+                .adContainerMultiplier(1.8F)
                 .build();
     }
 
     @Test
-    public void isFull() {
-        assertFalse(crawlerMonitorThreadDriver.isFull());
+    public void isFull_shouldReturnTrue() throws InterruptedException, IOException {
+        crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(adContainer, crawlerFactory, adFilterService, 1, 0);
         crawlerMonitorThreadDriver.addTask(getDefaultTask());
-        crawlerMonitorThreadDriver.addTask(Task.builder().build());
+        when(crawler.getAds(any())).thenReturn(Collections.emptyList());
+        crawlerMonitorThreadDriver.execute(1);
         assertTrue(crawlerMonitorThreadDriver.isFull());
-
     }
 
     @Test
-    public void hasTask() {
+    public void isFull_shouldReturnFalse() throws InterruptedException, IOException {
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        when(crawler.getAds(any())).thenReturn(Collections.emptyList());
+        crawlerMonitorThreadDriver.execute(1);
+        assertFalse(crawlerMonitorThreadDriver.isFull());
+    }
+
+    @Test
+    public void hasTask_shouldReturnTrue() {
         Task task = getDefaultTask();
-        assertFalse(crawlerMonitorThreadDriver.hasTask(task));
         crawlerMonitorThreadDriver.addTask(task);
         assertTrue(crawlerMonitorThreadDriver.hasTask(task));
-        assertFalse(crawlerMonitorThreadDriver.hasTask(Task.builder().id(2L).build()));
     }
 
     @Test
-    public void removeTask() {
+    public void hasTask_shouldReturnFalse() {
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        assertFalse(crawlerMonitorThreadDriver.hasTask(Task.builder().id(2L).url("test").build()));
+    }
+
+    @Test
+    public void removeTask_shouldReturnTrue() {
         Task task = getDefaultTask();
-        assertFalse(crawlerMonitorThreadDriver.removeTask(task));
-        assertTrue(crawlerMonitorThreadDriver.addTask(task));
+        crawlerMonitorThreadDriver.addTask(task);
         assertTrue(crawlerMonitorThreadDriver.removeTask(task));
-        assertFalse(crawlerMonitorThreadDriver.removeTask(task));
+    }
+
+    @Test
+    public void removeTask_shouldReturnFalse() {
+        Task task = getDefaultTask();
+        crawlerMonitorThreadDriver.addTask(task);
+        assertFalse(crawlerMonitorThreadDriver.removeTask(Task.builder().id(2L).url("test").build()));
     }
 
     @Test(expected = MonitorThreadException.class)
-    public void addTask() {
-        Task task = getDefaultTask();
-        assertTrue(crawlerMonitorThreadDriver.addTask(task));
-        assertFalse(crawlerMonitorThreadDriver.addTask(task)); // should ignore
-        assertFalse(crawlerMonitorThreadDriver.isFull());
-        assertTrue(crawlerMonitorThreadDriver.addTask(Task.builder().id(2L).build()));
+    public void addTask_shouldThrowMonitorThreadException() throws IOException, InterruptedException {
+        crawlerMonitorThreadDriver = new CrawlerMonitorThreadDriver(adContainer, crawlerFactory, adFilterService, 1, 0);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        when(crawler.getAds(any())).thenReturn(Collections.emptyList());
+        crawlerMonitorThreadDriver.execute(1);
         assertTrue(crawlerMonitorThreadDriver.isFull());
-        crawlerMonitorThreadDriver.addTask(Task.builder().build());
+        crawlerMonitorThreadDriver.addTask(Task.builder().id(2L).url("test").build());
+    }
+
+    @Test(expected = CrawlerException.class)
+    public void execute_shouldThrowCrawlerExceptionBecauseOfAnUnexpectedException() throws IOException, InterruptedException {
+        when(crawler.getAds(any())).thenThrow(IllegalArgumentException.class);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        crawlerMonitorThreadDriver.execute(0);
     }
 
     @Test
-    public void crawlTaskAsDownloaded() throws InterruptedException {
+    public void execute_shouldIgnoreCrawlerException() throws IOException, InterruptedException {
+        when(crawler.getAds(any())).thenThrow(CrawlerException.class);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        crawlerMonitorThreadDriver.execute(0);
+    }
+
+    @Test
+    public void execute_shouldIgnoreIncompatibleHostnameException() throws IOException, InterruptedException {
+        when(crawler.getAds(any())).thenThrow(IncompatibleHostnameException.class);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        crawlerMonitorThreadDriver.execute(0);
+    }
+
+    @Test
+    public void execute_shouldCooldownBecauseOfConnectException() throws IOException, InterruptedException {
+        when(crawler.getAds(any())).thenThrow(ConnectException.class);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        long time = System.currentTimeMillis();
+        crawlerMonitorThreadDriver.execute(0);
+        assertTrue((System.currentTimeMillis() - time) > 100);
+    }
+
+    @Test
+    public void execute_shouldCooldownBecauseOfUnknownHostException() throws IOException, InterruptedException {
+        when(crawler.getAds(any())).thenThrow(UnknownHostException.class);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        long time = System.currentTimeMillis();
+        crawlerMonitorThreadDriver.execute(0);
+        assertTrue((System.currentTimeMillis() - time) > 100);
+    }
+
+    @Test
+    public void execute_shouldCooldownBecauseOfSocketTimeoutException() throws IOException, InterruptedException {
+        when(crawler.getAds(any())).thenThrow(SocketTimeoutException.class);
+        crawlerMonitorThreadDriver.addTask(getDefaultTask());
+        long time = System.currentTimeMillis();
+        crawlerMonitorThreadDriver.execute(0);
+        assertTrue((System.currentTimeMillis() - time) > 100);
+    }
+
+    @Test
+    public void execute_shouldPickSecondCrawler() throws InterruptedException, IOException {
         Task task = getDefaultTask();
-        assertTrue(task.isRefreshable());
-        assertTrue(crawlerMonitorThreadDriver.addTask(task));
-        when(downloadDispatcher.isDownloaded(any())).thenReturn(true);
-        when(downloadDispatcher.returnDocument(any())).thenReturn(new Document(""));
-        when(crawlerFactory.getParser(any())).thenReturn(crawler);
-        when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(null, null), new Ad(null, null)));
-        crawlerMonitorThreadDriver.execute(0);
-
-        verify(downloadDispatcher, times(1)).isDownloaded(any());
-        verify(adContainer, times(1)).addAds(any(), anyCollection());
-        verify(crawlerFactory, times(1)).getParser(any());
-        verify(crawler, times(1)).getAds(any(), any());
-        verify(downloadDispatcher, times(1)).returnDocument(any());
-        verify(adFilterService, times(1)).filter(anyList());
-        assertFalse(task.isRefreshable());
-    }
-
-    @Test
-    public void crawlTaskAsNotDownloadedAndNotDownloadAdded() throws InterruptedException {
-        assertTrue(crawlerMonitorThreadDriver.addTask(getDefaultTask()));
-        when(downloadDispatcher.isDownloaded(any())).thenReturn(false);
-        when(downloadDispatcher.containsTask(any())).thenReturn(false);
-        crawlerMonitorThreadDriver.execute(0);
-        verify(downloadDispatcher, times(1)).addTask(any());
-    }
-
-    @Test
-    public void crawlTaskAsNotDownloadedAndDownloadAdded() throws InterruptedException {
-        assertTrue(crawlerMonitorThreadDriver.addTask(getDefaultTask()));
-        when(downloadDispatcher.isDownloaded(any())).thenReturn(false);
-        when(downloadDispatcher.containsTask(any())).thenReturn(true);
-        crawlerMonitorThreadDriver.execute(0);
-        verify(downloadDispatcher, never()).addTask(any());
-    }
-
-    @Test
-    public void crawlTaskWithTheSameCrawlerInstance() throws InterruptedException {
-        Task task = Task.builder()
+        crawlerMonitorThreadDriver.addTask(task);
+        Task secondTask = Task.builder()
                 .id(2L)
-                .usersId(Sets.newHashSet(1L))
-                .url("https://www.olx.pl/oddam-za-darmo/2")
-                .usersId(Sets.newHashSet(1L))
-                .refreshInterval(5000)
+                .usersId(Sets.newHashSet(1L, 2L))
+                .url("https://wwww.google.pl/")
+                .refreshInterval(1)
+                .adContainerMultiplier(1.6F)
                 .build();
-        Task task2 = getDefaultTask();
-        assertTrue(task.isRefreshable());
-        assertTrue(crawlerMonitorThreadDriver.addTask(task));
-        assertTrue(crawlerMonitorThreadDriver.addTask(task2));
-        when(downloadDispatcher.isDownloaded(any())).thenReturn(true);
-        when(downloadDispatcher.returnDocument(any())).thenReturn(new Document(""));
-        when(crawlerFactory.getParser(any())).thenReturn(crawler);
-        when(crawler.getAds(any(), any())).thenReturn(Arrays.asList(new Ad(null, null), new Ad(null, null)));
+        crawlerMonitorThreadDriver.execute(0);
+        verify(crawler, times(1)).getAds(any());
+        when(crawler.getHandledHostname()).thenReturn("olx.pl");
+        when(crawlerFactory.getParser(any())).thenReturn(secondCrawler);
+        when(secondCrawler.getAds(any())).thenReturn(Collections.emptyList());
+        assertTrue(crawlerMonitorThreadDriver.addTask(secondTask));
+        crawlerMonitorThreadDriver.execute(0);
+
+        verify(crawlerFactory, times(2)).getParser(any());
+        verify(crawler, times(1)).getAds(any());
+        verify(secondCrawler, times(1)).getAds(any());
+    }
+
+    @Test
+    public void execute_shouldUsePreviousAddedCrawler() throws InterruptedException, IOException {
+        Task task = getDefaultTask();
+        Task secondTask = Task.builder()
+                .id(2L)
+                .usersId(Sets.newHashSet(1L, 2L))
+                .url("https://wwww.olx.pl/test")
+                .refreshInterval(1)
+                .adContainerMultiplier(1.6F)
+                .build();
+        crawlerMonitorThreadDriver.addTask(task);
+        crawlerMonitorThreadDriver.addTask(secondTask);
         when(crawler.getHandledHostname()).thenReturn("olx.pl");
         crawlerMonitorThreadDriver.execute(0);
-
-        verify(downloadDispatcher, times(2)).isDownloaded(any());
-        verify(adContainer, times(2)).addAds(any(), anyCollection());
-        verify(crawlerFactory, times(1)).getParser(any());
-        verify(crawler, times(2)).getAds(any(), any());
-        verify(downloadDispatcher, times(2)).returnDocument(any());
-        assertFalse(task.isRefreshable());
-        assertFalse(task2.isRefreshable());
+        verify(crawler, times(2)).getAds(any());
     }
+
 }

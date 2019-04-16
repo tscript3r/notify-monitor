@@ -3,7 +3,6 @@ package pl.tscript3r.notify.monitor.services;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.tscript3r.notify.monitor.api.v1.mapper.AdFilterMapper;
@@ -45,8 +44,7 @@ public class TaskServiceTest {
     @Mock
     AdFilterService adFilterService;
 
-    @InjectMocks
-    TaskServiceImpl taskService;
+    private TaskServiceImpl taskService;
 
     private AdFilterMapper adFilterMapper = new AdFilterMapper(new AdFilterSimpleFactory());
     private TaskMapper taskMapper = new TaskMapper(adFilterMapper);

@@ -1,10 +1,12 @@
-package pl.tscript3r.notify.monitor.crawlers.html;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import org.apache.commons.validator.routines.UrlValidator;
-import pl.tscript3r.notify.monitor.crawlers.Crawler;
+import org.jsoup.nodes.Document;
+import pl.tscript3r.notify.monitor.components.JsoupDocumentDownloader;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
+import java.io.IOException;
 import java.util.Objects;
 
 abstract class AbstractHtmlCrawler implements Crawler {
@@ -13,9 +15,15 @@ abstract class AbstractHtmlCrawler implements Crawler {
     static final String NO_ADS_CREATED_EXCEPTION = "No ads has been created";
     private final UrlValidator urlValidator = new UrlValidator(new String[]{"http", "https"});
     private final String handledHostname;
+    private final JsoupDocumentDownloader jsoupDocumentDownloader;
 
-    AbstractHtmlCrawler(String handledHostname) {
+    AbstractHtmlCrawler(String handledHostname, JsoupDocumentDownloader jsoupDocumentDownloader) {
         this.handledHostname = handledHostname;
+        this.jsoupDocumentDownloader = jsoupDocumentDownloader;
+    }
+
+    Document getDocument(String url) throws IOException {
+        return jsoupDocumentDownloader.download(url);
     }
 
     @Override

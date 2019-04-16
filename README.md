@@ -81,7 +81,9 @@ additionally add the 'refresh_interval' value - it is basically time interval
 between refresh iterations of the given task.
 
 
-Additionally I have added filters, so that you can set it on any property. 
+Additionally I have added filters, so that you can set it on any additional 
+property which is added by the crawler (every crawler adds different additional
+properties).
 There are four types of filters:
 *    match - selected property value has to be equal to given value
 *    include - selected property value has to contain given value

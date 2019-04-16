@@ -1,17 +1,12 @@
 package pl.tscript3r.notify.monitor.threads.drivers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.crawlers.Crawler;
 import pl.tscript3r.notify.monitor.crawlers.CrawlerFactory;
-import pl.tscript3r.notify.monitor.crawlers.api.ApiCrawler;
-import pl.tscript3r.notify.monitor.crawlers.html.HtmlCrawler;
-import pl.tscript3r.notify.monitor.dispatchers.DownloadDispatcher;
-import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 import pl.tscript3r.notify.monitor.exceptions.IncompatibleHostnameException;
@@ -19,8 +14,10 @@ import pl.tscript3r.notify.monitor.exceptions.MonitorThreadException;
 import pl.tscript3r.notify.monitor.services.AdFilterService;
 import pl.tscript3r.notify.monitor.utils.HostnameExtractor;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -29,29 +26,32 @@ import java.util.List;
 @Scope("prototype")
 public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
-    private final DownloadDispatcher downloadDispatcher;
     private final AdContainer adContainer;
     private final CrawlerFactory crawlerFactory;
     private final AdFilterService adFilterService;
     private final List<Crawler> crawlers;
     private final HashSet<Task> tasks;
-    private final Integer crawlerThreadCapacity;
+    private final Integer cooldownTime;
+    private final Integer maxAcceptableExecutionTime;
 
-    public CrawlerMonitorThreadDriver(DownloadDispatcher downloadDispatcher, AdContainer adContainer, CrawlerFactory crawlerFactory,
+    private Boolean isWorkTimeExceeded = false;
+
+    public CrawlerMonitorThreadDriver(AdContainer adContainer, CrawlerFactory crawlerFactory,
                                       AdFilterService adFilterService,
-                                      @Value("#{new Integer('${notify.monitor.threads.crawler.taskLimit}')}") Integer crawlerThreadCapacity) {
-        this.downloadDispatcher = downloadDispatcher;
+                                      @Value("#{new Integer('${notify.monitor.threads.crawler.cooldownTime}')}") Integer cooldownTime,
+                                      @Value("#{new Integer('${notify.monitor.threads.crawler.maxExecutionTime}')}") Integer maxAcceptableExecutionTime) {
         this.adContainer = adContainer;
         this.crawlerFactory = crawlerFactory;
         this.adFilterService = adFilterService;
-        this.crawlerThreadCapacity = crawlerThreadCapacity;
-        tasks = new HashSet<>(crawlerThreadCapacity + 1);
-        crawlers = new ArrayList<>(3);
+        this.cooldownTime = cooldownTime * 1000;
+        this.maxAcceptableExecutionTime = maxAcceptableExecutionTime * 1000;
+        tasks = new HashSet<>();
+        crawlers = new ArrayList<>(4);
     }
 
     @Override
     public Boolean isFull() {
-        return (tasks.size() >= crawlerThreadCapacity);
+        return isWorkTimeExceeded;
     }
 
     @Override
@@ -80,21 +80,19 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     @Override
     public void execute(Integer betweenDelay) throws InterruptedException {
-        for (Task task : getShallowCopiedTasks()) {
+        long iterationTime = System.currentTimeMillis();
+        for (Task task : getShallowCopiedTasks())
             try {
-                if (downloadDispatcher.isDownloaded(task)) {
-                    crawlTask(task);
+                if (task.isRefreshable()) {
+                    adContainer.addAds(task,
+                            adFilterService.filter(getCrawler(task).getAds(task)));
                     task.setRefreshTime();
-                    log.debug("Task id={} downloaded", task.getId());
-                } else if (!downloadDispatcher.containsTask(task))
-                    sendToDownload(task);
+                }
                 Thread.sleep(betweenDelay);
-            } catch (CrawlerException e) {
-                log.error("CrawlerException: {}", e.getMessage());
-            } catch (IncompatibleHostnameException e) {
-                log.error("IncompatibleHostnameException: {}", e.getMessage());
+            } catch (Exception e) {
+                handleException(e);
             }
-        }
+        testExecutionTime(System.currentTimeMillis() - iterationTime);
     }
 
     private HashSet<Task> getShallowCopiedTasks() {
@@ -103,50 +101,47 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
         }
     }
 
-    private void sendToDownload(Task task) {
-        downloadDispatcher.addTask(task);
-    }
-
-    private void crawlTask(Task task) {
-        Crawler crawler = getCrawler(task);
-        List<Ad> ads = getAds(crawler, task);
-        if (ads != null && !ads.isEmpty())
-            adContainer.addAds(task, adFilterService.filter(ads));
-    }
-
     private Crawler getCrawler(Task task) {
-        if (!crawlers.isEmpty())
-            for (Crawler crawler : crawlers)
-                if (crawlerCompatible(crawler, task))
-                    return crawler;
+        for (Crawler crawler : crawlers)
+            if (crawlerCompatible(crawler, task))
+                return crawler;
         Crawler result = crawlerFactory.getParser(HostnameExtractor.getDomain(task.getUrl()));
         crawlers.add(result);
         return result;
     }
 
-    public List<Ad> getAds(Crawler crawler, Task task) {
-        if (crawler instanceof ApiCrawler)
-            return ((ApiCrawler) crawler).getAds(task);
-        if (crawler instanceof HtmlCrawler)
-            return htmlCrawl(crawler, task);
-        throw new CrawlerException("Unrecognized crawler instance");
-    }
-
-    private List<Ad> htmlCrawl(Crawler crawler, Task task) {
-        Document document = getDocument(task);
-        if (document != null)
-            return ((HtmlCrawler) crawler).getAds(task, document);
-        else
-            return Collections.emptyList();
-    }
-
-    private Document getDocument(Task task) {
-        return downloadDispatcher.returnDocument(task);
-    }
 
     private Boolean crawlerCompatible(Crawler crawler, Task task) {
         return crawler.getHandledHostname()
                 .equals(HostnameExtractor.getDomain(task.getUrl()));
+    }
+
+    private void handleException(Exception e) throws InterruptedException {
+        if (isCooldownException(e)) {
+            logSuppressedException(e);
+            Thread.sleep(cooldownTime);
+        } else if (isIgnoredException(e))
+            log.warn("Exception[{}: {}] ignored", e.getClass().getSimpleName(), e.getMessage(), e);
+        else
+            throw new CrawlerException("CrawlerMonitorThreadDriver: " + e.getMessage());
+    }
+
+    private Boolean isCooldownException(Exception e) {
+        return (e instanceof ConnectException || e instanceof UnknownHostException
+                || e instanceof SocketTimeoutException);
+    }
+
+    private Boolean isIgnoredException(Exception e) {
+        return (e instanceof CrawlerException || e instanceof IncompatibleHostnameException);
+    }
+
+    private void logSuppressedException(Exception e) {
+        log.error("Following exception appeared: [{}: {}] - after cooldown time ({} sec) thread will resume",
+                e.getClass().getSimpleName(), e.getMessage(), cooldownTime, e);
+    }
+
+    private void testExecutionTime(long executionTime) {
+        isWorkTimeExceeded = (executionTime > maxAcceptableExecutionTime);
     }
 
 }

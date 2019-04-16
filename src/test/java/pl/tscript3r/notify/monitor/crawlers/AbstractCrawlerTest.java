@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers.html;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -19,7 +19,11 @@ abstract class AbstractCrawlerTest {
 
 
     Task getDefaultTask() {
-        return Task.builder().id(1L).usersId(Sets.newHashSet(1L)).build();
+        return Task.builder()
+                .id(1L)
+                .usersId(Sets.newHashSet(1L))
+                .url("https://test.com/")
+                .build();
     }
 
     Boolean isValidUrl(String url) {

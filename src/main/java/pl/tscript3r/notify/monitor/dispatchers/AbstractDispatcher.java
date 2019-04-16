@@ -1,5 +1,6 @@
 package pl.tscript3r.notify.monitor.dispatchers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -11,6 +12,7 @@ import pl.tscript3r.notify.monitor.threads.MonitorThread;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public abstract class AbstractDispatcher<T extends MonitorThread> implements ApplicationContextAware, DisposableBean,
         Statusable {
 
@@ -19,7 +21,7 @@ public abstract class AbstractDispatcher<T extends MonitorThread> implements App
 
     protected final Status status = Status.create(this.getClass());
     private final String beanName;
-    final List<T> monitorThreads = new ArrayList<>();
+    private final List<T> monitorThreads = new ArrayList<>();
     private ApplicationContext context;
 
     public AbstractDispatcher(String threadBeanName) {
@@ -43,6 +45,7 @@ public abstract class AbstractDispatcher<T extends MonitorThread> implements App
     }
 
     private T getNewMonitorThread() {
+        log.warn("Adding new crawler thread");
         T monitorThread = (T) context.getBean(beanName);
         monitorThread.start();
         monitorThreads.add(monitorThread);

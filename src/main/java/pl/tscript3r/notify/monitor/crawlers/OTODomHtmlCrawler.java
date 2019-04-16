@@ -1,4 +1,4 @@
-package pl.tscript3r.notify.monitor.crawlers.html;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
@@ -6,11 +6,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import pl.tscript3r.notify.monitor.components.JsoupDocumentDownloader;
 import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.exceptions.CrawlerException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,17 +20,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @Scope("prototype")
-class OTODomHtmlCrawler extends AbstractHtmlCrawler implements HtmlCrawler {
+class OTODomHtmlCrawler extends AbstractHtmlCrawler implements Crawler {
 
     private static final String HANDLED_HOSTNAME = "otodom.pl";
 
-    public OTODomHtmlCrawler() {
-        super(HANDLED_HOSTNAME);
+    public OTODomHtmlCrawler(JsoupDocumentDownloader jsoupDocumentDownloader) {
+        super(HANDLED_HOSTNAME, jsoupDocumentDownloader);
     }
 
     @Override
-    public List<Ad> getAds(Task task, Document document) {
-        Elements adElements = getAdElements(document);
+    public List<Ad> getAds(Task task) throws IOException {
+        Elements adElements = getAdElements(getDocument(task.getUrl()));
         if (adElements.isEmpty())
             throwException(NO_AD_ELEMENTS_EXCEPTION);
         return createAdsFromElements(task, adElements);

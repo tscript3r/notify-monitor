@@ -1,7 +1,10 @@
-package pl.tscript3r.notify.monitor.crawlers.html;
+package pl.tscript3r.notify.monitor.crawlers;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import pl.tscript3r.notify.monitor.components.JsoupDocumentDownloader;
 import pl.tscript3r.notify.monitor.consts.AdProperties;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
@@ -12,21 +15,29 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 public class HLTVHtmlCrawlerTest extends AbstractCrawlerTest {
 
     private static final String HANDLED_HOSTNAME = "hltv.org";
-    private HLTVHtmlCrawler hltvHtmlCrawler;
+
+    @Mock
+    JsoupDocumentDownloader jsoupDocumentDownloader;
+
+    HLTVHtmlCrawler hltvHtmlCrawler;
 
     @Before
-    public void setUp() {
-        hltvHtmlCrawler = new HLTVHtmlCrawler();
+    public void setUp() throws IOException {
+        MockitoAnnotations.initMocks(this);
+        hltvHtmlCrawler = new HLTVHtmlCrawler(jsoupDocumentDownloader);
+        when(jsoupDocumentDownloader.download(anyString())).thenReturn(loadResource("HLTV.html"));
     }
 
     @Test
     public void getAds() throws IOException {
         Task task = getDefaultTask();
-        List<Ad> ads = hltvHtmlCrawler.getAds(task, loadResource("HLTV.html"));
+        List<Ad> ads = hltvHtmlCrawler.getAds(task);
         assertNotNull(ads);
         assertEquals(3, ads.size());
         Ad ad = ads.get(0);
@@ -58,7 +69,7 @@ public class HLTVHtmlCrawlerTest extends AbstractCrawlerTest {
 
     @Test
     public void equalsTest() {
-        assertEquals(hltvHtmlCrawler, new HLTVHtmlCrawler());
+        assertEquals(hltvHtmlCrawler, new HLTVHtmlCrawler(jsoupDocumentDownloader));
 
     }
 
