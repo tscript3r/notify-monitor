@@ -12,7 +12,10 @@ public class AdMapper {
     private final ModelMapper mapper = new ModelMapper();
 
     public AdDTO adToAdDTO(Ad ad) {
-        return mapper.map(ad, AdDTO.class);
+        AdDTO adDTO = mapper.map(ad, AdDTO.class);
+        if(ad.getTask() != null && ad.getTask().getUsersId() != null)
+            adDTO.setUsersId(ad.getTask().getUsersId());
+        return adDTO;
     }
 
 }
