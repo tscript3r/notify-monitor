@@ -2,6 +2,7 @@ package pl.tscript3r.notify.monitor.api.v1.mapper;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+import org.modelmapper.ModelMapper;
 import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
 import pl.tscript3r.notify.monitor.domain.Ad;
 import pl.tscript3r.notify.monitor.domain.Task;
@@ -16,7 +17,7 @@ public class AdMapperTest {
     private static final String URL = "https://www.olx.pl/test/";
     private static final String KEY = "test";
     private static final String VALUE = "testable";
-    private AdMapper adMapper = AdMapper.INSTANCE;
+    private static final AdMapper adMapper = new AdMapper();
 
     @Test
     public void adToAdDTO() {

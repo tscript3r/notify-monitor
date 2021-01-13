@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.AdMapper;
 import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.domain.Ad;
@@ -24,7 +25,7 @@ public class AdServiceImplTest {
     @Mock
     AdContainer adContainer;
 
-    private AdMapper adMapper = AdMapper.INSTANCE;
+    private final AdMapper adMapper = new AdMapper();
 
     private AdService adService;
 

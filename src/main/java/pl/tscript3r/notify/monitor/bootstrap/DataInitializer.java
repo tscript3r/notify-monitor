@@ -1,6 +1,5 @@
 package pl.tscript3r.notify.monitor.bootstrap;
 
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -9,6 +8,9 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.services.TaskService;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -39,17 +41,20 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void addInitialTasks() {
+        Set<Long> usersId = new HashSet<>();
+        usersId.add(1L);
+        usersId.add(2L);
         taskService.saveAll(Arrays.asList(
                 Task.builder()
                         .refreshInterval(defaultInterval)
                         .adContainerMultiplier(adContainerMultiplier)
-                        .usersId(Sets.newHashSet(1L, 2L))
+                        .usersId(usersId)
                         .url("https://www.olx.pl/oddam-za-darmo/")
                         .build(),
                 Task.builder()
                         .refreshInterval(defaultInterval)
                         .adContainerMultiplier(adContainerMultiplier)
-                        .usersId(Sets.newHashSet(1L))
+                        .usersId(usersId)
                         .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
                         .build()
         ));

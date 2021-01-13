@@ -1,17 +1,18 @@
 package pl.tscript3r.notify.monitor.api.v1.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
 import pl.tscript3r.notify.monitor.domain.Ad;
 
-@Mapper
-public interface AdMapper {
+@Component
+public class AdMapper {
 
-    AdMapper INSTANCE = Mappers.getMapper(AdMapper.class);
+    private final ModelMapper mapper = new ModelMapper();
 
-    @Mapping(source = "ad.task.usersId", target = "usersId")
-    AdDTO adToAdDTO(Ad ad);
+    public AdDTO adToAdDTO(Ad ad) {
+        return mapper.map(ad, AdDTO.class);
+    }
 
 }

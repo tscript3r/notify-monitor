@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -36,7 +37,7 @@ public class AdControllerTest extends AbstractRestControllerTest {
     @Mock
     TaskService taskService;
 
-    private AdMapper adMapper = AdMapper.INSTANCE;
+    private final AdMapper adMapper = new AdMapper();
 
     @InjectMocks
     AdController adController;
