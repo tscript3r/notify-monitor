@@ -4,10 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pl.tscript3r</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>notify</artifactId>
     <version>0.0.3-SNAPSHOT</version>
     <name>notify-monitor</name>
-    <description>Demo project for Spring Boot</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -80,6 +79,7 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
