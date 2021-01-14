@@ -8,8 +8,6 @@ import java.util.*;
 @Slf4j
 public abstract class AbstractMapService<T extends BaseEntity, S extends Long> {
 
-    // TODO: erase this?
-
     private final Map<Long, T> map = new HashMap<>();
 
     Set<T> findAll() {
