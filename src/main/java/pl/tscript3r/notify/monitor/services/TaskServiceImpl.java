@@ -86,7 +86,7 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     }
 
     @Override
-    public List<TaskDTO> getAll() {
+    public List<TaskDTO> getAllAsDTO() {
         status.incrementValue(GET_ALL_CALLS);
         log.debug("Retrieving all tasks");
         return super.findAll()
@@ -159,4 +159,5 @@ public class TaskServiceImpl extends AbstractMapService<Task, Long> implements T
     public Status receiveStatus() {
         return status;
     }
+
 }

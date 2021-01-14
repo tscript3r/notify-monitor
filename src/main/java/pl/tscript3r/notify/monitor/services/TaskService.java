@@ -14,7 +14,7 @@ public interface TaskService extends Statusable {
 
     void saveAll(List<Task> tasks);
 
-    List<TaskDTO> getAll();
+    List<TaskDTO> getAllAsDTO();
 
     TaskDTO saveDTO(TaskDTO taskDTO);
 

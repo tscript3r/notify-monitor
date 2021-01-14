@@ -9,6 +9,8 @@ import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 import pl.tscript3r.notify.monitor.status.Status;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +42,14 @@ public class AdServiceImpl implements AdService {
                     .collect(Collectors.toList());
         else
             throw new TaskNotFoundException(task.getId());
+    }
+
+    @Override
+    public Map<Task, Set<AdDTO>> getAllNewAds() {
+        return adContainer.getNewAds()
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> adMapper.adToAdDTO(e.getValue())));
     }
 
     @Override

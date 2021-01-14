@@ -91,7 +91,7 @@ public class TaskServiceTest {
 
     @Test
     public void getAllTasksTest() {
-        assertEquals(1, taskService.getAll().size());
+        assertEquals(1, taskService.getAllAsDTO().size());
     }
 
     @Test
@@ -134,13 +134,13 @@ public class TaskServiceTest {
                 Task.builder().url(URL).usersId(Sets.newHashSet(ID)).build(),
                 Task.builder().url(URL_2).usersId(Sets.newHashSet(ID2)).build());
         taskService.saveAll(tasks);
-        assertEquals(3, taskService.getAll().size());
+        assertEquals(3, taskService.getAllAsDTO().size());
     }
 
     @Test
     public void delete() {
         assertTrue(taskService.delete(task));
-        assertEquals(0, taskService.getAll().size());
+        assertEquals(0, taskService.getAllAsDTO().size());
     }
 
     @Test

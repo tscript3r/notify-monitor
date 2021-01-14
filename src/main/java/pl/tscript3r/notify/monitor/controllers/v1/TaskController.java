@@ -36,7 +36,7 @@ public class TaskController implements Statusable {
     public TaskListDTO getAll() {
         log.debug("Viewing all tasks");
         status.incrementValue(GET_ALL_CALLS);
-        return new TaskListDTO(taskService.getAll());
+        return new TaskListDTO(taskService.getAllAsDTO());
     }
 
     @GetMapping("{id}")

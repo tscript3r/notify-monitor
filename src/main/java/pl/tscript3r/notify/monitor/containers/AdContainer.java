@@ -9,7 +9,12 @@ import pl.tscript3r.notify.monitor.status.Status;
 import pl.tscript3r.notify.monitor.status.Statusable;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -17,17 +22,16 @@ import java.util.stream.Collectors;
 public class AdContainer implements Statusable {
 
     private final Status status = Status.create(this.getClass());
-    private final Map<Task, Set<AdDecorated>> tasksAds = new HashMap<>();
+    private final Map<Task, Set<AdDecorated>> tasksAds = new ConcurrentHashMap<>();
     private BigInteger totalReceivedAdsCount = new BigInteger("0");
 
     public void addAds(Task task, Collection<Ad> ads) {
         addTotalReceivedAdsCount(ads.size());
-        synchronized (tasksAds) {
-            if (tasksAds.containsKey(task))
-                mergeAds(task, AdDecorated.adsToAdDecoratedSizeLimitedSet(ads));
-            else
-                initialAdAddition(task, ads);
-        }
+        if (tasksAds.containsKey(task))
+            mergeAds(task, AdDecorated.adsToAdDecoratedSizeLimitedSet(ads));
+        else
+            initialAdAddition(task, ads);
+
         log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
     }
 
@@ -52,38 +56,41 @@ public class AdContainer implements Statusable {
     }
 
     public Set<Ad> returnAllAds(Task task) {
-        synchronized (tasksAds) {
-            if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
-                return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task));
-            else
-                return Sets.newHashSet();
-        }
+        if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
+            return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task));
+        else
+            return Sets.newHashSet();
     }
 
     public Set<Ad> returnNewAdsAndMarkAsReturned(Task task) {
-        synchronized (tasksAds) {
-            if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
-                return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task)
-                        .stream()
-                        .filter(adDecorated -> {
-                            if (!adDecorated.returned) {
-                                adDecorated.returned = true;
-                                return true;
-                            } else
-                                return false;
-                        })
-                        .collect(Collectors.toCollection(LinkedHashSet::new)));
-            else
-                return Sets.newHashSet();
-
-        }
+        if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
+            return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task)
+                    .stream()
+                    .filter(adDecorated -> {
+                        if (!adDecorated.returned) {
+                            adDecorated.returned = true;
+                            return true;
+                        } else
+                            return false;
+                    })
+                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+        else
+            return Sets.newHashSet();
     }
 
     public Boolean anyAds(Task task) {
-        synchronized (tasksAds) {
-            return tasksAds.containsKey(task) &&
-                    !tasksAds.get(task).isEmpty();
-        }
+        return tasksAds.containsKey(task) &&
+                !tasksAds.get(task).isEmpty();
+
+    }
+
+    public Map<Task, Set<Ad>> getNewAds() {
+        return tasksAds.keySet()
+                .stream()
+                .filter(task -> countNewAds(task) > 0)
+                .collect(Collectors.toMap(Function.identity(),
+                        this::returnNewAdsAndMarkAsReturned,
+                        (k1, k2) -> k1));
     }
 
     private Long countNewAds(Task task) {

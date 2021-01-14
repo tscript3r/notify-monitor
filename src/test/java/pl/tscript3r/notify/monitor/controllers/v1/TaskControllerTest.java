@@ -51,7 +51,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
         TaskDTO taskDTO2 = new TaskDTO();
         taskDTO2.setId(2L);
         List<TaskDTO> taskDTOs = Arrays.asList(taskDTO1, taskDTO2);
-        when(taskService.getAll()).thenReturn(taskDTOs);
+        when(taskService.getAllAsDTO()).thenReturn(taskDTOs);
 
         mockMvc.perform(get(Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
