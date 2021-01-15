@@ -23,6 +23,7 @@ public class EmailConfig {
     private String username;
     private String password;
     private String adsTitle;
+    private Boolean debug;
     private Integer senderThreadPool = 2;
 
     @Bean
@@ -38,7 +39,7 @@ public class EmailConfig {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        if (log.isDebugEnabled())
+        if (debug)
             props.put("mail.debug", "true");
         return mailSender;
     }
