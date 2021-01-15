@@ -7,10 +7,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
+import pl.tscript3r.notify.monitor.components.EmailContentMerger;
 import pl.tscript3r.notify.monitor.config.EmailConfig;
-import pl.tscript3r.notify.monitor.domain.Task;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
@@ -21,24 +20,20 @@ import static pl.tscript3r.notify.monitor.components.EmailMessageType.ADS_LIST;
 @AllArgsConstructor
 public class EmailService {
 
-    private final AdService adService;
     private final JavaMailSender emailSender;
     private final ExecutorService emailSenderExecutor;
     private final EmailConfig emailConfig;
-    private final UserService userService;
+    private final EmailContentMerger emailContentMerger;
 
     @Scheduled(fixedRate = 120_000)
     void adsListSender() {
-        Map<Task, Set<AdDTO>> results = adService.getAllNewAds();
-        results.forEach((task, ads) ->
-                task.getUsersId().forEach(userId ->
-                        send(task, ads, userService.getEmailFromUserId(userId))));
+        emailContentMerger.merge()
+                .forEach(this::send);
     }
 
-    private void send(Task task, Set<AdDTO> ads, String receiver) {
-        log.info("Sending mail to userIds={} with {} ads", task.getUsersId().toArray(), ads.size());
+    private void send(String receiver, Set<AdDTO> ads) {
         emailSenderExecutor.execute(
-                getSender(receiver, emailConfig.getAdsTitle(), getContext(task, ads))
+                getSender(receiver, emailConfig.getAdsTitle(), getContext(ads))
         );
     }
 
@@ -48,9 +43,8 @@ public class EmailService {
         return () -> emailSender.send(ADS_LIST.getPreparedMimeMessage(sendTo, title, context));
     }
 
-    private Context getContext(Task task, Set<AdDTO> ads) {
+    private Context getContext(Set<AdDTO> ads) {
         Context context = new Context();
-        context.setVariable("task", task);
         context.setVariable("ads", ads);
         return context;
     }
