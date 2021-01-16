@@ -1,6 +1,7 @@
 package pl.tscript3r.notify.monitor.containers;
 
 import com.google.common.collect.Iterables;
+import lombok.Getter;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -8,6 +9,7 @@ import java.util.Objects;
 
 class SizeLimitedLinkedHashSet<T> extends LinkedHashSet<T> {
 
+    @Getter
     private final int sizeLimit;
 
     SizeLimitedLinkedHashSet(int sizeLimit) {

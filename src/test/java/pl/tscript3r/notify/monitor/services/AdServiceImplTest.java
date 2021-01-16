@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
 import pl.tscript3r.notify.monitor.api.v1.mapper.AdMapper;
 import pl.tscript3r.notify.monitor.containers.AdContainer;
 import pl.tscript3r.notify.monitor.domain.Ad;
@@ -44,7 +43,7 @@ public class AdServiceImplTest {
     public void getCurrentAds() {
         Task task = Task.builder().id(1L).build();
         when(taskService.isAdded(any())).thenReturn(true);
-        when(adContainer.returnNewAdsAndMarkAsReturned(any())).thenReturn(Sets.newHashSet(new Ad(null, null)));
+        when(adContainer.returnNewAds(any())).thenReturn(Sets.newHashSet(new Ad(null, null)));
         assertEquals(1, adService.getNewAds(task).size());
     }
 

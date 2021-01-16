@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class AdContainer implements Statusable {
 
     private final Status status = Status.create(this.getClass());
-    private final Map<Task, Set<AdDecorated>> tasksAds = new ConcurrentHashMap<>();
+    private final Map<Task, SizeLimitedLinkedHashSet<AdDecorated>> tasksAds = new ConcurrentHashMap<>();
     private BigInteger totalReceivedAdsCount = new BigInteger("0");
 
     public void addAds(Task task, Collection<Ad> ads) {
@@ -45,7 +45,7 @@ public class AdContainer implements Statusable {
     }
 
     private void initialAdAddition(Task task, Collection<Ad> ads) {
-        Set<AdDecorated> adsDecorated =
+        SizeLimitedLinkedHashSet<AdDecorated> adsDecorated =
                 AdDecorated.adsToAdDecoratedSizeLimitedSet(getSizeLimit(task, ads.size()), ads);
         adsDecorated.forEach(adDecorated -> adDecorated.returned = true);
         tasksAds.put(task, adsDecorated);
@@ -62,20 +62,18 @@ public class AdContainer implements Statusable {
             return Sets.newHashSet();
     }
 
-    public Set<Ad> returnNewAdsAndMarkAsReturned(Task task) {
+    public Set<Ad> returnNewAds(Task task) {
         if (tasksAds.containsKey(task) && !tasksAds.get(task).isEmpty())
             return AdDecorated.adsDecoratedToAdsSet(tasksAds.get(task)
                     .stream()
-                    .filter(adDecorated -> {
-                        if (!adDecorated.returned) {
-                            adDecorated.returned = true;
-                            return true;
-                        } else
-                            return false;
-                    })
+                    .filter(adDecorated -> !adDecorated.returned)
                     .collect(Collectors.toCollection(LinkedHashSet::new)));
         else
             return Sets.newHashSet();
+    }
+
+    public void markAllAsReturned(Task task) {
+        tasksAds.get(task).forEach(adDecorated -> adDecorated.returned = true);
     }
 
     public Boolean anyAds(Task task) {
@@ -89,7 +87,7 @@ public class AdContainer implements Statusable {
                 .stream()
                 .filter(task -> countNewAds(task) > 0)
                 .collect(Collectors.toMap(Function.identity(),
-                        this::returnNewAdsAndMarkAsReturned,
+                        this::returnNewAds,
                         (k1, k2) -> k1));
     }
 
@@ -98,6 +96,11 @@ public class AdContainer implements Statusable {
                 .stream()
                 .filter(adDecorated -> !adDecorated.returned)
                 .count();
+    }
+
+    public Boolean isFull(Task task) {
+        return tasksAds.containsKey(task) &&
+                countNewAds(task) >= getSizeLimit(task, tasksAds.get(task).getSizeLimit()) - 5;
     }
 
     @Override

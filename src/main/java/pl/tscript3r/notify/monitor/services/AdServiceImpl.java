@@ -36,7 +36,7 @@ public class AdServiceImpl implements AdService {
         if (task == null)
             throw new TaskNotFoundException("null value");
         if (taskService.isAdded(task))
-            return adContainer.returnNewAdsAndMarkAsReturned(task)
+            return adContainer.returnNewAds(task)
                     .stream()
                     .map(adMapper::adToAdDTO)
                     .collect(Collectors.toList());
@@ -50,6 +50,16 @@ public class AdServiceImpl implements AdService {
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> adMapper.adToAdDTO(e.getValue())));
+    }
+
+    @Override
+    public Boolean isFull(Task task) {
+        return adContainer.isFull(task);
+    }
+
+    @Override
+    public void markAsSend(Task task) {
+        adContainer.markAllAsReturned(task);
     }
 
     @Override

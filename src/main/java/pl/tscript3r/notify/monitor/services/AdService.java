@@ -14,4 +14,8 @@ public interface AdService extends Statusable {
 
     Map<Task, Set<AdDTO>> getAllNewAds();
 
+    Boolean isFull(Task task);
+
+    void markAsSend(Task task);
+
 }

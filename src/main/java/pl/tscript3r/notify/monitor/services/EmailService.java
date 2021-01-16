@@ -32,6 +32,7 @@ public class EmailService {
     }
 
     private void send(String receiver, Set<AdDTO> ads) {
+        log.debug("Sending mail to: {} with {} ads", receiver, ads.size());
         emailSenderExecutor.execute(
                 getSender(receiver, emailConfig.getAdsTitle(), getContext(ads))
         );
