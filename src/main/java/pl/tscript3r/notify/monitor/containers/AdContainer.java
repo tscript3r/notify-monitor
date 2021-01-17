@@ -27,12 +27,14 @@ public class AdContainer implements Statusable {
 
     public void addAds(Task task, Collection<Ad> ads) {
         addTotalReceivedAdsCount(ads.size());
+        Long prevNewAdsCount = countNewAds(task);
         if (tasksAds.containsKey(task))
             mergeAds(task, AdDecorated.adsToAdDecoratedSizeLimitedSet(ads));
         else
             initialAdAddition(task, ads);
-
-        log.debug("Task id=" + task.getId() + " has " + countNewAds(task) + " new ads");
+        if (!prevNewAdsCount.equals(countNewAds(task)))
+            log.debug("Task id=" + task.getId() + " has " + (countNewAds(task) - prevNewAdsCount) +
+                    " new ads, total count: {}", countNewAds(task));
     }
 
     private void addTotalReceivedAdsCount(Integer size) {
@@ -92,10 +94,11 @@ public class AdContainer implements Statusable {
     }
 
     private Long countNewAds(Task task) {
-        return tasksAds.get(task)
-                .stream()
-                .filter(adDecorated -> !adDecorated.returned)
-                .count();
+        if (tasksAds.containsKey(task))
+            return tasksAds.get(task).stream()
+                    .filter(ad -> !ad.returned)
+                    .count();
+        return 0L;
     }
 
     public Boolean isFull(Task task) {

@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Component
@@ -21,7 +22,7 @@ import java.util.Set;
 public class EmailContentMerger {
 
     // TODO externalize
-    private final Duration sendMail2UserDuration = Duration.ofHours(1);
+    private final Duration sendMail2UserDuration = Duration.ofSeconds(10);
 
     private final AdService adService;
     private final UserService userService;
@@ -31,21 +32,23 @@ public class EmailContentMerger {
         Map<String, Set<AdDTO>> mergedAds2Send = new HashMap<>();
         Map<Task, Set<AdDTO>> ads2send = adService.getAllNewAds();
 
-        ads2send.forEach((task, ads) ->
-                task.getUsersId().forEach(userId -> {
-                    if (adService.isFull(task) || canSendEmail2User(userId)) {
-                        log.debug("Preparing email content for userId={}", userId);
-                        lastSendEmail2User.put(userId, LocalDateTime.now());
-                        adService.markAsSend(task);
-                        String userEmail = userService.getEmailFromUserId(userId);
-                        if (mergedAds2Send.containsKey(userEmail))
-                            mergedAds2Send.get(userEmail).addAll(ads);
-                        else
-                            mergedAds2Send.put(userEmail, new HashSet<>(ads));
-                    } else
-                        log.debug("Skipped sending email with new content for userId={} " +
-                                "because of limited email send duration");
-                }));
+        ads2send.forEach((task, ads) -> {
+            AtomicReference<Boolean> wasSend = new AtomicReference<>(false);
+            task.getUsersId().forEach(userId -> {
+                if (adService.isFull(task) || canSendEmail2User(userId)) {
+                    log.debug("Preparing email content for userId={}", userId);
+                    lastSendEmail2User.put(userId, LocalDateTime.now());
+                    wasSend.set(true);
+                    String userEmail = userService.getEmailFromUserId(userId);
+                    if (mergedAds2Send.containsKey(userEmail))
+                        mergedAds2Send.get(userEmail).addAll(ads);
+                    else
+                        mergedAds2Send.put(userEmail, new HashSet<>(ads));
+                }
+            });
+            if (wasSend.get())
+                adService.markAsSend(task);
+        });
         return mergedAds2Send;
     }
 
