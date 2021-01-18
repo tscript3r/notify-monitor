@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import pl.tscript3r.notify.monitor.api.v1.model.AdDTO;
-import pl.tscript3r.notify.monitor.components.EmailContentMerger;
+import pl.tscript3r.notify.monitor.components.EmailListCreator;
 import pl.tscript3r.notify.monitor.config.EmailConfig;
 
 import java.util.Set;
@@ -23,12 +23,13 @@ public class EmailService {
     private final JavaMailSender emailSender;
     private final ExecutorService emailSenderExecutor;
     private final EmailConfig emailConfig;
-    private final EmailContentMerger emailContentMerger;
+    private final EmailListCreator emailListCreator;
 
     @Scheduled(fixedRate = 120_000)
     void adsListSender() {
-        emailContentMerger.merge()
-                .forEach(this::send);
+        emailListCreator.create()
+                .getEmails()
+                .forEach(email -> send(email.getReceiver(), email.getContent()));
     }
 
     private void send(String receiver, Set<AdDTO> ads) {
@@ -38,10 +39,10 @@ public class EmailService {
         );
     }
 
-    private Runnable getSender(final String sendTo,
+    private Runnable getSender(final String receiver,
                                final String title,
                                final Context context) {
-        return () -> emailSender.send(ADS_LIST.getPreparedMimeMessage(sendTo, title, context));
+        return () -> emailSender.send(ADS_LIST.getPreparedMimeMessage(receiver, title, context));
     }
 
     private Context getContext(Set<AdDTO> ads) {

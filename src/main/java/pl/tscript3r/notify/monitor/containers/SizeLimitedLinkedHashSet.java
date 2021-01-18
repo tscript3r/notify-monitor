@@ -4,15 +4,16 @@ import com.google.common.collect.Iterables;
 import lombok.Getter;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
-class SizeLimitedLinkedHashSet<T> extends LinkedHashSet<T> {
+public class SizeLimitedLinkedHashSet<T> extends LinkedHashSet<T> {
 
     @Getter
     private final int sizeLimit;
 
-    SizeLimitedLinkedHashSet(int sizeLimit) {
+    public SizeLimitedLinkedHashSet(int sizeLimit) {
         super(sizeLimit);
         this.sizeLimit = sizeLimit;
     }
@@ -31,6 +32,21 @@ class SizeLimitedLinkedHashSet<T> extends LinkedHashSet<T> {
             if (add(e))
                 modified = true;
         return modified;
+    }
+
+    public void addUntilLimitReached(Collection<? extends T> collection) {
+        Iterator<? extends T> iterator = collection.iterator();
+        while (iterator.hasNext()) {
+            if (size() < sizeLimit) {
+                this.add(iterator.next());
+                iterator.remove();
+            } else
+                break;
+        }
+    }
+
+    public Boolean isFull() {
+        return size() >= sizeLimit;
     }
 
     @Override
