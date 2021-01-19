@@ -34,6 +34,7 @@ public class EmailListCreator {
                             lastSendEmail2User.put(userId, LocalDateTime.now());
                             String userEmail = userService.getEmailFromUserId(userId);
                             emailList.add(userEmail, ads);
+                            wasSend.set(true);
                         }
                     });
                     if (wasSend.get())
