@@ -41,7 +41,7 @@ abstract class AbstractHtmlCrawler implements Crawler {
     }
 
     void addPropertyWhenValueNotEmpty(Ad ad, String property, String value) {
-        if (!value.isEmpty())
+        if (value != null && !value.isEmpty())
             ad.addProperty(property, value);
     }
 
