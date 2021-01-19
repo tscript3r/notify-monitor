@@ -28,6 +28,14 @@ public class EmailConfig {
 
     @Bean
     public JavaMailSender getJavaMailSender() {
+        log.info("Email SMTP: {}", smtp);
+        log.info("Email port: {}", port);
+        log.info("Email username: {}", username);
+        log.info("Email password: {}", hidePassword(password));
+        log.info("Email title: {}", adsTitle);
+        log.info("Email debug: {}", debug);
+        log.info("Email send threads: {}", senderThreadPool);
+
         System.setProperty("mail.mime.charset", "utf8");
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost(smtp);
@@ -42,6 +50,17 @@ public class EmailConfig {
         if (debug)
             props.put("mail.debug", "true");
         return mailSender;
+    }
+
+    private String hidePassword(String password) {
+        if (password == null)
+            return "NULL";
+        if (password.isEmpty())
+            return "EMPTY";
+        if (password.length() > 5) {
+            return "******" + password.substring(password.length() - 3);
+        }
+        return "******";
     }
 
     @Bean
