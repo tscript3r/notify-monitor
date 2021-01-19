@@ -6,6 +6,7 @@ import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.filters.AdFilter;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,7 @@ public class TaskMapper {
             taskDTO.setUsersId(null);
         taskDTO.setUrl(task.getUrl());
         taskDTO.setRefreshInterval(task.getRefreshInterval());
+        taskDTO.setEmailSendDuration((int) task.getEmailSendDuration().getSeconds());
         if (task.getAdFilters() != null &&
                 !task.getAdFilters().isEmpty()) {
             Set<AdFilterDTO> adFiltersDTO = new HashSet<>();
@@ -54,6 +56,8 @@ public class TaskMapper {
             task.setUsersId(null);
         task.setUrl(taskDTO.getUrl());
         task.setRefreshInterval(taskDTO.getRefreshInterval());
+        if (taskDTO.getEmailSendDuration() != null)
+            task.setEmailSendDuration(Duration.ofSeconds(taskDTO.getEmailSendDuration()));
         if (taskDTO.getFilterListDTO() != null &&
                 !taskDTO.getFilterListDTO().isEmpty()) {
             Set<AdFilter> adFilters = new HashSet<>();

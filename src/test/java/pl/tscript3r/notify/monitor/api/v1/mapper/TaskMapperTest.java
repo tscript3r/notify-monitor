@@ -5,6 +5,8 @@ import org.junit.Test;
 import pl.tscript3r.notify.monitor.api.v1.model.TaskDTO;
 import pl.tscript3r.notify.monitor.domain.Task;
 
+import java.time.Duration;
+
 import static org.junit.Assert.assertEquals;
 
 public class TaskMapperTest {
@@ -20,6 +22,7 @@ public class TaskMapperTest {
                 .url(URL)
                 .usersId(Sets.newHashSet(USER_ID))
                 .refreshInterval(120)
+                .emailSendDuration(Duration.ofHours(1))
                 .build();
         TaskDTO taskDTOResult = taskMapper.taskToTaskDTO(task);
 
@@ -30,7 +33,7 @@ public class TaskMapperTest {
 
     @Test
     public void taskDTOToTask() {
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, 120, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, 120, 3600, null);
         Task taskResult = taskMapper.taskDTOToTask(taskDTO);
 
         assertEquals(taskDTO.getRefreshInterval(), taskResult.getRefreshInterval());

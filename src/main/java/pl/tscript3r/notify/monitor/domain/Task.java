@@ -3,6 +3,7 @@ package pl.tscript3r.notify.monitor.domain;
 import lombok.*;
 import pl.tscript3r.notify.monitor.filters.AdFilter;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +26,10 @@ public class Task extends BaseEntity {
 
     @Getter
     @Setter
+    private Duration emailSendDuration;
+
+    @Getter
+    @Setter
     private Float adContainerMultiplier;
 
     @Getter
@@ -34,12 +39,14 @@ public class Task extends BaseEntity {
     private Long lastRefreshTime = 0L;
 
     @Builder
-    public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Float adContainerMultiplier) {
+    public Task(Long id, Set<Long> usersId, String url, Integer refreshInterval, Float adContainerMultiplier,
+                Duration emailSendDuration) {
         super(id);
         this.usersId = usersId;
         this.url = url;
         this.refreshInterval = refreshInterval;
         this.adContainerMultiplier = adContainerMultiplier;
+        this.emailSendDuration = emailSendDuration;
     }
 
     public Boolean isRefreshable() {

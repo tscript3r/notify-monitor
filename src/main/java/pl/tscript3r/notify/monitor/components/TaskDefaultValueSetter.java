@@ -15,16 +15,23 @@ public class TaskDefaultValueSetter implements Statusable {
     private final Status status = Status.create(this.getClass());
     private final Integer defaultRefreshInterval;
     private final Integer minimalInterval;
+    private final Integer defaultEmailDuration;
 
-    public TaskDefaultValueSetter(@Value("#{new Integer('${notify.monitor.task.defaultInterval}')}") Integer defaultRefreshInterval,
-                                  @Value("#{new Integer('${notify.monitor.task.minInterval}')}") Integer minimalInterval) {
+    public TaskDefaultValueSetter(@Value("#{new Integer('${notify.monitor.task.defaultInterval}')}")
+                                          Integer defaultRefreshInterval,
+                                  @Value("#{new Integer('${notify.monitor.task.minInterval}')}")
+                                          Integer minimalInterval,
+                                  @Value("#{new Integer('${notify.monitor.task.defaultEmailDuration}')}")
+                                          Integer defaultEmailDuration) {
         this.defaultRefreshInterval = defaultRefreshInterval;
         this.minimalInterval = minimalInterval;
+        this.defaultEmailDuration = defaultEmailDuration;
         status.initIntegerCounterValues(REFRESH_OVERRIDES_COUNT);
     }
 
     public void validateAndSetDefaults(TaskDTO task) {
         refreshInterval(task);
+        emailDuration(task);
     }
 
     private void refreshInterval(TaskDTO task) {
@@ -32,6 +39,13 @@ public class TaskDefaultValueSetter implements Statusable {
             status.incrementValue(REFRESH_OVERRIDES_COUNT);
             log.debug("Refresh interval has been overridden");
             task.setRefreshInterval(defaultRefreshInterval);
+        }
+    }
+
+    private void emailDuration(TaskDTO task) {
+        if (task.getEmailSendDuration() == null || task.getEmailSendDuration() < 60) {
+            log.debug("Email send duration has been overridden");
+            task.setEmailSendDuration(defaultEmailDuration);
         }
     }
 

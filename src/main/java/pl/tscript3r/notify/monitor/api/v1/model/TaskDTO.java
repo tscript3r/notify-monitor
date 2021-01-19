@@ -28,6 +28,9 @@ public class TaskDTO {
     @JsonProperty("refresh_interval")
     private Integer refreshInterval;
 
+    @JsonProperty("email_send_duration")
+    private Integer emailSendDuration;
+
     @Valid
     @JsonProperty("filters")
     private Set<AdFilterDTO> filterListDTO;

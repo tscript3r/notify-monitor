@@ -9,6 +9,7 @@ import pl.tscript3r.notify.monitor.domain.Task;
 import pl.tscript3r.notify.monitor.services.TaskService;
 import pl.tscript3r.notify.monitor.services.UserService;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,24 +48,25 @@ public class DataInitializer implements CommandLineRunner {
     private void addInitialTasks() {
         Set<Long> usersId = new HashSet<>();
         usersId.add(1L);
-        usersId.add(2L);
         usersId.forEach(id -> {
             UserDTO userDTO = new UserDTO();
             userDTO.setId(id);
-            userDTO.setEmail("random@mail.com");
+            userDTO.setEmail("random@random.com");
             userService.add(userDTO);
         });
         taskService.saveAll(Arrays.asList(
                 Task.builder()
-                        .refreshInterval(defaultInterval)
+                        .refreshInterval(300)
                         .adContainerMultiplier(adContainerMultiplier)
                         .usersId(usersId)
                         .url("https://www.olx.pl/oddam-za-darmo/")
+                        .emailSendDuration(Duration.ofSeconds(60))
                         .build(),
                 Task.builder()
-                        .refreshInterval(defaultInterval)
+                        .refreshInterval(300)
                         .adContainerMultiplier(adContainerMultiplier)
                         .usersId(usersId)
+                        .emailSendDuration(Duration.ofSeconds(60))
                         .url("https://www.olx.pl/elektronika/sprzet-dvd-blu-ray/")
                         .build()
         ));

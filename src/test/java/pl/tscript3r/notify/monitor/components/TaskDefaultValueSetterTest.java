@@ -14,19 +14,19 @@ public class TaskDefaultValueSetterTest {
 
     @Before
     public void setUp() {
-        taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60);
+        taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 3600);
     }
 
     @Test
     public void validateAndSetDefaultsNulls() {
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(1L), "https://www.olx.pl/", null, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(1L), "https://www.olx.pl/", null, 3600, null);
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         assertEquals(120, taskDTO.getRefreshInterval().intValue());
     }
 
     @Test
     public void validateAndSetDefaultsToLowValues() {
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(1L), "https://www.olx.pl/", 59, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(1L), "https://www.olx.pl/", 59, 3600, null);
         taskDefaultValueSetter.validateAndSetDefaults(taskDTO);
         assertEquals(120, taskDTO.getRefreshInterval().intValue());
     }

@@ -62,7 +62,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void getTaskById() throws Exception {
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, null, 3600, null);
         when(taskService.getTaskDTOById(anyLong())).thenReturn(taskDTO);
 
         mockMvc.perform(get(Paths.TASK_PATH + "/1")
@@ -76,7 +76,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void addTask() throws Exception {
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, 3600, null);
         when(taskService.saveDTO(any())).thenReturn(taskDTO);
         mockMvc.perform(post(Paths.TASK_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -89,7 +89,7 @@ public class TaskControllerTest extends AbstractRestControllerTest {
 
     @Test
     public void updateTask() throws Exception {
-        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, null);
+        TaskDTO taskDTO = new TaskDTO(1L, Sets.newHashSet(2L), URL, 120, 3600, null);
         when(taskService.update(anyLong(), any(TaskDTO.class))).thenReturn(taskDTO);
 
         mockMvc.perform(put(Paths.TASK_PATH + "/1")

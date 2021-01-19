@@ -18,6 +18,7 @@ import pl.tscript3r.notify.monitor.exceptions.TaskNotFoundException;
 import pl.tscript3r.notify.monitor.filters.AdFilterSimpleFactory;
 import pl.tscript3r.notify.monitor.filters.AdFilterType;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,10 +55,10 @@ public class TaskServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(crawlerFactory.isCompatible(anyString())).thenReturn(true);
-        TaskDefaultValueSetter taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60);
+        TaskDefaultValueSetter taskDefaultValueSetter = new TaskDefaultValueSetter(120, 60, 3600);
         taskService = new TaskServiceImpl(taskDefaultValueSetter, taskMapper, adFilterMapper,
                 crawlerFactory, taskDispatcher, adFilterService, 1.5F);
-        task = new Task(ID, Sets.newHashSet(1L), URL, 120, 1.5F);
+        task = new Task(ID, Sets.newHashSet(1L), URL, 120, 1.5F, Duration.ofHours(1));
         taskService.saveDTO(taskMapper.taskToTaskDTO(task));
     }
 
@@ -131,8 +132,8 @@ public class TaskServiceTest {
     @Test
     public void saveAll() {
         List<Task> tasks = Arrays.asList(
-                Task.builder().url(URL).usersId(Sets.newHashSet(ID)).build(),
-                Task.builder().url(URL_2).usersId(Sets.newHashSet(ID2)).build());
+                Task.builder().url(URL).usersId(Sets.newHashSet(ID)).emailSendDuration(Duration.ofHours(1)).build(),
+                Task.builder().url(URL_2).usersId(Sets.newHashSet(ID2)).emailSendDuration(Duration.ofHours(1)).build());
         taskService.saveAll(tasks);
         assertEquals(3, taskService.getAllAsDTO().size());
     }
@@ -145,7 +146,7 @@ public class TaskServiceTest {
 
     @Test
     public void addTaskWithoutTaskSettings() {
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), URL, null, 3600, null);
         assertNull(taskDTO.getRefreshInterval());
         TaskDTO returnedTaskDTO = taskService.saveDTO(taskDTO);
         assertNotNull(returnedTaskDTO.getRefreshInterval());
@@ -155,7 +156,7 @@ public class TaskServiceTest {
     @Test(expected = IncompatibleHostnameException.class)
     public void addTaskWithWrongURL() {
         when(crawlerFactory.isCompatible(anyString())).thenReturn(false);
-        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, null);
+        TaskDTO taskDTO = new TaskDTO(ID, Sets.newHashSet(USER_ID), "www.google.pl", 120, 3600, null);
         taskService.saveDTO(taskDTO);
     }
 
