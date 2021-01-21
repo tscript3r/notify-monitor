@@ -137,7 +137,7 @@ public class CrawlerMonitorThreadDriver implements MonitorThreadDriver {
 
     private void logSuppressedException(Exception e) {
         log.error("Following exception appeared: [{}: {}] - after cooldown time ({} sec) thread will resume",
-                e.getClass().getSimpleName(), e.getMessage(), cooldownTime, e);
+                e.getClass().getSimpleName(), e.getMessage(), cooldownTime);
     }
 
     private void testExecutionTime(long executionTime) {

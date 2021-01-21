@@ -9,6 +9,7 @@ import pl.tscript3r.notify.monitor.services.UserService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,7 +34,7 @@ public class EmailListCreator {
                             log.debug("Preparing email content for userId={}", userId);
                             lastSendEmail2User.put(userId, LocalDateTime.now());
                             String userEmail = userService.getEmailFromUserId(userId);
-                            emailList.add(userEmail, ads);
+                            emailList.add(userEmail, new HashSet<>(ads));
                             wasSend.set(true);
                         }
                     });

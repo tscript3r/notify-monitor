@@ -23,12 +23,17 @@ public class EmailList {
                 .filter(e -> e.canAdd(receiver))
                 .forEach(email -> email.addAds(ads));
         while (!ads.isEmpty()) {
-            if (!splitLogged) {
+            if (!splitLogged && multipleEmails(receiver)) {
                 log.debug("Splitting into multiple emails (content size reached) for receiver={}", receiver);
                 splitLogged = true;
             }
             emails.add(newEmail(receiver, ads));
         }
+    }
+
+    private Boolean multipleEmails(String receiver) {
+        return emails.stream()
+                .anyMatch(email -> email.getReceiver().equals(receiver));
     }
 
     private Email newEmail(String receiver, Collection<AdDTO> ads) {
